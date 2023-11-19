@@ -1,9 +1,11 @@
-package com.example.myapplication
+package com.example.myapplication.profile
 
 
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import com.example.myapplication.reposetory.LocalReposetoryHelper
+import com.example.myapplication.viewmodel.MyViewModel
 
 class MyViewModelFactory(private val localReposetoryHelper: LocalReposetoryHelper) : ViewModelProvider.Factory {
 

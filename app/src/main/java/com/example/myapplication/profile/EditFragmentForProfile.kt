@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.profile
 
 import android.os.Bundle
 import android.util.Log
@@ -6,9 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.LifecycleOwner
 import com.example.myapplication.databinding.FragmentEditForProfileBinding
+import com.example.myapplication.reposetory.LocalReposetoryHelper
+import com.example.myapplication.viewmodel.MyViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 

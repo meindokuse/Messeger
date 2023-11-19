@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.profile
 
 import android.os.Bundle
 import android.util.Log
@@ -7,10 +7,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.myapplication.elements.Event
+import com.example.myapplication.profile.rcview.EventListAdapter
 import com.example.myapplication.databinding.FragmentBlankBinding
+import com.example.myapplication.reposetory.LocalReposetoryHelper
+import com.example.myapplication.viewmodel.MyViewModel
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -28,7 +30,7 @@ class BlankFragment : Fragment() {
     val listtitle = arrayOf("Олимпиада"," Проект","Подготовка к экзамену","Спортивные соревнования")
     val desctittle = arrayOf("Очень трудная", "Ищу человека для совестной работы","Кто нибудь поможет разобрать одну тему?","21.11.23 г.Белгород")
     private lateinit var binding:FragmentBlankBinding
-    private lateinit var adapter:EventListAdapter
+    private lateinit var adapter: EventListAdapter
     private val DataModel: MyViewModel by activityViewModels{
         MyViewModelFactory(LocalReposetoryHelper(requireContext()))
     }

@@ -1,10 +1,12 @@
-package com.example.myapplication
+package com.example.myapplication.profile.rcview
 
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myapplication.elements.Event
+import com.example.myapplication.R
 import com.example.myapplication.databinding.EventItemBinding
 
 class EventListAdapter:RecyclerView.Adapter<EventListAdapter.EventHolder>() {

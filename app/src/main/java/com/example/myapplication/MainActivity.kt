@@ -3,7 +3,7 @@ package com.example.myapplication
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.example.myapplication.databinding.ActivityMainBinding
-import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.example.myapplication.profile.BlankFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,12 +20,12 @@ class MainActivity : AppCompatActivity() {
                 R.id.profile->
                     supportFragmentManager
                         .beginTransaction()
-                        .replace(R.id.placeholder,BlankFragment.newInstance())
+                        .replace(R.id.placeholder, BlankFragment.newInstance())
                         .commit()
                 R.id.chats->
                     supportFragmentManager
                         .beginTransaction()
-                        .replace(R.id.placeholder,BlankFragment.newInstance())
+                        .replace(R.id.placeholder, BlankFragment.newInstance())
                         .commit()
 
             }
@@ -43,7 +43,7 @@ class MainActivity : AppCompatActivity() {
         binding.BNV.menu.findItem(R.id.profile).isChecked=false
         supportFragmentManager
             .beginTransaction()
-            .replace(R.id.placeholder,BlankFragment.newInstance())
+            .replace(R.id.placeholder, BlankFragment.newInstance())
             .commit()
 
 

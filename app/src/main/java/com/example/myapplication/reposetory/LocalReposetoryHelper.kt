@@ -1,11 +1,12 @@
-package com.example.myapplication
+package com.example.myapplication.reposetory
 
 import android.content.Context
 import android.util.Log
+import com.example.myapplication.profile.ProfileInfo
 
 class LocalReposetoryHelper(context: Context) {
-    private val localReposetory:LocalReposetory = LocalReposetory(context)
-    fun getAllInfo():ProfileInfo{
+    private val localReposetory: LocalReposetory = LocalReposetory(context)
+    fun getAllInfo(): ProfileInfo {
         return localReposetory.getAll()
     }
 

@@ -1,10 +1,10 @@
-package com.example.myapplication
-import android.content.Context
+package com.example.myapplication.viewmodel
 import android.util.Log
-import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import com.example.myapplication.profile.ProfileInfo
+import com.example.myapplication.reposetory.LocalReposetoryHelper
 
 open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper):ViewModel() {
 

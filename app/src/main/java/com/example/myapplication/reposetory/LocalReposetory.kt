@@ -1,12 +1,16 @@
-package com.example.myapplication
+package com.example.myapplication.reposetory
 
 import android.content.ContentValues
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
+import com.example.myapplication.profile.ProfileInfo
 
-class LocalReposetory(context: Context):SQLiteOpenHelper(context,DATABASE_NAME,null,DATABASE_VERSION) {
+class LocalReposetory(context: Context):SQLiteOpenHelper(context,
+    DATABASE_NAME,null,
+    DATABASE_VERSION
+) {
 
 
     companion object{

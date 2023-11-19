@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".EditFragmentForProfile">
+    tools:context=".profile.EditFragmentForProfile">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -16,7 +16,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="25dp"
-            android:layout_marginTop="100dp"
+            android:layout_marginTop="45dp"
             android:layout_marginEnd="25dp"
             android:textColorHint="@color/white"
             app:boxBackgroundColor="@color/wow_color"
@@ -52,24 +52,35 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="25dp"
-            android:layout_marginTop="30dp"
+            android:layout_marginTop="50dp"
             android:layout_marginEnd="25dp"
-            android:textColorHint="@color/white">
+            android:textColorHint="@color/white"
+            app:boxStrokeColor="@color/wow_color"
+            app:boxStrokeErrorColor="@color/wow_color"
+            app:counterOverflowTextColor="@color/wow_color"
+            app:counterTextColor="@color/wow_color"
+            app:cursorColor="@color/white"
+            app:cursorErrorColor="@color/wow_color"
+            app:helperTextTextColor="@color/wow_color"
+            app:hintTextColor="@color/wow_color"
+            app:placeholderTextColor="@color/wow_color"
+            app:prefixTextColor="@color/wow_color"
+            app:suffixTextColor="@color/white">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/SecondNameEdit"
                 android:layout_width="match_parent"
                 android:layout_height="65dp"
                 android:layout_margin="10dp"
-                android:background="@drawable/rounded_bottom_sheet_dialog"
+                android:backgroundTint="@color/wow_color"
                 android:hint="Введите фамилию"
                 android:inputType="text|textPersonName"
                 android:paddingStart="10dp"
+                android:textColor="@color/white"
                 android:textColorHighlight="@color/black"
                 android:textColorHint="@color/black"
-                android:textColorLink="@color/white"
-                android:textSize="20sp"
-                android:textStyle="bold" />
+                android:textColorLink="@color/black"
+                android:textSize="20sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton

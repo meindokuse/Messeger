@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+    <color name="grey">#757272</color>
+    <color name="ultra_grey">#595757</color>
+
+
+    <color name="dark_blue">#082868</color>
+    <color name="lite_blue">#234993</color>
+    <color name="black2">#0F0F2C</color>
+    <color name="wow_color">#7272C3</color>
+    <color name="for_hint">#032735</color>
+
+
+</resources>

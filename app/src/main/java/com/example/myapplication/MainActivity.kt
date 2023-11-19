@@ -1,0 +1,51 @@
+package com.example.myapplication
+
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
+import com.example.myapplication.databinding.ActivityMainBinding
+import com.google.android.material.bottomnavigation.BottomNavigationView
+
+class MainActivity : AppCompatActivity() {
+
+
+    private lateinit var binding: ActivityMainBinding
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+        init()
+
+        binding.BNV.setOnNavigationItemSelectedListener {
+            when(it.itemId){
+                R.id.profile->
+                    supportFragmentManager
+                        .beginTransaction()
+                        .replace(R.id.placeholder,BlankFragment.newInstance())
+                        .commit()
+                R.id.chats->
+                    supportFragmentManager
+                        .beginTransaction()
+                        .replace(R.id.placeholder,BlankFragment.newInstance())
+                        .commit()
+
+            }
+            true
+        }
+
+
+
+
+    }
+    private fun init(){
+        supportActionBar?.title="Ваш Профиль"
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        binding.BNV.menu.findItem(R.id.profile).isChecked=false
+        supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.placeholder,BlankFragment.newInstance())
+            .commit()
+
+
+    }
+}

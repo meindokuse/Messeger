@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".EditFragmentForProfile">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@drawable/gradient_fon"
+        android:orientation="vertical">
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="100dp"
+            android:layout_marginEnd="25dp"
+            android:textColorHint="@color/white"
+            app:boxBackgroundColor="@color/wow_color"
+            app:boxStrokeColor="@color/wow_color"
+            app:boxStrokeErrorColor="@color/wow_color"
+            app:counterOverflowTextColor="@color/wow_color"
+            app:counterTextColor="@color/wow_color"
+            app:cursorColor="@color/white"
+            app:cursorErrorColor="@color/wow_color"
+            app:helperTextTextColor="@color/wow_color"
+            app:hintTextColor="@color/wow_color"
+            app:placeholderTextColor="@color/wow_color"
+            app:prefixTextColor="@color/wow_color"
+            app:suffixTextColor="@color/white">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/NameEdit"
+                android:layout_width="match_parent"
+                android:layout_height="65dp"
+                android:layout_margin="10dp"
+                android:backgroundTint="@color/wow_color"
+                android:hint="Введите имя"
+                android:inputType="text|textPersonName"
+                android:paddingStart="10dp"
+                android:textColor="@color/white"
+                android:textColorHighlight="@color/black"
+                android:textColorHint="@color/black"
+                android:textColorLink="@color/black"
+                android:textSize="20sp" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="25dp"
+            android:layout_marginTop="30dp"
+            android:layout_marginEnd="25dp"
+            android:textColorHint="@color/white">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/SecondNameEdit"
+                android:layout_width="match_parent"
+                android:layout_height="65dp"
+                android:layout_margin="10dp"
+                android:background="@drawable/rounded_bottom_sheet_dialog"
+                android:hint="Введите фамилию"
+                android:inputType="text|textPersonName"
+                android:paddingStart="10dp"
+                android:textColorHighlight="@color/black"
+                android:textColorHint="@color/black"
+                android:textColorLink="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/DoneButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_marginTop="20dp"
+            android:clickable="true"
+            android:onClick="onClickCommit"
+            android:src="@drawable/baseline_download_done_24"
+            app:backgroundTint="@color/black2" />
+
+    </LinearLayout>
+</FrameLayout>

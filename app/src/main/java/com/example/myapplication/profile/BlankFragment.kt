@@ -25,6 +25,7 @@ import com.example.myapplication.viewmodel.MyViewModel
  * create an instance of this fragment.
  */
 class BlankFragment : Fragment() {
+    var a = "new dialog"
 
     val editFragmentForProfile = EditFragmentForProfile()
     val listtitle = arrayOf("Олимпиада"," Проект","Подготовка к экзамену","Спортивные соревнования")

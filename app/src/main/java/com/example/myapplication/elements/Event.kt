@@ -1,5 +1,5 @@
 package com.example.myapplication.elements
 
-data class Event(val title: String,val desc:String){
+data class Event(val ID:String,val title: String,val desc:String){
 
 }

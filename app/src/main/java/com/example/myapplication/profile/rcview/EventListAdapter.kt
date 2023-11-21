@@ -9,7 +9,7 @@ import com.example.myapplication.elements.Event
 import com.example.myapplication.R
 import com.example.myapplication.databinding.EventItemBinding
 
-class EventListAdapter:RecyclerView.Adapter<EventListAdapter.EventHolder>() {
+class EventListAdapter():RecyclerView.Adapter<EventListAdapter.EventHolder>() {
     val contentList = ArrayList<Event>()
     class EventHolder(item: View):RecyclerView.ViewHolder(item){
         val binding = EventItemBinding.bind(item)
@@ -29,7 +29,6 @@ class EventListAdapter:RecyclerView.Adapter<EventListAdapter.EventHolder>() {
 
     override fun getItemCount(): Int {
         return contentList.size
-        notifyDataSetChanged()
 
     }
 
@@ -37,9 +36,13 @@ class EventListAdapter:RecyclerView.Adapter<EventListAdapter.EventHolder>() {
         Log.d("MyLog","onBind")
         holder.bind(contentList[position])
     }
-    fun addEvent(event: Event){
+    fun addEvent(DataEventModel:Event){
         Log.d("MyLog","addEvent")
-        contentList.add(event)
+        contentList.add(DataEventModel)
+        notifyDataSetChanged()
+    }
+    fun addListEvent(events: List<Event>){
+        contentList.addAll(events)
         notifyDataSetChanged()
     }
 }

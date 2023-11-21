@@ -13,9 +13,9 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 
 class EditFragmentForProfile :  BottomSheetDialogFragment() {
-//    var profile = ProfileInfo("Ромн","Самофалов","ОГБОУ СОЩ 3","Строитель","17","11 А")
+    var profile = ProfileInfo("Ромн","Самофалов","ОГБОУ СОЩ 3","Строитель","17","11 А")
     lateinit var binding: FragmentEditForProfileBinding
-    private val DataModel: MyViewModel by activityViewModels{
+    val DataModel: MyViewModel by activityViewModels{
         MyViewModelFactory(LocalReposetoryHelper(requireContext()))
     }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -42,15 +42,10 @@ class EditFragmentForProfile :  BottomSheetDialogFragment() {
                 val Name = binding.NameEdit.text.toString()
                 val Familia = binding.SecondNameEdit.text.toString()
                 Log.d("MyLog","Полная Обработка")
-//                DataModel.FirstName.value = Name
-//                DataModel.SecondName.value = Familia
-////                DataModel.addUser(profile)
-//                DataModel.FirstName.observe(activity as LifecycleOwner){
-//                    val Aka = it
-//                    Log.d("MyLog","${Aka}")
-//                    Log.d("MyLog","${DataModel.userProfile.value}")
-//                }
-                DataModel.uppdateProfile(Name,Familia)
+
+                DataModel.addUser(profile)
+
+//                DataModel.uppdateProfile(Name,Familia)
                 dismiss()
             }
         }

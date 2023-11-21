@@ -11,6 +11,8 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.elements.Event
 import com.example.myapplication.profile.rcview.EventListAdapter
 import com.example.myapplication.databinding.FragmentBlankBinding
+import com.example.myapplication.profile.rcview.ItemListener
+import com.example.myapplication.reposetory.LocalReposetory
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import com.example.myapplication.viewmodel.MyViewModel
 
@@ -25,8 +27,8 @@ import com.example.myapplication.viewmodel.MyViewModel
  * create an instance of this fragment.
  */
 class BlankFragment : Fragment() {
-    var a = "new dialog"
 
+    val fragmentForEditEvents = FragmentForEditEvents()
     val editFragmentForProfile = EditFragmentForProfile()
     val listtitle = arrayOf("Олимпиада"," Проект","Подготовка к экзамену","Спортивные соревнования")
     val desctittle = arrayOf("Очень трудная", "Ищу человека для совестной работы","Кто нибудь поможет разобрать одну тему?","21.11.23 г.Белгород")
@@ -49,19 +51,26 @@ class BlankFragment : Fragment() {
         binding.EditProfileButton.setOnClickListener {
             editFragmentForProfile.show(childFragmentManager,  editFragmentForProfile.tag)
         }
+        binding.EditNowAcivities.setOnClickListener {
+            fragmentForEditEvents.show(childFragmentManager,fragmentForEditEvents.tag)
+        }
+
         adapter = EventListAdapter()
         binding.RcView.layoutManager = LinearLayoutManager(activity)
         binding.RcView.adapter = adapter
-        for (i in 0..<listtitle.size){
-            val event = Event(listtitle[i],desctittle[i])
-            adapter.addEvent(event)
-            Log.d("MyLog","EventInCycle")
+//        for (i in 0..<listtitle.size){
+//            val event = Event(listtitle[i],desctittle[i])
+//            adapter.addEvent(event)
+//            Log.d("MyLog","EventInCycle")
+//
+//        }
 
-        }
 
 
     }
     private fun init() {
+
+
         Log.d("MyLog", "Load Init")
         DataModel.userProfile.observe(viewLifecycleOwner) {
             Log.d("MyLog", "Changed $it")
@@ -74,9 +83,10 @@ class BlankFragment : Fragment() {
             binding.ClassText.text = it.targetClass
 
         }
-//        DataModel.FirstName.observe(viewLifecycleOwner){
-//            binding.FirstNameText.text = it
-//        }
+        DataModel.userEvents.observe(viewLifecycleOwner){
+            if(it != null ) adapter.addListEvent(it)
+        }
+
     }
     companion object {
 

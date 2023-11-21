@@ -2,4 +2,12 @@
     <string name="app_name">My Application</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="text_for_edit_events">Новые идеи или достижения, ура!</string>
+    <string-array name="varinats_for_events">
+        <item>Спортивное мероприятие</item>
+        <item>Олимпиада</item>
+        <item>Проект</item>
+        <item>Домашнее задание или уроки</item>
+    </string-array>
+
 </resources>

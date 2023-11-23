@@ -15,7 +15,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
 
 
     companion object{
-        private const val DATABASE_VERSION = 3
+        private const val DATABASE_VERSION = 4
         private const val DATABASE_NAME = "LocalReposeroty.db"
 
         private const val TABLE_NAME = "profile"
@@ -43,9 +43,9 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
 
 
     override fun onCreate(db: SQLiteDatabase?) {
-        val createTable = "CREATE TABLE $TABLE_NAME ($KEY_ID TEXT,$KEY_FIRSTNAME TEXT,$KEY_SECONDNAME TEXT,$KEY_SCHOOL TEXT,$KEY_CITY TEXT,$KEY_AGE TEXT,$KEY_TARGET_CLASS TEXT)"
+        val createTable = "CREATE TABLE $TABLE_NAME ($KEY_ID INTEGER PRIMARY KEY,$KEY_FIRSTNAME TEXT,$KEY_SECONDNAME TEXT,$KEY_SCHOOL TEXT,$KEY_CITY TEXT,$KEY_AGE TEXT,$KEY_TARGET_CLASS TEXT)"
         db?.execSQL(createTable)
-        val createTablePosts = "CREATE TABLE $TABLE_NAME_POSTS($KEY_ID_POST INTEGER PRIMARY KEY," +
+        val createTablePosts = "CREATE TABLE $TABLE_NAME_POSTS($KEY_ID_POST TEXT," +
                 "$KEY_TITLE TEXT,$KEY_DESCRIPTION TEXT,$KEY_ID_PROFILE_FK INTEGER," +
                 "FOREIGN KEY($KEY_ID_PROFILE_FK) REFERENCES $TABLE_NAME($KEY_ID))"
         db?.execSQL(createTablePosts)
@@ -53,8 +53,8 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME_POSTS")
         onCreate(db)
-
     }
 
     fun addOrChangeProfile(profileInfo: ProfileInfo){
@@ -114,6 +114,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
     }
     // методы для таблицы постов снизу
     fun addEvent(event: Event,profileID:Long){
+        Log.d("MyLog","ЗАВАРУШКА В БД")
         val db  = this.writableDatabase
         val values = ContentValues().apply {
             put(KEY_ID_POST,event.ID)

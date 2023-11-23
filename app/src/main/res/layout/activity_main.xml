@@ -11,7 +11,7 @@
         android:layout_width="0dp"
         android:layout_height="65dp"
         android:background="@color/black"
-        app:itemIconTint="@color/grey"
+        app:itemIconTint="@drawable/custom_selector"
         app:itemTextColor="@color/grey"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"

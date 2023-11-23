@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import androidx.core.content.ContextCompat
+import androidx.core.view.isEmpty
 import androidx.fragment.app.activityViewModels
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentForEditEventsBinding
@@ -28,6 +29,7 @@ import java.util.UUID
  * create an instance of this fragment.
  */
 class FragmentForEditEvents : BottomSheetDialogFragment() {
+    var selectedValue = ""
 
     val DataModel: MyViewModel by activityViewModels{
         MyViewModelFactory(LocalReposetoryHelper(requireContext()))
@@ -48,24 +50,29 @@ class FragmentForEditEvents : BottomSheetDialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        binding.VariantsForEvents.setTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-        binding.VariantsForEvents.setHintTextColor(ContextCompat.getColor(requireContext(), R.color.white))
-        binding.VariantsForEvents.threshold = 1
-        adapter = ArrayAdapter.createFromResource(requireContext(),R.array.varinats_for_events,android.R.layout.simple_dropdown_item_1line)
+
+        adapter = ArrayAdapter.createFromResource(requireContext(),R.array.varinats_for_events,android.R.layout.simple_spinner_item)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.VariantsForEvents.setAdapter(adapter)
-        binding.VariantsForEvents.setOnItemClickListener(AdapterView.OnItemClickListener { parent, view, position, id ->
-            val selectedItem = parent.getItemAtPosition(position) as String
-            binding.VariantsForEvents.setText(selectedItem)
-        })
+
+        binding.VariantsForEvents.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                selectedValue = parent?.getItemAtPosition(position).toString()
+            }
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+        }
+
 
         binding.doneButton.setOnClickListener {
             Log.d("MyLog","${DataModel.userEvents.value}")
             if(!Empty()){
-                val title = binding.VariantsForEvents.text.toString()
+
                 val desc = binding.DescriptionForEvent.text.toString()
                 val uniqueKey = UUID.randomUUID().toString()
-                val event = Event(uniqueKey,title,desc)
+                val event = Event(uniqueKey,selectedValue,desc)
                 DataModel.addEventToReposetory(event,1)
+
                 dismiss()
             }
 
@@ -81,15 +88,12 @@ class FragmentForEditEvents : BottomSheetDialogFragment() {
     }
     fun Empty() : Boolean {
         binding.apply {
-            if(VariantsForEvents.text.isNullOrEmpty()) {
-                VariantsForEvents.error = "Заполните поле"
-                Log.d("MyLog", "VariantsForEvents is empty")
-            }
+
             if(DescriptionForEvent.text.isNullOrEmpty()) {
                 DescriptionForEvent.error = "Заполните поле"
                 Log.d("MyLog", "DescriptionForEvent is empty")
             }
-            return VariantsForEvents.text.isNullOrEmpty() || DescriptionForEvent.text.isNullOrEmpty()
+            return  DescriptionForEvent.text.isNullOrEmpty()
         }
     }
 

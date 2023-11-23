@@ -12,38 +12,6 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/TitleText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="50dp"
-            android:gravity="center"
-            android:text="@string/text_for_edit_events"
-            android:textColor="@color/dark_blue"
-            android:textSize="20sp"
-            android:textStyle="bold" />
-
-        <AutoCompleteTextView
-            android:id="@+id/VariantsForEvents"
-            android:layout_width="match_parent"
-            android:layout_height="74dp"
-            android:layout_margin="10dp"
-            android:hint="Тип активности"
-            />
-
-        <EditText
-            android:id="@+id/DescriptionForEvent"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:layout_margin="10dp"
-            android:background="@android:color/transparent"
-            android:ems="10"
-            android:gravity="start|top"
-            android:hint="Добавьте описание..."
-            android:inputType="textMultiLine"
-            android:textColor="@color/white"
-            android:textColorHint="@color/white" />
-
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/doneButton"
             android:layout_width="match_parent"
@@ -55,5 +23,38 @@
             android:src="@drawable/baseline_download_done_24"
             app:backgroundTint="@color/black2" />
 
+        <TextView
+            android:id="@+id/TitleText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="50dp"
+            android:gravity="center"
+            android:text="@string/text_for_edit_events"
+            android:textColor="@color/dark_blue"
+            android:textSize="20sp"
+            android:textStyle="bold" />
+
+        <Spinner
+            android:id="@+id/VariantsForEvents"
+            style="@style/MySpinnerStyle"
+            android:layout_width="match_parent"
+            android:layout_height="41dp"
+            android:layout_margin="10dp"
+            android:backgroundTint="@color/white" />
+
+        <EditText
+            android:id="@+id/DescriptionForEvent"
+            android:layout_width="match_parent"
+            android:layout_height="400dp"
+            android:layout_margin="10dp"
+            android:background="@android:color/transparent"
+            android:ems="10"
+            android:gravity="start|top"
+            android:hint="Добавьте описание..."
+            android:inputType="textMultiLine"
+            android:textColor="@color/white"
+            android:textColorHint="@color/white" />
+
     </LinearLayout>
+
 </FrameLayout>

@@ -6,7 +6,9 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.elements.Event
 import com.example.myapplication.profile.rcview.EventListAdapter
@@ -27,13 +29,14 @@ import com.example.myapplication.viewmodel.MyViewModel
  * create an instance of this fragment.
  */
 class BlankFragment : Fragment() {
+    var EditEventTime = false
 
     val fragmentForEditEvents = FragmentForEditEvents()
     val editFragmentForProfile = EditFragmentForProfile()
     val listtitle = arrayOf("Олимпиада"," Проект","Подготовка к экзамену","Спортивные соревнования")
     val desctittle = arrayOf("Очень трудная", "Ищу человека для совестной работы","Кто нибудь поможет разобрать одну тему?","21.11.23 г.Белгород")
     private lateinit var binding:FragmentBlankBinding
-    private lateinit var adapter: EventListAdapter
+    lateinit var adapter: EventListAdapter
     private val DataModel: MyViewModel by activityViewModels{
         MyViewModelFactory(LocalReposetoryHelper(requireContext()))
     }
@@ -47,29 +50,35 @@ class BlankFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        adapter = EventListAdapter(object: ItemListener{
+            override fun onClick(position: Int) {
+                val event = adapter.contentList[position]
+                DataModel.DeleteEvent(event,1)
+                adapter.removeItem(position)
+            }
+        })
+
+        binding.RcView.layoutManager = LinearLayoutManager(activity)
+        binding.RcView.adapter = adapter
+
         init()
+
         binding.EditProfileButton.setOnClickListener {
             editFragmentForProfile.show(childFragmentManager,  editFragmentForProfile.tag)
         }
         binding.EditNowAcivities.setOnClickListener {
             fragmentForEditEvents.show(childFragmentManager,fragmentForEditEvents.tag)
+            EditEventTime = true
         }
-
-        adapter = EventListAdapter()
-        binding.RcView.layoutManager = LinearLayoutManager(activity)
-        binding.RcView.adapter = adapter
-//        for (i in 0..<listtitle.size){
-//            val event = Event(listtitle[i],desctittle[i])
-//            adapter.addEvent(event)
-//            Log.d("MyLog","EventInCycle")
-//
-//        }
 
 
 
     }
     private fun init() {
-
+        if(DataModel.userEvents.value != null) {
+            adapter.addListEvent(DataModel.userEvents.value!!)
+        }else
+            Toast.makeText(activity,"Постов пока что нету",Toast.LENGTH_SHORT).show()
 
         Log.d("MyLog", "Load Init")
         DataModel.userProfile.observe(viewLifecycleOwner) {
@@ -83,8 +92,10 @@ class BlankFragment : Fragment() {
             binding.ClassText.text = it.targetClass
 
         }
-        DataModel.userEvents.observe(viewLifecycleOwner){
-            if(it != null ) adapter.addListEvent(it)
+
+        DataModel.UserEventRightNow.observe(viewLifecycleOwner){
+            Log.d("MyLog","UserEventRightNow")
+            if(it != null && EditEventTime ) adapter.addEvent(it)
         }
 
     }

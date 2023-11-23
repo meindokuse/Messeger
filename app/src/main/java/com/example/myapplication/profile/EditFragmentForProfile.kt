@@ -1,5 +1,7 @@
 package com.example.myapplication.profile
 
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -27,7 +29,7 @@ class EditFragmentForProfile :  BottomSheetDialogFragment() {
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-//        dialog?.window?.setBackgroundDrawableResource(R.drawable.rounded_bottom_sheet_dialog)
+        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         binding = FragmentEditForProfileBinding.inflate(inflater)
         return binding.root
     }
@@ -35,6 +37,7 @@ class EditFragmentForProfile :  BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 //        Log.d("MyLog", "After - FirstName: ${DataModel.FirstName.value}, SecondName: ${DataModel.SecondName.value}")
         init()
+        dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
 
         binding.DoneButton.setOnClickListener{
             Log.d("MyLog","Чатичгая Обработка")
@@ -43,15 +46,17 @@ class EditFragmentForProfile :  BottomSheetDialogFragment() {
                 val Familia = binding.SecondNameEdit.text.toString()
                 Log.d("MyLog","Полная Обработка")
 
-                DataModel.addUser(profile)
+//                DataModel.addUser(profile)
 
-//                DataModel.uppdateProfile(Name,Familia)
+                DataModel.uppdateProfile(Name,Familia)
                 dismiss()
             }
         }
 
 
     }
+
+
 
     companion object {
         @JvmStatic

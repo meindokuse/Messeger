@@ -8,15 +8,22 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.elements.Event
 import com.example.myapplication.R
 import com.example.myapplication.databinding.EventItemBinding
+import com.example.myapplication.reposetory.LocalReposetoryHelper
 
-class EventListAdapter():RecyclerView.Adapter<EventListAdapter.EventHolder>() {
+class EventListAdapter(val itemListener: ItemListener):RecyclerView.Adapter<EventListAdapter.EventHolder>() {
     val contentList = ArrayList<Event>()
-    class EventHolder(item: View):RecyclerView.ViewHolder(item){
+
+    inner class EventHolder(item: View):RecyclerView.ViewHolder(item){
+
         val binding = EventItemBinding.bind(item)
+
         fun bind(event: Event) {
             Log.d("MyLog","bind")
             binding.title.text = "Тема: ${event.title}"
             binding.description.text = event.desc
+            binding.deleteButton.setOnClickListener {
+                 itemListener.onClick(adapterPosition)
+            }
 
         }
     }
@@ -35,6 +42,7 @@ class EventListAdapter():RecyclerView.Adapter<EventListAdapter.EventHolder>() {
     override fun onBindViewHolder(holder: EventHolder, position: Int) {
         Log.d("MyLog","onBind")
         holder.bind(contentList[position])
+
     }
     fun addEvent(DataEventModel:Event){
         Log.d("MyLog","addEvent")
@@ -43,6 +51,10 @@ class EventListAdapter():RecyclerView.Adapter<EventListAdapter.EventHolder>() {
     }
     fun addListEvent(events: List<Event>){
         contentList.addAll(events)
+        notifyDataSetChanged()
+    }
+    fun removeItem(position: Int){
+        contentList.removeAt(position)
         notifyDataSetChanged()
     }
 }

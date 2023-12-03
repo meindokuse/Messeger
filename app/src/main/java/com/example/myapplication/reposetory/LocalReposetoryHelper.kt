@@ -2,6 +2,7 @@ package com.example.myapplication.reposetory
 
 import android.content.Context
 import android.util.Log
+import com.example.myapplication.ItemChat
 import com.example.myapplication.elements.Event
 import com.example.myapplication.profile.ProfileInfo
 
@@ -25,11 +26,20 @@ class LocalReposetoryHelper(context: Context) {
         localReposetory.addEvent(event,profileID)
     }
     fun getAllEvents(profileID: Long): List<Event>{
-        return localReposetory.getAllEvents(profileID)
+        return localReposetory.getAllEvents(profileID).reversed()
     }
-    // heve to fun
     fun deleteAll(event: Event){
         localReposetory.deleteEvent(event)
+    }
+    // FOR CHATS
+    fun addChat(itemChat: ItemChat){
+        localReposetory.addChat(itemChat)
+    }
+    fun GetAllChats():List<ItemChat>{
+        return localReposetory.getListChats()
+    }
+    fun ChatDelete(itemChat: ItemChat){
+        localReposetory.removeChat(itemChat)
     }
 
 }

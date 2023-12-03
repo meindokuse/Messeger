@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
+import com.example.myapplication.ItemChat
 import com.example.myapplication.elements.Event
 import com.example.myapplication.profile.ProfileInfo
 
@@ -15,7 +16,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
 
 
     companion object{
-        private const val DATABASE_VERSION = 4
+        private const val DATABASE_VERSION = 5
         private const val DATABASE_NAME = "LocalReposeroty.db"
 
         private const val TABLE_NAME = "profile"
@@ -35,9 +36,12 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
         private const val KEY_DESCRIPTION = "description"
         private const val KEY_ID_PROFILE_FK= "profile_id"
 
-
-
-
+        private const val TABLE_CHAT_LIST = "last_message"
+        private const val KEY_CHAT_ID = "id"
+        private const val KEY_AVATAR = "avatar"
+        private const val KEY_SENDER = "name"
+        private const val KEY_LAST_MES = "message"
+        private const val KEY_TIME = "time"
 
     }
 
@@ -49,11 +53,15 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
                 "$KEY_TITLE TEXT,$KEY_DESCRIPTION TEXT,$KEY_ID_PROFILE_FK INTEGER," +
                 "FOREIGN KEY($KEY_ID_PROFILE_FK) REFERENCES $TABLE_NAME($KEY_ID))"
         db?.execSQL(createTablePosts)
+        val createTableListChats = "CREATE TABLE $TABLE_CHAT_LIST($KEY_CHAT_ID TEXT, $KEY_AVATAR BLOB,$KEY_SENDER TEXT,$KEY_LAST_MES TEXT,$KEY_TIME INTEGER)"
+        db?.execSQL(createTableListChats)
+
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME_POSTS")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_CHAT_LIST")
         onCreate(db)
     }
 
@@ -127,7 +135,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
     }
     fun getAllEvents(profileID:Long):List<Event>{
         val eventList = ArrayList<Event>()
-        val db = this.writableDatabase
+        val db = this.readableDatabase
         val selectQuery = "SELECT * FROM $TABLE_NAME_POSTS WHERE $KEY_ID_PROFILE_FK = $profileID"
         val cursor = db.rawQuery(selectQuery,null)
         if(cursor.moveToFirst()){
@@ -149,6 +157,47 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
         db.delete(TABLE_NAME_POSTS, "$KEY_ID_POST=?", arrayOf(event.ID))
         db.close()
 
+    }
+
+    //МЕТОДЫ ДЛЯ СПИСКА ЧАТОВ
+    fun getListChats():List<ItemChat> {
+        val chatList = ArrayList<ItemChat>()
+        val db = this.readableDatabase
+        val selectQuery = "SELECT * FROM $TABLE_CHAT_LIST"
+        val cursor = db.rawQuery(selectQuery, null)
+        if(cursor.moveToFirst()){
+            do {
+                val itemChat = ItemChat(
+                    cursor.getString(cursor.getColumnIndex(KEY_CHAT_ID)),
+                    cursor.getBlob(cursor.getColumnIndex(KEY_AVATAR)),
+                    cursor.getString(cursor.getColumnIndex(KEY_SENDER)),
+                    cursor.getString(cursor.getColumnIndex(KEY_LAST_MES)),
+                    cursor.getLong(cursor.getColumnIndex(KEY_TIME))
+                )
+                chatList.add(itemChat)
+            }while (cursor.moveToNext())
+        }
+        cursor.close()
+        db.close()
+        return chatList
+    }
+    fun addChat(itemChat: ItemChat){
+        val db  = this.writableDatabase
+        val values = ContentValues().apply {
+            put(KEY_CHAT_ID,itemChat.IDchat)
+            put(KEY_SENDER,itemChat.whoWrite)
+            put(KEY_LAST_MES,itemChat.lastMes)
+            put(KEY_AVATAR,itemChat.foto)
+            put(KEY_TIME,itemChat.time)
+        }
+        db.insert(TABLE_CHAT_LIST,null,values)
+        db.close()
+
+    }
+    fun removeChat(itemChat: ItemChat){
+        val db = this.writableDatabase
+        db.delete(TABLE_CHAT_LIST,"$KEY_CHAT_ID=?", arrayOf(itemChat.IDchat))
+        db.close()
 
     }
 

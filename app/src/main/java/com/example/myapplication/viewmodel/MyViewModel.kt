@@ -60,10 +60,8 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
         updateUserEventsList(profileId)
     }
     init {
-
         updateUserProfile()
         updateUserEventsList(profileId)
-
     }
 
 

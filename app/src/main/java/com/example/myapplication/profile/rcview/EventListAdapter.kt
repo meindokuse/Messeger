@@ -47,6 +47,7 @@ class EventListAdapter(val itemListener: ItemListener):RecyclerView.Adapter<Even
     fun addEvent(DataEventModel:Event){
         Log.d("MyLog","addEvent")
         contentList.add(DataEventModel)
+        contentList.reverse()
         notifyDataSetChanged()
     }
     fun addListEvent(events: List<Event>){

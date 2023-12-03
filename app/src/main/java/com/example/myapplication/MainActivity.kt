@@ -17,16 +17,20 @@ class MainActivity : AppCompatActivity() {
 
         binding.BNV.setOnNavigationItemSelectedListener {
             when(it.itemId){
-                R.id.profile->
+                R.id.profile->{
                     supportFragmentManager
                         .beginTransaction()
                         .replace(R.id.placeholder, BlankFragment.newInstance())
                         .commit()
-                R.id.chats->
+                    supportActionBar?.title="Ваш Профиль"
+                }
+                R.id.chats->{
                     supportFragmentManager
                         .beginTransaction()
-                        .replace(R.id.placeholder, BlankFragment.newInstance())
+                        .replace(R.id.placeholder,listOfChatsFragment.newInstance())
                         .commit()
+                    supportActionBar?.title="Чаты"
+                }
 
             }
             true

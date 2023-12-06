@@ -37,12 +37,12 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
         private const val KEY_ID_PROFILE_FK= "profile_id"
 
         private const val TABLE_CHAT_LIST = "last_message"
+
         private const val KEY_CHAT_ID = "id"
         private const val KEY_AVATAR = "avatar"
         private const val KEY_SENDER = "name"
         private const val KEY_LAST_MES = "message"
         private const val KEY_TIME = "time"
-
     }
 
 
@@ -160,40 +160,52 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
     }
 
     //МЕТОДЫ ДЛЯ СПИСКА ЧАТОВ
-    fun getListChats():List<ItemChat> {
+    fun getListChats(): List<ItemChat> {
         val chatList = ArrayList<ItemChat>()
         val db = this.readableDatabase
-        val selectQuery = "SELECT * FROM $TABLE_CHAT_LIST"
-        val cursor = db.rawQuery(selectQuery, null)
-        if(cursor.moveToFirst()){
-            do {
-                val itemChat = ItemChat(
-                    cursor.getString(cursor.getColumnIndex(KEY_CHAT_ID)),
-                    cursor.getBlob(cursor.getColumnIndex(KEY_AVATAR)),
-                    cursor.getString(cursor.getColumnIndex(KEY_SENDER)),
-                    cursor.getString(cursor.getColumnIndex(KEY_LAST_MES)),
-                    cursor.getLong(cursor.getColumnIndex(KEY_TIME))
-                )
-                chatList.add(itemChat)
-            }while (cursor.moveToNext())
+
+        try {
+            val selectQuery = "SELECT * FROM $TABLE_CHAT_LIST"
+            val cursor = db.rawQuery(selectQuery, null)
+            cursor.use { // Заменен блок use для cursor
+                if (cursor.moveToFirst()) {
+                    do {
+                        val itemChat = ItemChat(
+                            cursor.getString(cursor.getColumnIndex(KEY_CHAT_ID)),
+                            cursor.getBlob(cursor.getColumnIndex(KEY_AVATAR)),
+                            cursor.getString(cursor.getColumnIndex(KEY_SENDER)),
+                            cursor.getString(cursor.getColumnIndex(KEY_LAST_MES)),
+                            cursor.getLong(cursor.getColumnIndex(KEY_TIME))
+                        )
+                        chatList.add(itemChat)
+                        Log.d("MyLog","Процесс получения новых данных")
+
+                    } while (cursor.moveToNext())
+                }
+            } // конец блока use для cursor
+        } finally {
+            db.close() // Всегда закрывайте базу данных в блоке finally
         }
-        cursor.close()
-        db.close()
+        Log.d("MyLog","Удачно получили стопку чатов")
         return chatList
     }
-    fun addChat(itemChat: ItemChat){
-        val db  = this.writableDatabase
-        val values = ContentValues().apply {
-            put(KEY_CHAT_ID,itemChat.IDchat)
-            put(KEY_SENDER,itemChat.whoWrite)
-            put(KEY_LAST_MES,itemChat.lastMes)
-            put(KEY_AVATAR,itemChat.foto)
-            put(KEY_TIME,itemChat.time)
+
+    fun addChat(itemChat: ItemChat) {
+        Log.d("MyLog","Добавление чатов в БД")
+        writableDatabase.use { db ->
+            val values = ContentValues().apply {
+                put(KEY_CHAT_ID, itemChat.IDchat)
+                put(KEY_SENDER, itemChat.whoWrite)
+                put(KEY_LAST_MES, itemChat.lastMes)
+                put(KEY_AVATAR, itemChat.foto)
+                put(KEY_TIME, itemChat.time)
+            }
+            db.insert(TABLE_CHAT_LIST, null, values)
         }
-        db.insert(TABLE_CHAT_LIST,null,values)
-        db.close()
+        Log.d("MyLog","Новые чаты в БД")
 
     }
+
     fun removeChat(itemChat: ItemChat){
         val db = this.writableDatabase
         db.delete(TABLE_CHAT_LIST,"$KEY_CHAT_ID=?", arrayOf(itemChat.IDchat))

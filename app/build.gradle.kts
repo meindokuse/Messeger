@@ -1,3 +1,6 @@
+import org.bouncycastle.asn1.iana.IANAObjectIdentifiers.experimental
+import org.gradle.internal.impldep.org.bouncycastle.asn1.iana.IANAObjectIdentifiers.experimental
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -38,15 +41,13 @@ android {
     }
 }
 
-dependencies {
 
+dependencies {
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.5")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.5")
-
     implementation ("com.github.bumptech.glide:glide:4.12.0")
     implementation ("com.github.bumptech.glide:compiler:4.12.0")
-
-
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.5.2")
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.fragment:fragment-ktx:1.6.2")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")

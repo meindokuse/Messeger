@@ -4,11 +4,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
-import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.myapplication.databinding.ItemChatBinding
-import com.example.myapplication.profile.rcview.EventListAdapter
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -46,6 +44,10 @@ class RvChats: RecyclerView.Adapter<RvChats.ChatHolder>() {
     }
     private fun getSelectedItems(): List<Int> {
         return ArrayList(selectionChats)
+    }
+
+    fun outGetSelectedChats():List<ItemChat>{
+        return listOfChats.filterIndexed{ index, _ -> isSelected(index) }
     }
 
 

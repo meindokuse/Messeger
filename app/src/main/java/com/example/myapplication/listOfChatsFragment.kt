@@ -16,10 +16,12 @@ import android.view.ViewConfiguration
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.ListOfChatsBinding
 import com.example.myapplication.reposetory.LocalReposetoryHelper
+import kotlinx.coroutines.launch
 import java.lang.Math.abs
 
 
@@ -175,13 +177,12 @@ class listOfChatsFragment : Fragment() {
                 override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
                     when (item?.itemId) {
                         R.id.menu_delete -> {
+                            mode?.title = "Удаление..."
+                            lifecycleScope.launch {
 
-                            adapter.outGetSelectedChats().forEach {
-                                ChatDataModel.deleteChat(it)
+                                ChatDataModel.deleteChat(adapter.outGetSelectedChats())
+                                actionMode?.finish()
                             }
-//                            adapter.deleteSelectionChats()
-                            ChatDataModel.updateChatList()
-                            actionMode?.finish()
                         }
                     }
                     return false

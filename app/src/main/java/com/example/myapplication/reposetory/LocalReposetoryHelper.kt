@@ -5,6 +5,8 @@ import android.util.Log
 import com.example.myapplication.ItemChat
 import com.example.myapplication.elements.Event
 import com.example.myapplication.profile.ProfileInfo
+import androidx.fragment.app.FragmentTransaction
+
 
 class LocalReposetoryHelper(context: Context) {
     private val localReposetory: LocalReposetory = LocalReposetory(context)
@@ -38,8 +40,15 @@ class LocalReposetoryHelper(context: Context) {
     fun GetAllChats():List<ItemChat>{
         return localReposetory.getListChats()
     }
-    fun ChatDelete(itemChat: ItemChat){
-        localReposetory.removeChat(itemChat)
+    fun ChatDelete(Chats:List<ItemChat>){
+        Chats.forEach {
+            localReposetory.removeChat(it)
+        }
+    }
+    fun AddNewChats(Chats:List<ItemChat>){
+        Chats.forEach{
+            localReposetory.addChat(it)
+        }
     }
 
 }

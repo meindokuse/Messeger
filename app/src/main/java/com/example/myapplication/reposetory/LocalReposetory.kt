@@ -16,7 +16,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
 
 
     companion object{
-        private const val DATABASE_VERSION = 5
+        private const val DATABASE_VERSION = 10
         private const val DATABASE_NAME = "LocalReposeroty.db"
 
         private const val TABLE_NAME = "profile"
@@ -28,6 +28,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
         private const val KEY_CITY = "city"
         private const val KEY_SCHOOL = "school"
         private const val KEY_TARGET_CLASS = "target_class"
+        private const val KEY_PROFILE_AVATAR = "profile_avatar"
 
         private const val TABLE_NAME_POSTS = "posts"
 
@@ -47,13 +48,13 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
 
 
     override fun onCreate(db: SQLiteDatabase?) {
-        val createTable = "CREATE TABLE $TABLE_NAME ($KEY_ID INTEGER PRIMARY KEY,$KEY_FIRSTNAME TEXT,$KEY_SECONDNAME TEXT,$KEY_SCHOOL TEXT,$KEY_CITY TEXT,$KEY_AGE TEXT,$KEY_TARGET_CLASS TEXT)"
+        val createTable = "CREATE TABLE $TABLE_NAME ($KEY_ID INTEGER PRIMARY KEY,$KEY_FIRSTNAME TEXT,$KEY_SECONDNAME TEXT,$KEY_SCHOOL TEXT,$KEY_CITY TEXT,$KEY_AGE TEXT,$KEY_TARGET_CLASS TEXT,$KEY_PROFILE_AVATAR TEXT)"
         db?.execSQL(createTable)
         val createTablePosts = "CREATE TABLE $TABLE_NAME_POSTS($KEY_ID_POST TEXT," +
                 "$KEY_TITLE TEXT,$KEY_DESCRIPTION TEXT,$KEY_ID_PROFILE_FK INTEGER," +
                 "FOREIGN KEY($KEY_ID_PROFILE_FK) REFERENCES $TABLE_NAME($KEY_ID))"
         db?.execSQL(createTablePosts)
-        val createTableListChats = "CREATE TABLE $TABLE_CHAT_LIST($KEY_CHAT_ID TEXT, $KEY_AVATAR BLOB,$KEY_SENDER TEXT,$KEY_LAST_MES TEXT,$KEY_TIME INTEGER)"
+        val createTableListChats = "CREATE TABLE $TABLE_CHAT_LIST($KEY_CHAT_ID TEXT, $KEY_AVATAR TEXT,$KEY_SENDER TEXT,$KEY_LAST_MES TEXT,$KEY_TIME INTEGER)"
         db?.execSQL(createTableListChats)
 
     }
@@ -74,6 +75,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
             put(KEY_CITY,profileInfo.city)
             put(KEY_SCHOOL,profileInfo.scholl)
             put(KEY_TARGET_CLASS,profileInfo.targetClass)
+            put(KEY_PROFILE_AVATAR,profileInfo.avatar)
         }
         db.insert(TABLE_NAME,null,values)
         Log.d("MyLog","В бд ")
@@ -95,11 +97,13 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
                 cursor.getString(cursor.getColumnIndex(KEY_SCHOOL)),
                 cursor.getString(cursor.getColumnIndex(KEY_CITY)),
                 cursor.getString(cursor.getColumnIndex(KEY_AGE)),
-                cursor.getString(cursor.getColumnIndex(KEY_TARGET_CLASS))
+                cursor.getString(cursor.getColumnIndex(KEY_TARGET_CLASS)),
+                cursor.getString(cursor.getColumnIndex(KEY_PROFILE_AVATAR)),
+
             )
         } else {
             // если курсор пуст, вернем объект с пустыми значениями
-            profileInfo = ProfileInfo("", "", "", "", "", "")
+            profileInfo = ProfileInfo("", "", "", "", "", "","")
         }
 
         cursor.close()
@@ -107,12 +111,12 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
         return profileInfo
     }
 
-    fun updateProfile(FirstName:String,SecondName:String){
+    fun updateProfile(FirstName:String,SecondName:String,avatar: String){
         val db = this.writableDatabase
         val values = ContentValues().apply {
             put(KEY_FIRSTNAME, FirstName)
             put(KEY_SECONDNAME, SecondName)
-
+            put(KEY_PROFILE_AVATAR,avatar)
         }
         val whereClause = "$KEY_ID = ?"
         val whereArgs = arrayOf("1")
@@ -172,7 +176,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
                     do {
                         val itemChat = ItemChat(
                             cursor.getString(cursor.getColumnIndex(KEY_CHAT_ID)),
-                            cursor.getBlob(cursor.getColumnIndex(KEY_AVATAR)),
+                            cursor.getString(cursor.getColumnIndex(KEY_AVATAR)),
                             cursor.getString(cursor.getColumnIndex(KEY_SENDER)),
                             cursor.getString(cursor.getColumnIndex(KEY_LAST_MES)),
                             cursor.getLong(cursor.getColumnIndex(KEY_TIME))

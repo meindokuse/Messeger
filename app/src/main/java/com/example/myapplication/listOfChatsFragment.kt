@@ -1,8 +1,12 @@
 package com.example.myapplication
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.Log
 import android.view.ActionMode
 import android.view.GestureDetector
@@ -14,15 +18,18 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.databinding.ListOfChatsBinding
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import kotlinx.coroutines.launch
 import java.lang.Math.abs
+import java.time.Duration
 
 
 class listOfChatsFragment : Fragment() {
@@ -30,9 +37,10 @@ class listOfChatsFragment : Fragment() {
     private lateinit var handler: Handler
     private var actionMode: ActionMode? = null
     private lateinit var gestureDetector: GestureDetector
+    private lateinit var controler: NavController
 
     val ChatDataModel: ViewModelForChats by activityViewModels {
-        ChatsViewModelFactory(LocalReposetoryHelper(requireContext()))
+        ChatsViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
     }
     val addNewchatFragment = AddNewChatFragment()
     lateinit var adapter: RvChats
@@ -46,6 +54,7 @@ class listOfChatsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        controler = findNavController()
         init()
         binding.FindNewChatButton.setOnClickListener {
             addNewchatFragment.show(childFragmentManager, addNewchatFragment.tag)
@@ -62,10 +71,13 @@ class listOfChatsFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     fun init() {
+        val activity = requireActivity() as AppCompatActivity
+        activity.supportActionBar?.title = "Чаты"
+        activity.supportActionBar?.setDisplayHomeAsUpEnabled(false)
         handler = Handler()
 
         adapter = RvChats()
-        binding.ListChats.layoutManager = LinearLayoutManager(activity)
+        binding.ListChats.layoutManager = LinearLayoutManager(requireContext())
         binding.ListChats.adapter = adapter
 
             // ПРИ НЕОБХОДИМОСТИ ВЕРНУТЬ
@@ -93,6 +105,7 @@ class listOfChatsFragment : Fragment() {
             private var startX = 0f
             private var startY = 0f
             private var isSelectionStarted = false
+            private var cancelChat = false
 
             override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
                 when (e.action) {
@@ -125,13 +138,33 @@ class listOfChatsFragment : Fragment() {
                     }
 
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                        cancelChat = false
+
                         handler.removeCallbacksAndMessages(null)
-                        if (!isSelectionStarted && actionMode !=null) {
+                        if (!isSelectionStarted && actionMode != null) {
                             val childView = rv.findChildViewUnder(startX, startY)
+
                             if (childView != null) {
                                 val position = rv.getChildLayoutPosition(childView)
                                 adapter.toggleSelection(position)
+
+                                if(adapter.getSelectedItems().isEmpty()){
+                                    actionMode?.finish()
+                                    cancelChat = true
+                                }
                             }
+                        }
+                        if(actionMode==null && !cancelChat){
+                            val childView = rv.findChildViewUnder(startX, startY)
+                            if (childView != null) {
+                                val position = rv.getChildLayoutPosition(childView)
+                                val chat = adapter.listOfChats[position]
+                                val name = chat.whoWrite
+                                controler.navigate(R.id.action_listOfChatsFragment_to_chat)
+                                activity.supportActionBar?.title = name
+
+                            }
+
                         }
                     }
                 }
@@ -154,6 +187,7 @@ class listOfChatsFragment : Fragment() {
     }
 
     fun startActionMode(view: View): ActionMode {
+        vibrate(requireContext(),500)
         binding.FindNewChatButton.animate()
             .translationXBy(binding.FindNewChatButton.width.toFloat())
             .alpha(0.0f)
@@ -207,5 +241,16 @@ class listOfChatsFragment : Fragment() {
         } else {
             actionMode!!
         }
+    }
+    private fun vibrate(context: Context,duration: Long){
+        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            val vibrationEffect = VibrationEffect.createOneShot(duration,VibrationEffect.DEFAULT_AMPLITUDE)
+            vibrator.vibrate(vibrationEffect)
+        }
+        else{
+            vibrator.vibrate(duration)
+        }
+
     }
 }

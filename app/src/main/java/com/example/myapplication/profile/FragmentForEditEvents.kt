@@ -32,7 +32,7 @@ class FragmentForEditEvents : BottomSheetDialogFragment() {
     var selectedValue = ""
 
     val DataModel: MyViewModel by activityViewModels{
-        MyViewModelFactory(LocalReposetoryHelper(requireContext()))
+        MyViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
     }
     private lateinit var binding: FragmentForEditEventsBinding
     private lateinit var adapter: ArrayAdapter<CharSequence>

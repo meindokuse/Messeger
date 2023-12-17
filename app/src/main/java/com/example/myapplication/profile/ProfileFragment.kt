@@ -8,13 +8,14 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.myapplication.elements.Event
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.bumptech.glide.request.RequestOptions
+import com.example.myapplication.R
 import com.example.myapplication.profile.rcview.EventListAdapter
 import com.example.myapplication.databinding.FragmentBlankBinding
 import com.example.myapplication.profile.rcview.ItemListener
-import com.example.myapplication.reposetory.LocalReposetory
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import com.example.myapplication.viewmodel.MyViewModel
 
@@ -25,10 +26,10 @@ import com.example.myapplication.viewmodel.MyViewModel
 
 /**
  * A simple [Fragment] subclass.
- * Use the [BlankFragment.newInstance] factory method to
+ * Use the [ProfileFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class BlankFragment : Fragment() {
+class ProfileFragment : Fragment() {
     var EditEventTime = false
 
     val fragmentForEditEvents = FragmentForEditEvents()
@@ -38,8 +39,7 @@ class BlankFragment : Fragment() {
     private lateinit var binding:FragmentBlankBinding
     lateinit var adapter: EventListAdapter
     private val DataModel: MyViewModel by activityViewModels{
-        MyViewModelFactory(LocalReposetoryHelper(requireContext()))
-    }
+        MyViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -60,6 +60,7 @@ class BlankFragment : Fragment() {
 
         binding.RcView.layoutManager = LinearLayoutManager(activity)
         binding.RcView.adapter = adapter
+        binding.RcView.isNestedScrollingEnabled = false
 
         init()
 
@@ -82,7 +83,13 @@ class BlankFragment : Fragment() {
 
         Log.d("MyLog", "Load Init")
         DataModel.userProfile.observe(viewLifecycleOwner) {
+
             Log.d("MyLog", "Changed $it")
+            Glide.with(binding.root.context)
+                .load(it.avatar)
+                .error(R.drawable.profile_foro)
+                .apply(RequestOptions.bitmapTransform(CircleCrop()))
+                .into(binding.AvatarImage)
 
             binding.FirstNameText.text = it.firstname
             binding.SecondNameText.text = it.secondname
@@ -102,19 +109,9 @@ class BlankFragment : Fragment() {
     companion object {
 
         @JvmStatic
-        fun newInstance() = BlankFragment()
+        fun newInstance() = ProfileFragment()
 
 
-    }
-
-    override fun onPause() {
-        super.onPause()
-        Log.d("MyLog","weqeweqeqweqq")
-    }
-
-    override fun onResume() {
-        super.onResume()
-        Log.d("MyLog","Reasawq")
     }
 
 

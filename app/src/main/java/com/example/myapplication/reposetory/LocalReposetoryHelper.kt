@@ -19,8 +19,8 @@ class LocalReposetoryHelper(context: Context) {
         Log.d("MyLog", "Updating user profile")
         localReposetory.addOrChangeProfile(profileInfo)
     }
-    fun updateProfile(FirstName:String,SecondName:String){
-        localReposetory.updateProfile(FirstName,SecondName)
+    fun updateProfile(FirstName:String,SecondName:String,avatar:String){
+        localReposetory.updateProfile(FirstName,SecondName,avatar)
     }
 
     // makes for RecyclerView ( events )
@@ -43,6 +43,7 @@ class LocalReposetoryHelper(context: Context) {
     fun ChatDelete(Chats:List<ItemChat>){
         Chats.forEach {
             localReposetory.removeChat(it)
+
         }
     }
     fun AddNewChats(Chats:List<ItemChat>){

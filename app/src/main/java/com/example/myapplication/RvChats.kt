@@ -6,6 +6,8 @@ import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.bumptech.glide.request.RequestOptions
 import com.example.myapplication.databinding.ItemChatBinding
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -42,15 +44,13 @@ class RvChats: RecyclerView.Adapter<RvChats.ChatHolder>() {
         clearSelection()
 
     }
-    private fun getSelectedItems(): List<Int> {
+    fun getSelectedItems(): List<Int> {
         return ArrayList(selectionChats)
     }
 
     fun outGetSelectedChats():List<ItemChat>{
         return listOfChats.filterIndexed{ index, _ -> isSelected(index) }
     }
-
-
 
     inner class ChatHolder(item: View):RecyclerView.ViewHolder(item){
         val binding = ItemChatBinding.bind(item)
@@ -61,6 +61,7 @@ class RvChats: RecyclerView.Adapter<RvChats.ChatHolder>() {
 
             Glide.with(binding.root.context)
                 .load(chat.foto)
+                .apply(RequestOptions.bitmapTransform(CircleCrop()))
                 .into(binding.FotoWhoWrite)
 
             val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())

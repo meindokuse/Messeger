@@ -24,7 +24,7 @@ class AddNewChatFragment : BottomSheetDialogFragment() {
     private var SelecteValue = 0
     private var listWhoGet = arrayListOf<String>()
     val ChatViewModel: ViewModelForChats by  activityViewModels{
-        ChatsViewModelFactory(LocalReposetoryHelper(requireContext()))
+        ChatsViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
     }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

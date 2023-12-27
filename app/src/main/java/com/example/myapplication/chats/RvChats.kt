@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.chats
 
 import android.view.LayoutInflater
 import android.view.View
@@ -8,7 +8,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
+import com.example.myapplication.R
 import com.example.myapplication.databinding.ItemChatBinding
+import com.example.myapplication.elements.ItemChat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -55,7 +57,7 @@ class RvChats: RecyclerView.Adapter<RvChats.ChatHolder>() {
     inner class ChatHolder(item: View):RecyclerView.ViewHolder(item){
         val binding = ItemChatBinding.bind(item)
 
-        fun bind(chat: ItemChat,position: Int){
+        fun bind(chat: ItemChat, position: Int){
             binding.NameWhoWtiteText.text=chat.whoWrite
             binding.LastMesText.text=chat.lastMes
 
@@ -69,7 +71,7 @@ class RvChats: RecyclerView.Adapter<RvChats.ChatHolder>() {
             binding.DataTimeText.text = formattedDate
 
             val backgroundColor = if(isSelected(position)){
-                ContextCompat.getColor(binding.root.context,R.color.grey_white)
+                ContextCompat.getColor(binding.root.context, R.color.grey_white)
 
             }else{
                 ContextCompat.getColor(binding.root.context,android.R.color.transparent)
@@ -84,7 +86,7 @@ class RvChats: RecyclerView.Adapter<RvChats.ChatHolder>() {
     override fun onCreateViewHolder(
         parent: ViewGroup,
         viewType: Int
-    ): RvChats.ChatHolder {
+    ): ChatHolder {
         val chat = LayoutInflater.from(parent.context).inflate(R.layout.item_chat,parent,false)
         return ChatHolder(chat)
     }
@@ -93,7 +95,7 @@ class RvChats: RecyclerView.Adapter<RvChats.ChatHolder>() {
         return listOfChats.size
     }
 
-    override fun onBindViewHolder(holder: RvChats.ChatHolder, position: Int) {
+    override fun onBindViewHolder(holder: ChatHolder, position: Int) {
         holder.bind(listOfChats[position],position)
 
     }

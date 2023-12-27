@@ -2,10 +2,9 @@ package com.example.myapplication.reposetory
 
 import android.content.Context
 import android.util.Log
-import com.example.myapplication.ItemChat
+import com.example.myapplication.elements.ItemChat
 import com.example.myapplication.elements.Event
-import com.example.myapplication.profile.ProfileInfo
-import androidx.fragment.app.FragmentTransaction
+import com.example.myapplication.elements.ProfileInfo
 
 
 class LocalReposetoryHelper(context: Context) {

@@ -5,12 +5,17 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CircleCrop
+import com.bumptech.glide.request.RequestOptions
 import com.example.myapplication.elements.Event
 import com.example.myapplication.R
 import com.example.myapplication.databinding.EventItemBinding
-import com.example.myapplication.reposetory.LocalReposetoryHelper
+import com.example.myapplication.databinding.UserForChooseBinding
+import com.example.myapplication.elements.UserForChoose
 
-class EventListAdapter(val itemListener: ItemListener):RecyclerView.Adapter<EventListAdapter.EventHolder>() {
+
+class EventListAdapter(val itemListener: ItemListener,):RecyclerView.Adapter<EventListAdapter.EventHolder>() {
     val contentList = ArrayList<Event>()
 
     inner class EventHolder(item: View):RecyclerView.ViewHolder(item){
@@ -24,6 +29,19 @@ class EventListAdapter(val itemListener: ItemListener):RecyclerView.Adapter<Even
             binding.deleteButton.setOnClickListener {
                  itemListener.onClick(adapterPosition)
             }
+
+        }
+    }
+    inner class UserForMessege(item: View):RecyclerView.ViewHolder(item){
+        val binding = UserForChooseBinding.bind(item)
+
+        fun bind(userForChoose: UserForChoose){
+            Glide.with(binding.root.context)
+                .load(userForChoose.foto)
+                .apply(RequestOptions.bitmapTransform(CircleCrop()))
+                .into(binding.avatarView)
+
+            binding.nickname.text = userForChoose.nickname
 
         }
     }

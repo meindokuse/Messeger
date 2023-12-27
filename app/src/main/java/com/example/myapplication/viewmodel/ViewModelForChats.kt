@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.viewmodel
 
 import android.app.Application
 import android.content.Context
@@ -7,16 +7,14 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myapplication.R
+import com.example.myapplication.elements.ItemChat
+import com.example.myapplication.elements.UserForChoose
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
 import java.io.FileOutputStream
 import java.lang.Exception
 import java.util.UUID
@@ -29,31 +27,37 @@ open class ViewModelForChats(private val localReposetoryHelper: LocalReposetoryH
         
         ListOfChats.value = localReposetoryHelper.GetAllChats()
     }
-     fun AddNewChat(IDchat:String,Foto:Bitmap,NameSender:String,LastMes:String,Date:Long){
+     fun AddNewChat(context: Context,listWhoGetMes:List<UserForChoose>,message:String){
 
         viewModelScope.launch(Dispatchers.IO) {
+            val bitmapFoto = BitmapFactory.decodeResource(context.resources,
+                listWhoGetMes[0].foto
+            )
+            val uniqueKey = UUID.randomUUID().toString()
+            val currentTime = System.currentTimeMillis()
             Log.d("MyLog","Отправка в БД нового чата")
-            val FotoChat = saveImageToInternalStorage(Foto,IDchat)
-            val itemChat = ItemChat(IDchat, FotoChat, NameSender, LastMes, Date)
+            val FotoChat = saveImageToInternalStorage(bitmapFoto,uniqueKey)
+            val itemChat = ItemChat(uniqueKey, FotoChat, listWhoGetMes[0].nickname, message, currentTime)
             localReposetoryHelper.addChat(itemChat)
 
             withContext(Dispatchers.Main){
                 updateChatList()
             }
-
         }
     }
 
-    fun AddChats(context: Context,listWhoGetMes:ArrayList<String>,message:String){
+    fun AddChats(context: Context,listWhoGetMes:List<UserForChoose>,message:String){
         val NewChatsList = ArrayList<ItemChat>()
 
         viewModelScope.launch(Dispatchers.IO) {
-            for (i in listWhoGetMes) {
-                val bitmapFoto = BitmapFactory.decodeResource(context.resources, R.drawable.profile_foro)
+            for (user in listWhoGetMes) {
+                val bitmapFoto = BitmapFactory.decodeResource(context.resources,
+                    user.foto
+                )
                 val uniqueKey = UUID.randomUUID().toString()
                 val currentTime = System.currentTimeMillis()
                 val FotoChat = saveImageToInternalStorage(bitmapFoto,uniqueKey)
-                NewChatsList.add(ItemChat(uniqueKey, FotoChat, i, message, currentTime))
+                NewChatsList.add(ItemChat(uniqueKey, FotoChat, user.nickname, message, currentTime))
 
             }
             Log.d("MyLog", "Отправка в БД нового чата")
@@ -90,6 +94,7 @@ open class ViewModelForChats(private val localReposetoryHelper: LocalReposetoryH
         }
         return context.getFileStreamPath("$fileName.jpg").absolutePath
     }
+
     private fun deleteImageFromInternalStorage(fileName:String){
          val context = getApplication<Application>()
         val file = context.getFileStreamPath("$fileName.jpg")

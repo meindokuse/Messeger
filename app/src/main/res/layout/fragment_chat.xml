@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:backgroundTint="@color/black"
-    tools:context=".ChatFragment">
+    tools:context=".chats.ChatFragment">
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -15,7 +15,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        tools:context=".ChatFragment">
+        tools:context=".chats.ChatFragment">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/RcViewMesseges"

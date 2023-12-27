@@ -10,7 +10,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.R
 import com.example.myapplication.elements.Event
-import com.example.myapplication.profile.ProfileInfo
+import com.example.myapplication.elements.ProfileInfo
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

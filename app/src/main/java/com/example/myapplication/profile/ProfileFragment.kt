@@ -13,8 +13,11 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.example.myapplication.R
+import com.example.myapplication.UniversalAdapter
+import com.example.myapplication.constanse
 import com.example.myapplication.profile.rcview.EventListAdapter
 import com.example.myapplication.databinding.FragmentBlankBinding
+import com.example.myapplication.elements.Event
 import com.example.myapplication.profile.rcview.ItemListener
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import com.example.myapplication.viewmodel.MyViewModel
@@ -34,10 +37,9 @@ class ProfileFragment : Fragment() {
 
     val fragmentForEditEvents = FragmentForEditEvents()
     val editFragmentForProfile = EditFragmentForProfile()
-    val listtitle = arrayOf("Олимпиада"," Проект","Подготовка к экзамену","Спортивные соревнования")
-    val desctittle = arrayOf("Очень трудная", "Ищу человека для совестной работы","Кто нибудь поможет разобрать одну тему?","21.11.23 г.Белгород")
+
     private lateinit var binding:FragmentBlankBinding
-    lateinit var adapter: EventListAdapter
+    lateinit var adapter: UniversalAdapter<Event>
     private val DataModel: MyViewModel by activityViewModels{
         MyViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)    }
     override fun onCreateView(
@@ -50,13 +52,13 @@ class ProfileFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        adapter = EventListAdapter(object: ItemListener{
+        adapter = UniversalAdapter(object: ItemListener{
             override fun onClick(position: Int) {
                 val event = adapter.contentList[position]
                 DataModel.DeleteEvent(event,1)
                 adapter.removeItem(position)
             }
-        })
+        },constanse.KEY_FOR_POSTS)
 
         binding.RcView.layoutManager = LinearLayoutManager(activity)
         binding.RcView.adapter = adapter
@@ -77,7 +79,7 @@ class ProfileFragment : Fragment() {
     }
     private fun init() {
         if(DataModel.userEvents.value != null) {
-            adapter.addListEvent(DataModel.userEvents.value!!)
+            adapter.addListData(DataModel.userEvents.value!!)
         }else
             Toast.makeText(activity,"Постов пока что нету",Toast.LENGTH_SHORT).show()
 
@@ -102,15 +104,13 @@ class ProfileFragment : Fragment() {
 
         DataModel.UserEventRightNow.observe(viewLifecycleOwner){
             Log.d("MyLog","UserEventRightNow")
-            if(it != null && EditEventTime ) adapter.addEvent(it)
+            if(it != null && EditEventTime ) adapter.addData(it)
         }
 
     }
     companion object {
-
         @JvmStatic
         fun newInstance() = ProfileFragment()
-
 
     }
 

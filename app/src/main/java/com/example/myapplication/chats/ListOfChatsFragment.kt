@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.chats
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -9,7 +9,6 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
 import android.view.ActionMode
-import android.view.GestureDetector
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.Menu
@@ -25,18 +24,18 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myapplication.R
 import com.example.myapplication.databinding.ListOfChatsBinding
 import com.example.myapplication.reposetory.LocalReposetoryHelper
+import com.example.myapplication.viewmodel.ViewModelForChats
 import kotlinx.coroutines.launch
 import java.lang.Math.abs
-import java.time.Duration
 
 
-class listOfChatsFragment : Fragment() {
+class ListOfChatsFragment : Fragment() {
     lateinit var binding: ListOfChatsBinding
     private lateinit var handler: Handler
     private var actionMode: ActionMode? = null
-    private lateinit var gestureDetector: GestureDetector
     private lateinit var controler: NavController
 
     val ChatDataModel: ViewModelForChats by activityViewModels {
@@ -63,9 +62,7 @@ class listOfChatsFragment : Fragment() {
 
     companion object {
 
-        @JvmStatic
-        fun newInstance() = listOfChatsFragment()
-        val LONG_CLICK_DURATION = 1200L
+        val LONG_CLICK_DURATION = 800L
 
     }
 
@@ -79,27 +76,6 @@ class listOfChatsFragment : Fragment() {
         adapter = RvChats()
         binding.ListChats.layoutManager = LinearLayoutManager(requireContext())
         binding.ListChats.adapter = adapter
-
-            // ПРИ НЕОБХОДИМОСТИ ВЕРНУТЬ
-
-//        var gestureDetector: GestureDetector? = null
-//        gestureDetector =
-//            GestureDetector(activity, object : GestureDetector.SimpleOnGestureListener() {
-//                override fun onLongPress(e: MotionEvent) {
-//                    val childView = binding.ListChats.findChildViewUnder(e.x, e.y)
-//                    if (childView != null) {
-//                        startActionMode(binding.ListChats)
-//                        val position = binding.ListChats.getChildLayoutPosition(childView)
-//                        adapter.toggleSelection(position)
-//
-//                    }
-//                }
-//            })
-//
-//        binding.ListChats.setOnTouchListener { _, event ->
-//            gestureDetector.onTouchEvent(event)
-//            false
-//        }
 
         binding.ListChats.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
             private var startX = 0f
@@ -187,7 +163,7 @@ class listOfChatsFragment : Fragment() {
     }
 
     fun startActionMode(view: View): ActionMode {
-        vibrate(requireContext(),500)
+        vibrate(requireContext(),100)
         binding.FindNewChatButton.animate()
             .translationXBy(binding.FindNewChatButton.width.toFloat())
             .alpha(0.0f)
@@ -232,8 +208,7 @@ class listOfChatsFragment : Fragment() {
 
                     binding.FindNewChatButton.animate()
                         .translationXBy(-binding.FindNewChatButton.width.toFloat()) // Перемещение влево на ширину кнопки
-                        .alpha(1.0f)
-                        .setDuration(500)
+                        .alpha(1.0f).duration = 500
 
                 }
             })
@@ -251,6 +226,5 @@ class listOfChatsFragment : Fragment() {
         else{
             vibrator.vibrate(duration)
         }
-
     }
 }

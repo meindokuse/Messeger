@@ -5,9 +5,9 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
-import com.example.myapplication.ItemChat
+import com.example.myapplication.elements.ItemChat
 import com.example.myapplication.elements.Event
-import com.example.myapplication.profile.ProfileInfo
+import com.example.myapplication.elements.ProfileInfo
 
 class LocalReposetory(context: Context):SQLiteOpenHelper(context,
     DATABASE_NAME,null,
@@ -199,7 +199,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
         writableDatabase.use { db ->
             val values = ContentValues().apply {
                 put(KEY_CHAT_ID, itemChat.IDchat)
-                put(KEY_SENDER, itemChat.whoWrite)
+                put(KEY_SENDER, itemChat.nickname)
                 put(KEY_LAST_MES, itemChat.lastMes)
                 put(KEY_AVATAR, itemChat.foto)
                 put(KEY_TIME, itemChat.time)

@@ -9,20 +9,26 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
+import com.example.myapplication.chats.MessageInChat
 import com.example.myapplication.databinding.EventItemBinding
+import com.example.myapplication.databinding.MessageBodyBinding
 import com.example.myapplication.databinding.UserForChooseBinding
 import com.example.myapplication.elements.Event
 import com.example.myapplication.elements.UserForChoose
 import com.example.myapplication.profile.rcview.ItemListener
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    val contentList = ArrayList<T>()
+    private val contentList = ArrayList<T>()
 
     companion object {
         const val EVENT_KEY = "event"
         const val USER_KEY = "user"
+        const val MESSAGE_KEY = "message"
     }
 
     val selectionChats = HashSet<Int>()
@@ -57,10 +63,10 @@ class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
     fun getSelectedItems(): List<Int> {
         return ArrayList(selectionChats)
     }
-
-    fun outGetSelectedChats():List<T>{
-        return contentList.filterIndexed{ index, _ -> isSelected(index) }
+    fun getAllItems():ArrayList<T>{
+        return contentList
     }
+
     inner class EventHolder(item: View):RecyclerView.ViewHolder(item){
 
         val binding = EventItemBinding.bind(item)
@@ -75,6 +81,7 @@ class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
 
         }
     }
+
     inner class UserForMessege(item: View):RecyclerView.ViewHolder(item){
         val binding = UserForChooseBinding.bind(item)
         val checkBox = binding.checkBox
@@ -117,6 +124,7 @@ class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
                     .inflate(R.layout.user_for_choose, parent, false)
                 UserForMessege(view)
             }
+
             else -> throw IllegalArgumentException("Unknown key: $key")
         }
     }
@@ -147,6 +155,14 @@ class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
 
     fun removeItem(position: Int) {
         contentList.removeAt(position)
+        notifyDataSetChanged()
+        notifyItemRemoved(position)
+    }
+
+    //FOR SEARCHING
+    fun updateList(newList: ArrayList<T>){
+        contentList.clear()
+        contentList.addAll(newList)
         notifyDataSetChanged()
     }
 }

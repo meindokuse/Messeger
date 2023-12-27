@@ -16,7 +16,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
 
 
     companion object{
-        private const val DATABASE_VERSION = 10
+        private const val DATABASE_VERSION = 11
         private const val DATABASE_NAME = "LocalReposeroty.db"
 
         private const val TABLE_NAME = "profile"
@@ -48,7 +48,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
 
 
     override fun onCreate(db: SQLiteDatabase?) {
-        val createTable = "CREATE TABLE $TABLE_NAME ($KEY_ID INTEGER PRIMARY KEY,$KEY_FIRSTNAME TEXT,$KEY_SECONDNAME TEXT,$KEY_SCHOOL TEXT,$KEY_CITY TEXT,$KEY_AGE TEXT,$KEY_TARGET_CLASS TEXT,$KEY_PROFILE_AVATAR TEXT)"
+        val createTable = "CREATE TABLE $TABLE_NAME ($KEY_ID TEXT,$KEY_FIRSTNAME TEXT,$KEY_SECONDNAME TEXT,$KEY_SCHOOL TEXT,$KEY_CITY TEXT,$KEY_AGE TEXT,$KEY_TARGET_CLASS TEXT,$KEY_PROFILE_AVATAR TEXT)"
         db?.execSQL(createTable)
         val createTablePosts = "CREATE TABLE $TABLE_NAME_POSTS($KEY_ID_POST TEXT," +
                 "$KEY_TITLE TEXT,$KEY_DESCRIPTION TEXT,$KEY_ID_PROFILE_FK INTEGER," +
@@ -65,10 +65,23 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_CHAT_LIST")
         onCreate(db)
     }
+    fun getUserId():String{
+        var userId = " "
+        val db = this.readableDatabase
+        val selectQuery = "SELECT $KEY_ID FROM $TABLE_NAME"
+        val cursor = db.rawQuery(selectQuery,null)
+        if (cursor.moveToFirst()){
+            userId = cursor.getString(cursor.getColumnIndex(KEY_ID))
+        }
+        cursor.close()
+        db.close()
+        return userId
+    }
 
     fun addOrChangeProfile(profileInfo: ProfileInfo){
         val db  = this.writableDatabase
         val values = ContentValues().apply {
+            put(KEY_ID,profileInfo.idUser)
             put(KEY_FIRSTNAME,profileInfo.firstname)
             put(KEY_SECONDNAME,profileInfo.secondname)
             put(KEY_AGE,profileInfo.age)
@@ -92,6 +105,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
 
         if (cursor.moveToFirst()) {
             profileInfo = ProfileInfo(
+                cursor.getString(cursor.getColumnIndex(KEY_ID)),
                 cursor.getString(cursor.getColumnIndex(KEY_FIRSTNAME)),
                 cursor.getString(cursor.getColumnIndex(KEY_SECONDNAME)),
                 cursor.getString(cursor.getColumnIndex(KEY_SCHOOL)),
@@ -103,7 +117,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
             )
         } else {
             // если курсор пуст, вернем объект с пустыми значениями
-            profileInfo = ProfileInfo("", "", "", "", "", "","")
+            profileInfo = ProfileInfo("", "", "", "", "", "","","")
         }
 
         cursor.close()
@@ -111,7 +125,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
         return profileInfo
     }
 
-    fun updateProfile(FirstName:String,SecondName:String,avatar: String){
+    fun updateProfile(id:String,FirstName:String,SecondName:String,avatar: String){
         val db = this.writableDatabase
         val values = ContentValues().apply {
             put(KEY_FIRSTNAME, FirstName)
@@ -119,7 +133,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
             put(KEY_PROFILE_AVATAR,avatar)
         }
         val whereClause = "$KEY_ID = ?"
-        val whereArgs = arrayOf("1")
+        val whereArgs = arrayOf(id)
         db.update(TABLE_NAME,values,whereClause,whereArgs)
         db.close()
 
@@ -175,6 +189,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
                 if (cursor.moveToFirst()) {
                     do {
                         val itemChat = ItemChat(
+
                             cursor.getString(cursor.getColumnIndex(KEY_CHAT_ID)),
                             cursor.getString(cursor.getColumnIndex(KEY_AVATAR)),
                             cursor.getString(cursor.getColumnIndex(KEY_SENDER)),

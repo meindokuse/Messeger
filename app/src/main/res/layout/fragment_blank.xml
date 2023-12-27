@@ -17,7 +17,7 @@
         android:foregroundTint="@color/black"
         android:src="@drawable/baseline_mode_24"
         android:tint="@color/black"
-        app:backgroundTint="@color/ultra_grey"
+        app:backgroundTint="#787776"
         app:rippleColor="@color/black" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -104,7 +104,8 @@
                     android:layout_height="wrap_content"
                     android:layout_gravity="top"
                     android:layout_margin="5dp"
-                    app:cardBackgroundColor="@color/grey">
+                    android:background="@drawable/fon_for_chats"
+                    app:cardBackgroundColor="#777472">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -177,14 +178,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_margin="5dp"
-                    app:cardBackgroundColor="@color/ultra_grey"
+                    app:cardBackgroundColor="#4E4E4E"
                     app:cardCornerRadius="5dp">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
                         android:layout_margin="5dp"
-                        android:background="@color/ultra_grey"
                         android:orientation="vertical">
 
                         <TextView

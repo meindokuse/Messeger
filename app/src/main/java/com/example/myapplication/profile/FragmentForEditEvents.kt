@@ -51,6 +51,7 @@ class FragmentForEditEvents : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
 
+
         adapter = ArrayAdapter.createFromResource(requireContext(),R.array.varinats_for_events,android.R.layout.simple_spinner_item)
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.VariantsForEvents.setAdapter(adapter)

@@ -2,17 +2,27 @@ package com.example.myapplication
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
+import androidx.activity.viewModels
+import androidx.core.os.bundleOf
 import androidx.navigation.Navigation
 import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
+import com.example.myapplication.chats.ListOfChatsFragment
 import com.example.myapplication.databinding.ActivityMainBinding
 import com.example.myapplication.profile.ProfileFragment
+import com.example.myapplication.reposetory.LocalReposetoryHelper
 
 class MainActivity : AppCompatActivity() {
 
 
     private lateinit var binding: ActivityMainBinding
+    var globalUserId = ""
+
+    val globalData: SharedViewModel by viewModels{
+        SharedViewModelFactory(LocalReposetoryHelper(this))
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -32,7 +42,8 @@ class MainActivity : AppCompatActivity() {
                     supportActionBar?.title="Ваш Профиль"
                 }
                 R.id.chats->{
-                    controller.navigate(R.id.listOfChatsFragment)
+                    controller.navigate(R.id.listOfChatsFragment,
+                    )
                     supportActionBar?.title="Чаты"
                 }
 
@@ -57,6 +68,7 @@ class MainActivity : AppCompatActivity() {
 
     }
     private fun init(){
+
         supportActionBar?.title="Ваш Профиль"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -68,4 +80,8 @@ class MainActivity : AppCompatActivity() {
 
 
     }
+
 }
+
+
+

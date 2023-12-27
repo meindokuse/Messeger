@@ -33,6 +33,7 @@ open class ViewModelForChats(private val localReposetoryHelper: LocalReposetoryH
             val bitmapFoto = BitmapFactory.decodeResource(context.resources,
                 listWhoGetMes[0].foto
             )
+            val interlocutorId = listWhoGetMes[0].id
             val uniqueKey = UUID.randomUUID().toString()
             val currentTime = System.currentTimeMillis()
             Log.d("MyLog","Отправка в БД нового чата")
@@ -55,12 +56,13 @@ open class ViewModelForChats(private val localReposetoryHelper: LocalReposetoryH
                     user.foto
                 )
                 val uniqueKey = UUID.randomUUID().toString()
+                Log.d("MyLog",uniqueKey)
                 val currentTime = System.currentTimeMillis()
                 val FotoChat = saveImageToInternalStorage(bitmapFoto,uniqueKey)
                 NewChatsList.add(ItemChat(uniqueKey, FotoChat, user.nickname, message, currentTime))
 
             }
-            Log.d("MyLog", "Отправка в БД нового чата")
+//            Log.d("MyLog", "Отправка в БД нового чата")
             localReposetoryHelper.AddNewChats(NewChatsList)
 
             withContext(Dispatchers.Main) {

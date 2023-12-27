@@ -19,8 +19,8 @@
             android:layout_marginTop="20dp"
             android:clickable="true"
             android:onClick="onClickCommit"
-            android:src="@drawable/baseline_download_done_24"
-            app:backgroundTint="@color/black2" />
+            android:src="@drawable/baseline_done_24"
+            app:backgroundTint="@color/white" />
 
         <TextView
             android:id="@+id/TitleText"
@@ -29,7 +29,7 @@
             android:layout_marginTop="50dp"
             android:gravity="center"
             android:text="@string/text_for_edit_events"
-            android:textColor="@color/dark_blue"
+            android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold" />
 

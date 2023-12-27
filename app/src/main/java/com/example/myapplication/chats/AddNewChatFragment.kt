@@ -1,12 +1,15 @@
 package com.example.myapplication.chats
 
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+
 import android.os.Bundle
-import android.util.Log
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -18,12 +21,9 @@ import com.example.myapplication.elements.UserForChoose
 import com.example.myapplication.profile.rcview.ItemListener
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.util.UUID
 import com.example.myapplication.constanse
+import java.util.Locale
 
 class AddNewChatFragment : BottomSheetDialogFragment() {
     private var usersNames = arrayListOf("Паша","Гриша","Евгений","Рома")
@@ -33,6 +33,8 @@ class AddNewChatFragment : BottomSheetDialogFragment() {
         R.drawable.people_third,
         R.drawable.people_four)
     private lateinit var usersAdapter: UniversalAdapter<UserForChoose>
+
+    lateinit var fullList: List<UserForChoose>
 
     private val selectedUsers = mutableListOf<UserForChoose>()
 
@@ -57,18 +59,27 @@ class AddNewChatFragment : BottomSheetDialogFragment() {
                 if (!Empty()) {
                     val message = binding.MessageText.text.toString()
                     if (selectedUsers.size > 1) {
-
                         ChatViewModel.AddChats(requireContext(),selectedUsers,message)
-
                     } else {
-
                         ChatViewModel.AddNewChat(requireContext(),selectedUsers,message)
-
                     }
                     dismiss()
                 }
             }
         }
+
+
+        binding.searchInput.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                val searchText = s.toString().trim()
+                searchUsers(searchText)
+            }
+
+            override fun afterTextChanged(s: Editable?) {}
+        })
+
     }
 
     fun init(){
@@ -78,7 +89,7 @@ class AddNewChatFragment : BottomSheetDialogFragment() {
         usersAdapter = UniversalAdapter(object: ItemListener{
 
             override fun onClick(position: Int) {
-                val user = usersAdapter.contentList[position]
+                val user = usersAdapter.getAllItems()[position]
                 usersAdapter.toggleSelection(position)
 
                 if (user !in selectedUsers) {
@@ -89,9 +100,12 @@ class AddNewChatFragment : BottomSheetDialogFragment() {
 
         } , constanse.KEY_FOR_USERS)
 
+
         binding.ListUsers.adapter = usersAdapter
         binding.ListUsers.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
         addPeople()
+
+        fullList = ArrayList(usersAdapter.getAllItems())
 
     }
     fun Empty() : Boolean {
@@ -99,7 +113,6 @@ class AddNewChatFragment : BottomSheetDialogFragment() {
 
             if(MessageText.text.isNullOrEmpty()) {
                 MessageText.error = "Заполните поле"
-                Log.d("MyLog", "DescriptionForEvent is empty")
             }
             return  MessageText.text.isNullOrEmpty()
         }
@@ -121,6 +134,20 @@ class AddNewChatFragment : BottomSheetDialogFragment() {
 
     }
 
+    fun searchUsers(query:String){
+        val filteredList = ArrayList<UserForChoose>()
+
+            for (user in fullList) {
+                if (user.nickname.toLowerCase(Locale.getDefault())
+                    .contains(query.toLowerCase(Locale.getDefault()))
+                ) {
+                    filteredList.add(user)
+                }
+            }
+            usersAdapter.updateList(filteredList)
+    }
+
+
     //FOR TEST
     fun addPeople(){
         for(i in 0..<usersNames.size){
@@ -128,5 +155,31 @@ class AddNewChatFragment : BottomSheetDialogFragment() {
             usersAdapter.addData(userForChoose)
         }
     }
+
+    // ПОЗЖЕ ДОДЕЛАТЬ
+//    fun setupKeyboardListener(){
+//        val viewTreeObserver = binding.root.viewTreeObserver
+//        viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener{
+//            override fun onPreDraw(): Boolean {
+//                val insets = ViewCompat.getRootWindowInsets(binding.root)
+//                val isKeyboardOpen = insets?.isVisible(WindowInsetsCompat.Type.systemBars())
+//
+//                if (isKeyboardOpen!!){
+//                    val params = binding.ListUsers.layoutParams as ViewGroup.MarginLayoutParams
+//                    params.bottomMargin = resources.getDimensionPixelSize(R.dimen.keyboard_height)
+//                    binding.ListUsers.layoutParams = params
+//
+//                }else{
+//                    val params = binding.ListUsers.layoutParams as ViewGroup.MarginLayoutParams
+//                    params.bottomMargin = 0
+//                    binding.ListUsers.layoutParams = params
+//
+//                }
+//                return true
+//
+//            }
+//
+//        })
+//    }
 
 }

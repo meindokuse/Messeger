@@ -18,6 +18,8 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
@@ -25,7 +27,10 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
+import com.example.myapplication.SharedViewModel
+import com.example.myapplication.SharedViewModelFactory
 import com.example.myapplication.databinding.ListOfChatsBinding
+import com.example.myapplication.elements.ItemChat
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import com.example.myapplication.viewmodel.ViewModelForChats
 import kotlinx.coroutines.launch
@@ -33,6 +38,7 @@ import java.lang.Math.abs
 
 
 class ListOfChatsFragment : Fragment() {
+    var userId = " "
     lateinit var binding: ListOfChatsBinding
     private lateinit var handler: Handler
     private var actionMode: ActionMode? = null
@@ -40,6 +46,9 @@ class ListOfChatsFragment : Fragment() {
 
     val ChatDataModel: ViewModelForChats by activityViewModels {
         ChatsViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
+    }
+    val globalViewModel:SharedViewModel by activityViewModels{
+        SharedViewModelFactory(LocalReposetoryHelper(requireContext()))
     }
     val addNewchatFragment = AddNewChatFragment()
     lateinit var adapter: RvChats
@@ -68,6 +77,11 @@ class ListOfChatsFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     fun init() {
+        globalViewModel.userId.observe(viewLifecycleOwner){
+            userId = it
+        }
+        binding.FindNewChatButton.setColorFilter(ContextCompat.getColor(requireContext(),R.color.white))
+
         val activity = requireActivity() as AppCompatActivity
         activity.supportActionBar?.title = "Чаты"
         activity.supportActionBar?.setDisplayHomeAsUpEnabled(false)
@@ -76,6 +90,11 @@ class ListOfChatsFragment : Fragment() {
         adapter = RvChats()
         binding.ListChats.layoutManager = LinearLayoutManager(requireContext())
         binding.ListChats.adapter = adapter
+
+        ChatDataModel.ListOfChats.observe(viewLifecycleOwner) {
+            Log.d("MyLog","Модель обновила чаты")
+            adapter.setChats(it.agregate())
+        }
 
         binding.ListChats.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
             private var startX = 0f
@@ -86,6 +105,7 @@ class ListOfChatsFragment : Fragment() {
             override fun onInterceptTouchEvent(rv: RecyclerView, e: MotionEvent): Boolean {
                 when (e.action) {
                     MotionEvent.ACTION_DOWN -> {
+                        cancelChat = false
                         startX = e.x
                         startY = e.y
                         isSelectionStarted = false
@@ -95,7 +115,7 @@ class ListOfChatsFragment : Fragment() {
                                 val childView = rv.findChildViewUnder(startX, startY)
                                 if (childView != null) {
                                     val position = rv.getChildLayoutPosition(childView)
-                                    adapter.toggleSelection(position)
+                                    adapter.toggleSelection(position,actionMode!!)
                                     isSelectionStarted = true
                                 }
                             }
@@ -111,10 +131,11 @@ class ListOfChatsFragment : Fragment() {
                             handler.removeCallbacksAndMessages(null)
                             isSelectionStarted = true
                         }
+                        cancelChat = true
+
                     }
 
                     MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                        cancelChat = false
 
                         handler.removeCallbacksAndMessages(null)
                         if (!isSelectionStarted && actionMode != null) {
@@ -122,7 +143,7 @@ class ListOfChatsFragment : Fragment() {
 
                             if (childView != null) {
                                 val position = rv.getChildLayoutPosition(childView)
-                                adapter.toggleSelection(position)
+                                adapter.toggleSelection(position,actionMode!!)
 
                                 if(adapter.getSelectedItems().isEmpty()){
                                     actionMode?.finish()
@@ -135,8 +156,10 @@ class ListOfChatsFragment : Fragment() {
                             if (childView != null) {
                                 val position = rv.getChildLayoutPosition(childView)
                                 val chat = adapter.listOfChats[position]
-                                val name = chat.whoWrite
-                                controler.navigate(R.id.action_listOfChatsFragment_to_chat)
+                                val name = chat.nickname
+                                controler.navigate(R.id.action_listOfChatsFragment_to_chat,
+                                    bundleOf(ChatFragment.userIdKey to userId,ChatFragment.chatIdKey to chat.IDchat)
+                                )
                                 activity.supportActionBar?.title = name
 
                             }
@@ -156,10 +179,6 @@ class ListOfChatsFragment : Fragment() {
             }
         })
 
-        ChatDataModel.ListOfChats.observe(viewLifecycleOwner) {
-            Log.d("MyLog","Модель обновила чаты")
-            adapter.setChats(it)
-        }
     }
 
     fun startActionMode(view: View): ActionMode {
@@ -227,4 +246,9 @@ class ListOfChatsFragment : Fragment() {
             vibrator.vibrate(duration)
         }
     }
+
+    fun List<ItemChat>.agregate():List<ItemChat> =
+        sortedByDescending{ it.time }
+
+
 }

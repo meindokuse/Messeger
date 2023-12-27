@@ -1,12 +1,15 @@
 package com.example.myapplication.profile
 
+import android.content.SharedPreferences
 import android.os.Bundle
+import android.preference.PreferenceManager
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
@@ -33,6 +36,7 @@ import com.example.myapplication.viewmodel.MyViewModel
  * create an instance of this fragment.
  */
 class ProfileFragment : Fragment() {
+
     var EditEventTime = false
 
     val fragmentForEditEvents = FragmentForEditEvents()
@@ -41,7 +45,8 @@ class ProfileFragment : Fragment() {
     private lateinit var binding:FragmentBlankBinding
     lateinit var adapter: UniversalAdapter<Event>
     private val DataModel: MyViewModel by activityViewModels{
-        MyViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)    }
+        MyViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
+    }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -54,7 +59,7 @@ class ProfileFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         adapter = UniversalAdapter(object: ItemListener{
             override fun onClick(position: Int) {
-                val event = adapter.contentList[position]
+                val event = adapter.getAllItems()[position]
                 DataModel.DeleteEvent(event,1)
                 adapter.removeItem(position)
             }

@@ -4,17 +4,22 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
+import android.view.ActionMode.Callback
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.R
+import com.example.myapplication.api.ApiClient
 import com.example.myapplication.elements.Event
 import com.example.myapplication.elements.ProfileInfo
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.jetbrains.annotations.Nullable
+import retrofit2.Call
+import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
 import java.lang.Exception
@@ -24,26 +29,29 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
 
 
     val userProfile: LiveData<ProfileInfo> = MutableLiveData()
+    val statusMessege: MutableLiveData<String?> = MutableLiveData()
 
 
     private fun updateUserProfile(){
         Log.d("MyLog","Инит")
         Log.d("MyLog","${localReposetoryHelper.getAllInfo()}")
         (userProfile as MutableLiveData).value = localReposetoryHelper.getAllInfo()
+
     }
-    fun addUser(context: Context,info:ArrayList<String>,avatar:Bitmap?){
+    fun addUser(context: Context,info:ArrayList<String> ,avatar:Bitmap?){
+        val id = UUID.randomUUID().toString()
 
         if (avatar == null){
            val defaultFoto = BitmapFactory.decodeResource(context.resources,R.drawable.profile_foro)
             val uniqueKey = UUID.randomUUID().toString()
             val fotoForAvatar = saveImageToInternalStorage(defaultFoto,uniqueKey)
-            val profileInfo = ProfileInfo(info[0],info[1],info[2],info[3],info[4],info[5],fotoForAvatar)
+            val profileInfo = ProfileInfo(id,info[0],info[1],info[2],info[3],info[4],info[5],fotoForAvatar)
             Log.d("MyLog","Во вьюхе заварушка")
             localReposetoryHelper.addProfile(profileInfo)
         }else {
             val uniqueKey = UUID.randomUUID().toString()
             val fotoForAvatar = saveImageToInternalStorage(avatar, uniqueKey)
-            val profileInfo = ProfileInfo(info[0], info[1], info[2], info[3], info[4], info[5], fotoForAvatar)
+            val profileInfo = ProfileInfo(id,info[0], info[1], info[2], info[3], info[4], info[5], fotoForAvatar)
             Log.d("MyLog", "Во вьюхе заварушка")
             localReposetoryHelper.addProfile(profileInfo)
         }
@@ -54,18 +62,37 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
 
     fun uppdateProfile(FirstName:String,SecondName:String,avatar: Bitmap?){
         val path = userProfile.value!!.avatar
+        val id = userProfile.value!!.idUser
 
         viewModelScope.launch(Dispatchers.IO) {
             if(avatar != null) {
                 val uniqueKey = UUID.randomUUID().toString()
                 val targetFoto = updateImageInInternalStorage(avatar,path,uniqueKey)
-                localReposetoryHelper.updateProfile(FirstName, SecondName, targetFoto)
+                localReposetoryHelper.updateProfile(id,FirstName, SecondName, targetFoto)
             }else{
-                localReposetoryHelper.updateProfile(FirstName, SecondName, path)
+                localReposetoryHelper.updateProfile(id,FirstName, SecondName, path)
             }
             withContext(Dispatchers.Main){
                 updateUserProfile()
             }
+//            ApiClient.apiServer.getProfile(id).enqueue(object : retrofit2.Callback<ProfileInfo?> {
+//                override fun onResponse(call: Call<ProfileInfo?>, response: Response<ProfileInfo?>) {
+//                    // Обработка ответа
+//                    if (response.isSuccessful) {
+//                        val profileInfo = response.body()
+//                        // Обработка profileInfo
+//                        (userProfile as MutableLiveData).value = profileInfo
+//                        statusMessege.value = null
+//                    } else {
+//                        statusMessege.value = "Ошибка получения данных"
+//                    }
+//                }
+//
+//                override fun onFailure(call: Call<ProfileInfo?>, t: Throwable) {
+//                    statusMessege.value = "Офлайн режим"
+//                }
+//            })
+
         }
 
     }
@@ -76,6 +103,7 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
     //makes for RcView ( events )
     val userEvents: LiveData<List<Event>> = MutableLiveData()
     val UserEventRightNow:MutableLiveData<Event> = MutableLiveData()
+
     fun UdpateUserEventRightNow(event: Event){
         UserEventRightNow.value = event
 

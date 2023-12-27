@@ -20,22 +20,24 @@
             android:clickable="true"
             android:scaleX="0.7"
             android:scaleY="0.7"
-            android:src="@drawable/baseline_download_done_24"
+            android:src="@drawable/baseline_done_24"
             app:backgroundTint="@color/white" />
 
         <EditText
-            android:id="@+id/editTextText2"
+            android:hint="Поиск по имени..."
+            android:id="@+id/searchInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             android:ems="10"
             android:inputType="text"
-            android:text="Name" />
+             />
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/ListUsers"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="match_parent"
+            android:visibility="visible" />
 
         <TextView
             android:id="@+id/WhoGetText"
@@ -47,14 +49,20 @@
             android:text="Кому отправим?"
             android:textSize="20sp" />
 
-        <EditText
-            android:id="@+id/MessageText"
+        <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:ems="10"
-            android:gravity="start|top"
-            android:hint="Что отправим?"
-            android:inputType="textMultiLine" />
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/MessageText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Что отправим?"
+                android:inputType="text|textPersonName"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+        </com.google.android.material.textfield.TextInputLayout>
     </LinearLayout>
 </FrameLayout>

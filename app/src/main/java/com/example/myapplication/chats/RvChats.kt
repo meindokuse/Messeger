@@ -1,5 +1,6 @@
 package com.example.myapplication.chats
 
+import android.view.ActionMode
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -24,12 +25,13 @@ class RvChats: RecyclerView.Adapter<RvChats.ChatHolder>() {
         return selectionChats.contains(position)
     }
 
-    fun toggleSelection(position: Int){
+    fun toggleSelection(position: Int,actionMode: ActionMode){
         if(selectionChats.contains(position)){
             selectionChats.remove(position)
         } else {
             selectionChats.add(position)
         }
+        actionMode.title = selectionChats.size.toString()
         notifyItemChanged(position)
     }
 
@@ -58,7 +60,7 @@ class RvChats: RecyclerView.Adapter<RvChats.ChatHolder>() {
         val binding = ItemChatBinding.bind(item)
 
         fun bind(chat: ItemChat, position: Int){
-            binding.NameWhoWtiteText.text=chat.whoWrite
+            binding.NameWhoWtiteText.text=chat.nickname
             binding.LastMesText.text=chat.lastMes
 
             Glide.with(binding.root.context)

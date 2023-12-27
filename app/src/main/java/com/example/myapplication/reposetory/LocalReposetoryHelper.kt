@@ -10,6 +10,10 @@ import com.example.myapplication.elements.ProfileInfo
 class LocalReposetoryHelper(context: Context) {
     private val localReposetory: LocalReposetory = LocalReposetory(context)
     //makes for profile
+
+    fun getUserId():String{
+       return localReposetory.getUserId()
+    }
     fun getAllInfo(): ProfileInfo {
         return localReposetory.getAll()
     }
@@ -18,8 +22,8 @@ class LocalReposetoryHelper(context: Context) {
         Log.d("MyLog", "Updating user profile")
         localReposetory.addOrChangeProfile(profileInfo)
     }
-    fun updateProfile(FirstName:String,SecondName:String,avatar:String){
-        localReposetory.updateProfile(FirstName,SecondName,avatar)
+    fun updateProfile(id:String,FirstName:String,SecondName:String,avatar:String){
+        localReposetory.updateProfile(id,FirstName,SecondName,avatar)
     }
 
     // makes for RecyclerView ( events )

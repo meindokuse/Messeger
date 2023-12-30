@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.myapplication.MainActivity
 import com.example.myapplication.databinding.FragmentChatBinding
 import java.util.UUID
 
@@ -31,8 +32,11 @@ class ChatFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+
         // Inflate the layout for this fragment
         binding = FragmentChatBinding.inflate(inflater)
+
+        (activity as MainActivity).hideBottomNavigationBar()
         return binding.root
     }
 
@@ -101,6 +105,12 @@ class ChatFragment : Fragment() {
         }
 
 
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        (activity as MainActivity).showBottomNavigationBar()
     }
 
 

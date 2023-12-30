@@ -9,10 +9,10 @@
     <com.google.android.material.bottomnavigation.BottomNavigationView
         android:id="@+id/BNV"
         android:layout_width="0dp"
-        android:layout_height="65dp"
+        android:layout_height="wrap_content"
         android:background="@color/black"
         app:itemIconTint="@drawable/custom_selector"
-        app:itemTextColor="@color/grey"
+        app:itemTextColor="@color/ultra_grey"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

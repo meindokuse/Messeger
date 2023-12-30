@@ -37,6 +37,7 @@ class MessageListAdapter(private val userId:String, private val recyclerView: Re
                 layoutParams.startToStart = ConstraintLayout.LayoutParams.UNSET
                 binding.cardMes.setCardBackgroundColor(ContextCompat.getColor(binding.cardMes.context,R.color.white))
                 Log.d("MyLog","Это я")
+
             } else {
                 // Сообщение не пользователя, отображать слева
                 layoutParams.startToStart = ConstraintLayout.LayoutParams.PARENT_ID

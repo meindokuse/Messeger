@@ -17,15 +17,19 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myapplication.MainActivity
 import com.example.myapplication.R
 import com.example.myapplication.SharedViewModel
 import com.example.myapplication.SharedViewModelFactory
@@ -39,7 +43,7 @@ import java.lang.Math.abs
 
 class ListOfChatsFragment : Fragment() {
     var userId = " "
-    lateinit var binding: ListOfChatsBinding
+    private lateinit var binding: ListOfChatsBinding
     private lateinit var handler: Handler
     private var actionMode: ActionMode? = null
     private lateinit var controler: NavController
@@ -50,9 +54,10 @@ class ListOfChatsFragment : Fragment() {
     val globalViewModel:SharedViewModel by activityViewModels{
         SharedViewModelFactory(LocalReposetoryHelper(requireContext()))
     }
-    val addNewchatFragment = AddNewChatFragment()
+    val addNewchatFragment:AddNewChatFragment by lazy {
+        AddNewChatFragment()
+    }
     lateinit var adapter: RvChats
-
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -62,8 +67,27 @@ class ListOfChatsFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        binding.root.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+            private var lastRootHeight = binding.root.height
+
+            override fun onPreDraw(): Boolean {
+                val currentRootHeight = binding.root.height
+
+                if (lastRootHeight != currentRootHeight) {
+                    val isKeyboardVisible = currentRootHeight < lastRootHeight
+                    globalViewModel.setKeyBoardStatus(isKeyboardVisible)
+                }
+
+                lastRootHeight = currentRootHeight
+                return true
+            }
+        })
+
         controler = findNavController()
         init()
+
         binding.FindNewChatButton.setOnClickListener {
             addNewchatFragment.show(childFragmentManager, addNewchatFragment.tag)
         }
@@ -77,9 +101,11 @@ class ListOfChatsFragment : Fragment() {
 
     @SuppressLint("ClickableViewAccessibility")
     fun init() {
+
         globalViewModel.userId.observe(viewLifecycleOwner){
             userId = it
         }
+
         binding.FindNewChatButton.setColorFilter(ContextCompat.getColor(requireContext(),R.color.white))
 
         val activity = requireActivity() as AppCompatActivity
@@ -130,8 +156,9 @@ class ListOfChatsFragment : Fragment() {
                         ) {
                             handler.removeCallbacksAndMessages(null)
                             isSelectionStarted = true
+                            cancelChat = true
+
                         }
-                        cancelChat = true
 
                     }
 
@@ -157,6 +184,7 @@ class ListOfChatsFragment : Fragment() {
                                 val position = rv.getChildLayoutPosition(childView)
                                 val chat = adapter.listOfChats[position]
                                 val name = chat.nickname
+
                                 controler.navigate(R.id.action_listOfChatsFragment_to_chat,
                                     bundleOf(ChatFragment.userIdKey to userId,ChatFragment.chatIdKey to chat.IDchat)
                                 )
@@ -250,5 +278,15 @@ class ListOfChatsFragment : Fragment() {
     fun List<ItemChat>.agregate():List<ItemChat> =
         sortedByDescending{ it.time }
 
+//    override fun onDestroyView() {
+//        super.onDestroyView()
+//    }
+
+
+
+
+
+
 
 }
+

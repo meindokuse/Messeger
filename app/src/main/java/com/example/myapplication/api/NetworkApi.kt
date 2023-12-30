@@ -47,6 +47,12 @@ interface NetworkApi {
         val login:String,
         val password: String)
 
+    data class PostChat(
+        val idChat: String,
+        val lastMessageInChat: MessageInChat,
+        val idSecondUser:String
+    )
+
 
 
 }

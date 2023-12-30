@@ -1,9 +1,12 @@
 package com.example.myapplication.chats
 
 
+import android.content.res.Configuration
+import android.graphics.Rect
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,6 +17,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.R
+import com.example.myapplication.SharedViewModel
+import com.example.myapplication.SharedViewModelFactory
 import com.example.myapplication.UniversalAdapter
 import com.example.myapplication.viewmodel.ViewModelForChats
 import com.example.myapplication.databinding.FragmentAddNewChatBinding
@@ -23,9 +28,11 @@ import com.example.myapplication.reposetory.LocalReposetoryHelper
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
 import com.example.myapplication.constanse
+import com.example.myapplication.databinding.FragmentChatBinding
+import com.example.myapplication.databinding.ListOfChatsBinding
 import java.util.Locale
 
-class AddNewChatFragment : BottomSheetDialogFragment() {
+class AddNewChatFragment() : BottomSheetDialogFragment() {
     private var usersNames = arrayListOf("Паша","Гриша","Евгений","Рома")
     private var usersAvatars = arrayListOf(
         R.drawable.people_first,
@@ -39,10 +46,14 @@ class AddNewChatFragment : BottomSheetDialogFragment() {
     private val selectedUsers = mutableListOf<UserForChoose>()
 
 
+
     private lateinit var binding : FragmentAddNewChatBinding
 
     val ChatViewModel: ViewModelForChats by  activityViewModels{
         ChatsViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
+    }
+    private val globalViewModel: SharedViewModel by activityViewModels{
+        SharedViewModelFactory(LocalReposetoryHelper(requireContext()))
     }
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -61,7 +72,8 @@ class AddNewChatFragment : BottomSheetDialogFragment() {
                     if (selectedUsers.size > 1) {
                         ChatViewModel.AddChats(requireContext(),selectedUsers,message)
                     } else {
-                        ChatViewModel.AddNewChat(requireContext(),selectedUsers,message)
+                        val singleUser = selectedUsers[0]
+                        ChatViewModel.AddNewChat(requireContext(),singleUser,message)
                     }
                     dismiss()
                 }
@@ -83,6 +95,7 @@ class AddNewChatFragment : BottomSheetDialogFragment() {
     }
 
     fun init(){
+
         binding.MessageText.isEnabled = false
 
 
@@ -106,6 +119,14 @@ class AddNewChatFragment : BottomSheetDialogFragment() {
         addPeople()
 
         fullList = ArrayList(usersAdapter.getAllItems())
+
+        globalViewModel.isKeyBoardActive.observe(viewLifecycleOwner){
+            Log.d("MyLog","Диалог отследил изменения")
+            if (it != null && !binding.MessageText.isFocused) {
+                Log.d("MyLog",it.toString())
+                setupKeyboardListener(it)
+            }
+        }
 
     }
     fun Empty() : Boolean {
@@ -144,7 +165,16 @@ class AddNewChatFragment : BottomSheetDialogFragment() {
                     filteredList.add(user)
                 }
             }
-            usersAdapter.updateList(filteredList)
+        usersAdapter.updateList(filteredList)
+        if(filteredList.size == 0){
+            binding.ListUsers.visibility = View.GONE
+            binding.nullListText.visibility = View.VISIBLE
+        } else {
+            binding.ListUsers.visibility = View.VISIBLE
+            binding.nullListText.visibility = View.GONE
+
+        }
+
     }
 
 
@@ -156,30 +186,24 @@ class AddNewChatFragment : BottomSheetDialogFragment() {
         }
     }
 
+
+
     // ПОЗЖЕ ДОДЕЛАТЬ
-//    fun setupKeyboardListener(){
-//        val viewTreeObserver = binding.root.viewTreeObserver
-//        viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener{
-//            override fun onPreDraw(): Boolean {
-//                val insets = ViewCompat.getRootWindowInsets(binding.root)
-//                val isKeyboardOpen = insets?.isVisible(WindowInsetsCompat.Type.systemBars())
-//
-//                if (isKeyboardOpen!!){
-//                    val params = binding.ListUsers.layoutParams as ViewGroup.MarginLayoutParams
-//                    params.bottomMargin = resources.getDimensionPixelSize(R.dimen.keyboard_height)
-//                    binding.ListUsers.layoutParams = params
-//
-//                }else{
-//                    val params = binding.ListUsers.layoutParams as ViewGroup.MarginLayoutParams
-//                    params.bottomMargin = 0
-//                    binding.ListUsers.layoutParams = params
-//
-//                }
-//                return true
-//
-//            }
-//
-//        })
-//    }
+    fun setupKeyboardListener(isKeyboardVisible: Boolean) {
+        if (isKeyboardVisible) {
+            // Обработка появления клавиатуры
+            val params = binding.ListUsers.layoutParams as ViewGroup.MarginLayoutParams
+            params.bottomMargin = resources.getDimensionPixelSize(R.dimen.keyboard_height)
+            binding.ListUsers.layoutParams = params
+        } else {
+            // Обработка скрытия клавиатуры
+            val params = binding.ListUsers.layoutParams as ViewGroup.MarginLayoutParams
+            params.bottomMargin = 0
+            binding.ListUsers.layoutParams = params
+        }
+    }
+
+
 
 }
+

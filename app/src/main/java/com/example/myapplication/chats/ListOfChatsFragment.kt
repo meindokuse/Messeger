@@ -18,18 +18,16 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.view.ViewTreeObserver
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.myapplication.MainActivity
 import com.example.myapplication.R
 import com.example.myapplication.SharedViewModel
 import com.example.myapplication.SharedViewModelFactory
@@ -37,6 +35,9 @@ import com.example.myapplication.databinding.ListOfChatsBinding
 import com.example.myapplication.elements.ItemChat
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import com.example.myapplication.viewmodel.ViewModelForChats
+import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
 import java.lang.Math.abs
 
@@ -63,6 +64,8 @@ class ListOfChatsFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         binding = ListOfChatsBinding.inflate(inflater)
+        activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE)
+
         return binding.root
     }
 
@@ -78,12 +81,14 @@ class ListOfChatsFragment : Fragment() {
                 if (lastRootHeight != currentRootHeight) {
                     val isKeyboardVisible = currentRootHeight < lastRootHeight
                     globalViewModel.setKeyBoardStatus(isKeyboardVisible)
+//                    setupKeyboardListener(isKeyboardVisible)
                 }
 
                 lastRootHeight = currentRootHeight
                 return true
             }
         })
+
 
         controler = findNavController()
         init()
@@ -94,9 +99,7 @@ class ListOfChatsFragment : Fragment() {
     }
 
     companion object {
-
-        val LONG_CLICK_DURATION = 800L
-
+        const val LONG_CLICK_DURATION = 800L
     }
 
     @SuppressLint("ClickableViewAccessibility")
@@ -281,6 +284,48 @@ class ListOfChatsFragment : Fragment() {
 //    override fun onDestroyView() {
 //        super.onDestroyView()
 //    }
+
+//    fun setupKKeyboardListner(isKeyboardVisible: Boolean){
+//        val bottomSheetDialogFragment = addNewchatFragment as BottomSheetDialogFragment
+//        if (isKeyboardVisible){
+//            val layoutParams = bottomSheetDialogFragment.behavior?.params
+//        }
+//
+//    }
+
+//    fun setupKeyboardListener(isKeyboardVisible: Boolean) {
+//        val bottomSheetDialogFragment = addNewchatFragment as BottomSheetDialogFragment
+//
+//        val dialog = bottomSheetDialogFragment.dialog
+//        if (dialog != null && dialog is BottomSheetDialog) {
+//            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
+//            val behavior = BottomSheetBehavior.from(bottomSheet!!)
+//
+//            if (isKeyboardVisible) {
+//                behavior.peekHeight = resources.getDimensionPixelSize(R.dimen.keyboard_height)
+//                behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+//            } else {
+//                behavior.peekHeight = 0
+//                behavior.state = BottomSheetBehavior.STATE_EXPANDED
+//
+//            }
+//        }
+//    }
+//
+////    fun setupKeyboardListener(isKeyboardVisible: Boolean) {
+////        val bottomSheetDialogFragment = addNewchatFragment as BottomSheetDialogFragment
+////
+////        val view = bottomSheetDialogFragment.view
+////        if (view != null) {
+////            val behavior = BottomSheetBehavior.from(view)
+////
+////            if (isKeyboardVisible) {
+////                behavior.state = BottomSheetBehavior.STATE_HIDDEN
+////            } else {
+////                behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+////            }
+////        }
+////    }
 
 
 

@@ -27,5 +27,13 @@
         android:id="@+id/profileFragment"
         android:name="com.example.myapplication.profile.ProfileFragment"
         android:label="fragment_blank"
-        tools:layout="@layout/fragment_blank" />
+        tools:layout="@layout/fragment_blank" >
+        <action
+            android:id="@+id/action_profileFragment_to_blankFragmentForTest"
+            app:destination="@id/blankFragmentForTest" />
+    </fragment>
+    <fragment
+        android:id="@+id/blankFragmentForTest"
+        android:name="com.example.myapplication.BlankFragmentForTest"
+        android:label="BlankFragmentForTest" />
 </navigation>

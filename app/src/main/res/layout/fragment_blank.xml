@@ -6,6 +6,12 @@
     android:layout_height="match_parent"
     tools:context=".profile.ProfileFragment">
 
+    <Button
+        android:id="@+id/buttonNewV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="New V" />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/EditNowAcivities"
         android:layout_width="wrap_content"

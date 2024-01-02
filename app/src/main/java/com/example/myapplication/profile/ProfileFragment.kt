@@ -12,6 +12,7 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
@@ -79,6 +80,9 @@ class ProfileFragment : Fragment() {
         binding.EditNowAcivities.setOnClickListener {
             fragmentForEditEvents.show(childFragmentManager,fragmentForEditEvents.tag)
             EditEventTime = true
+        }
+        binding.buttonNewV.setOnClickListener {
+            findNavController().navigate(R.id.action_profileFragment_to_blankFragmentForTest)
         }
 
 

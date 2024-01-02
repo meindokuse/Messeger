@@ -33,13 +33,24 @@
             android:textSize="20sp"
             android:textStyle="bold" />
 
-        <Spinner
-            android:id="@+id/VariantsForEvents"
-            style="@style/MySpinnerStyle"
+        <com.google.android.material.textfield.TextInputLayout
+            app:counterEnabled="true"
+            app:counterMaxLength="50"
             android:layout_width="match_parent"
-            android:layout_height="41dp"
+            android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:backgroundTint="@color/white" />
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/titileForEvent"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Заголовок"
+                android:inputType="text"
+                android:textColor="@color/white"
+                android:textSize="20sp" />
+        </com.google.android.material.textfield.TextInputLayout>
 
         <EditText
             android:id="@+id/DescriptionForEvent"
@@ -52,7 +63,8 @@
             android:hint="Добавьте описание..."
             android:inputType="textMultiLine"
             android:textColor="@color/white"
-            android:textColorHint="@color/white" />
+            android:textSize="20sp"
+            android:textColorHint="#60000000" />
 
     </LinearLayout>
 

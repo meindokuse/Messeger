@@ -9,16 +9,12 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
-import com.example.myapplication.chats.MessageInChat
 import com.example.myapplication.databinding.EventItemBinding
-import com.example.myapplication.databinding.MessageBodyBinding
 import com.example.myapplication.databinding.UserForChooseBinding
 import com.example.myapplication.elements.Event
 import com.example.myapplication.elements.UserForChoose
 import com.example.myapplication.profile.rcview.ItemListener
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+
 
 class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -28,7 +24,6 @@ class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
     companion object {
         const val EVENT_KEY = "event"
         const val USER_KEY = "user"
-        const val MESSAGE_KEY = "message"
     }
 
     val selectionChats = HashSet<Int>()
@@ -51,15 +46,15 @@ class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
         selectionChats.clear()
         notifyDataSetChanged()
     }
-    fun deleteSelectionChats(){
-        val selectedItems = getSelectedItems()
-        for (position in selectedItems.sortedDescending()){
-            contentList.removeAt(position)
-            notifyItemRemoved(position)
-        }
-        clearSelection()
-
-    }
+//    fun deleteSelectionChats(){
+//        val selectedItems = getSelectedItems()
+//        for (position in selectedItems.sortedDescending()){
+//            contentList.removeAt(position)
+//            notifyItemRemoved(position)
+//        }
+//        clearSelection()
+//
+//    }
     fun getSelectedItems(): List<Int> {
         return ArrayList(selectionChats)
     }

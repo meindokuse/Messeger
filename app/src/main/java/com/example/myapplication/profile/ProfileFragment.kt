@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,6 +23,7 @@ import com.example.myapplication.UniversalAdapter
 import com.example.myapplication.constanse
 import com.example.myapplication.profile.rcview.EventListAdapter
 import com.example.myapplication.databinding.FragmentBlankBinding
+import com.example.myapplication.databinding.FragmentProfileBinding
 import com.example.myapplication.elements.Event
 import com.example.myapplication.profile.rcview.ItemListener
 import com.example.myapplication.reposetory.LocalReposetoryHelper
@@ -44,7 +46,7 @@ class ProfileFragment : Fragment() {
     val fragmentForEditEvents = FragmentForEditEvents()
     val editFragmentForProfile = EditFragmentForProfile()
 
-    private lateinit var binding:FragmentBlankBinding
+    private lateinit var binding:FragmentProfileBinding
     lateinit var adapter: UniversalAdapter<Event>
     private val DataModel: MyViewModel by activityViewModels{
         MyViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
@@ -54,7 +56,7 @@ class ProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        binding = FragmentBlankBinding.inflate(inflater)
+        binding = FragmentProfileBinding.inflate(inflater)
         activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
         return binding.root
     }
@@ -68,27 +70,27 @@ class ProfileFragment : Fragment() {
             }
         },constanse.KEY_FOR_POSTS)
 
-        binding.RcView.layoutManager = LinearLayoutManager(activity)
-        binding.RcView.adapter = adapter
-        binding.RcView.isNestedScrollingEnabled = false
+        binding.postsRecyclerView.layoutManager = LinearLayoutManager(activity)
+        binding.postsRecyclerView.adapter = adapter
+        binding.postsRecyclerView.isNestedScrollingEnabled = false
 
         init()
 
-        binding.EditProfileButton.setOnClickListener {
+        binding.EditProfile.setOnClickListener {
             editFragmentForProfile.show(childFragmentManager,  editFragmentForProfile.tag)
         }
-        binding.EditNowAcivities.setOnClickListener {
+        binding.AddEventButton.setOnClickListener {
             fragmentForEditEvents.show(childFragmentManager,fragmentForEditEvents.tag)
             EditEventTime = true
         }
-        binding.buttonNewV.setOnClickListener {
-            findNavController().navigate(R.id.action_profileFragment_to_blankFragmentForTest)
-        }
+
 
 
 
     }
     private fun init() {
+        binding.EditProfile.setColorFilter(ContextCompat.getColor(requireContext(),R.color.white))
+
         if(DataModel.userEvents.value != null) {
             adapter.addListData(DataModel.userEvents.value!!)
         }else
@@ -102,14 +104,14 @@ class ProfileFragment : Fragment() {
                 .load(it.avatar)
                 .error(R.drawable.profile_foro)
                 .apply(RequestOptions.bitmapTransform(CircleCrop()))
-                .into(binding.AvatarImage)
+                .into(binding.profileImage)
 
-            binding.FirstNameText.text = it.firstname
-            binding.SecondNameText.text = it.secondname
-            binding.SchoolText.text = it.scholl
-            binding.AgeText.text = it.age
-            binding.CityText.text = it.city
-            binding.ClassText.text = it.targetClass
+            binding.firstName.text = it.firstname
+            binding.secondName.text = it.secondname
+            binding.schoolText.text = it.scholl
+            binding.ageText.text = it.age
+            binding.cityText.text = it.city
+            binding.classText.text = it.targetClass
 
         }
 

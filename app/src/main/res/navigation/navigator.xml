@@ -12,6 +12,8 @@
         tools:layout="@layout/list_of_chats" >
         <action
             android:id="@+id/action_listOfChatsFragment_to_chat"
+            app:enterAnim="@anim/slide_in_right"
+            app:popEnterAnim="@anim/slide_in_left"
             app:destination="@id/chat" />
     </fragment>
     <fragment
@@ -27,13 +29,5 @@
         android:id="@+id/profileFragment"
         android:name="com.example.myapplication.profile.ProfileFragment"
         android:label="fragment_blank"
-        tools:layout="@layout/fragment_blank" >
-        <action
-            android:id="@+id/action_profileFragment_to_blankFragmentForTest"
-            app:destination="@id/blankFragmentForTest" />
-    </fragment>
-    <fragment
-        android:id="@+id/blankFragmentForTest"
-        android:name="com.example.myapplication.BlankFragmentForTest"
-        android:label="BlankFragmentForTest" />
+        tools:layout="@layout/fragment_blank" />
 </navigation>

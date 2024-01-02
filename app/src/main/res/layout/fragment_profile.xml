@@ -50,7 +50,7 @@
                         android:src="@drawable/profile_foro" />
 
                     <TextView
-                        android:id="@+id/textView15"
+                        android:id="@+id/firstName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="5dp"
@@ -61,7 +61,7 @@
                         android:textStyle="bold" />
 
                     <TextView
-                        android:id="@+id/textView16"
+                        android:id="@+id/secondName"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_margin="5dp"
@@ -101,7 +101,7 @@
                     <!-- Левый нижний угол -->
 
                     <TextView
-                        android:id="@+id/textViewTopLeft"
+                        android:id="@+id/ageText"
                         android:layout_width="150dp"
                         android:layout_height="wrap_content"
                         android:layout_marginStart="16dp"
@@ -109,13 +109,13 @@
                         android:text="Возраст"
                         android:textColor="@color/white"
                         android:textSize="20sp"
-                        app:layout_constraintBottom_toTopOf="@+id/textViewBottomLeft"
+                        app:layout_constraintBottom_toTopOf="@+id/schoolText"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="0.0" />
 
                     <TextView
-                        android:id="@+id/textViewBottomLeft"
+                        android:id="@+id/schoolText"
                         android:layout_width="150dp"
                         android:layout_height="wrap_content"
                         android:textColor="@color/white"
@@ -130,7 +130,7 @@
 
                     <!-- Правый нижний угол -->
                     <TextView
-                        android:id="@+id/textViewTopRight"
+                        android:id="@+id/cityText"
                         android:layout_width="150dp"
                         android:layout_height="wrap_content"
                         android:textColor="@color/white"
@@ -140,11 +140,11 @@
                         android:textSize="20sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="1.0"
-                        app:layout_constraintStart_toEndOf="@+id/textViewTopLeft"
+                        app:layout_constraintStart_toEndOf="@+id/ageText"
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
-                        android:id="@+id/textViewBottomRight"
+                        android:id="@+id/classText"
                         android:layout_width="150dp"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="20dp"
@@ -155,7 +155,7 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="1.0"
-                        app:layout_constraintStart_toEndOf="@+id/textViewBottomLeft" />
+                        app:layout_constraintStart_toEndOf="@+id/schoolText" />
                 </androidx.constraintlayout.widget.ConstraintLayout>
             </androidx.cardview.widget.CardView>
 
@@ -171,7 +171,7 @@
                 android:textStyle="bold" />
 
             <Button
-                android:id="@+id/button2"
+                android:id="@+id/AddEventButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

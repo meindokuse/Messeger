@@ -1,5 +1,6 @@
 package com.example.myapplication.chats
 
+import android.content.Context
 import android.view.ActionMode
 import android.view.LayoutInflater
 import android.view.View
@@ -16,7 +17,7 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
-class RvChats: RecyclerView.Adapter<RvChats.ChatHolder>() {
+class RvChats(private val context: Context): RecyclerView.Adapter<RvChats.ChatHolder>() {
     val listOfChats = ArrayList<ItemChat>()
 
     val selectionChats = HashSet<Int>()
@@ -63,10 +64,11 @@ class RvChats: RecyclerView.Adapter<RvChats.ChatHolder>() {
             binding.NameWhoWtiteText.text=chat.nickname
             binding.LastMesText.text=chat.lastMes
 
-            Glide.with(binding.root.context)
+            Glide.with(context)
                 .load(chat.foto)
                 .apply(RequestOptions.bitmapTransform(CircleCrop()))
-                .into(binding.FotoWhoWrite)
+                .override(300, 300)
+            .into(binding.FotoWhoWrite)
 
             val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
             val formattedDate = sdf.format(Date(chat.time))

@@ -53,26 +53,28 @@ class FragmentForEditEvents : BottomSheetDialogFragment() {
 
 
 
-        adapter = ArrayAdapter.createFromResource(requireContext(),R.array.varinats_for_events,android.R.layout.simple_spinner_item)
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.VariantsForEvents.setAdapter(adapter)
+//        adapter = ArrayAdapter.createFromResource(requireContext(),R.array.varinats_for_events,android.R.layout.simple_spinner_item)
+//        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+//        binding.VariantsForEvents.setAdapter(adapter)
+//
+//        binding.VariantsForEvents.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+//            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+//                selectedValue = parent?.getItemAtPosition(position).toString()
+//            }
+//            override fun onNothingSelected(parent: AdapterView<*>?) {
+//            }
+//        }
 
-        binding.VariantsForEvents.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                selectedValue = parent?.getItemAtPosition(position).toString()
-            }
-            override fun onNothingSelected(parent: AdapterView<*>?) {
-            }
-        }
 
 
         binding.doneButton.setOnClickListener {
             Log.d("MyLog","${DataModel.userEvents.value}")
             if(!Empty()){
+                val title = binding.titileForEvent.text.toString()
 
                 val desc = binding.DescriptionForEvent.text.toString()
                 val uniqueKey = UUID.randomUUID().toString()
-                val event = Event(uniqueKey,selectedValue,desc)
+                val event = Event(uniqueKey,title,desc)
                 DataModel.addEventToReposetory(event,1)
 
                 dismiss()

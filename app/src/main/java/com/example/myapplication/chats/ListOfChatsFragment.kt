@@ -116,7 +116,7 @@ class ListOfChatsFragment : Fragment() {
         activity.supportActionBar?.setDisplayHomeAsUpEnabled(false)
         handler = Handler()
 
-        adapter = RvChats()
+        adapter = RvChats(requireContext())
         binding.ListChats.layoutManager = LinearLayoutManager(requireContext())
         binding.ListChats.adapter = adapter
 

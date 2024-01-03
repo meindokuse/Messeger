@@ -44,6 +44,9 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
         private const val KEY_SENDER = "name"
         private const val KEY_LAST_MES = "message"
         private const val KEY_TIME = "time"
+
+        private const val TABLE_POSTS_SOUND = "sound_posts"
+
     }
 
 

@@ -3,6 +3,7 @@ import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.MediaRecorder
 import android.util.Log
 import android.view.ActionMode.Callback
 import androidx.lifecycle.AndroidViewModel
@@ -22,6 +23,7 @@ import retrofit2.Call
 import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.lang.Exception
 import java.util.UUID
 
@@ -60,47 +62,29 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
 
     }
 
-    fun uppdateProfile(FirstName:String,SecondName:String,avatar: Bitmap?){
+    fun uppdateProfile(FirstName:String,SecondName:String,avatar: Bitmap?) {
         val path = userProfile.value!!.avatar
         val id = userProfile.value!!.idUser
 
         viewModelScope.launch(Dispatchers.IO) {
-            if(avatar != null) {
+            if (avatar != null) {
                 val uniqueKey = UUID.randomUUID().toString()
-                val targetFoto = updateImageInInternalStorage(avatar,path,uniqueKey)
-                localReposetoryHelper.updateProfile(id,FirstName, SecondName, targetFoto)
-            }else{
-                localReposetoryHelper.updateProfile(id,FirstName, SecondName, path)
+                val targetFoto = updateImageInInternalStorage(avatar, path, uniqueKey)
+                localReposetoryHelper.updateProfile(id, FirstName, SecondName, targetFoto)
+            } else {
+                localReposetoryHelper.updateProfile(id, FirstName, SecondName, path)
             }
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 updateUserProfile()
             }
-//            ApiClient.apiServer.getProfile(id).enqueue(object : retrofit2.Callback<ProfileInfo?> {
-//                override fun onResponse(call: Call<ProfileInfo?>, response: Response<ProfileInfo?>) {
-//                    // Обработка ответа
-//                    if (response.isSuccessful) {
-//                        val profileInfo = response.body()
-//                        // Обработка profileInfo
-//                        (userProfile as MutableLiveData).value = profileInfo
-//                        statusMessege.value = null
-//                    } else {
-//                        statusMessege.value = "Ошибка получения данных"
-//                    }
-//                }
-//
-//                override fun onFailure(call: Call<ProfileInfo?>, t: Throwable) {
-//                    statusMessege.value = "Офлайн режим"
-//                }
-//            })
 
         }
 
     }
 
 
-
-
     //makes for RcView ( events )
+
     val userEvents: LiveData<List<Event>> = MutableLiveData()
     val UserEventRightNow:MutableLiveData<Event> = MutableLiveData()
 
@@ -127,10 +111,82 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
         localReposetoryHelper.deleteAll(event)
         updateUserEventsList(profileId)
     }
+
+    // FOR SOUND EVENTS (POSTS)
+
+    private var mediaRecorder:MediaRecorder? = null
+    private var audioFilePath: String? = null
+
+
+    @Suppress("DEPRECATION")
+    fun startRecording(){
+        audioFilePath = "${getApplication<Application>().filesDir}/audio_${UUID.randomUUID()}.3gp"
+        mediaRecorder = MediaRecorder().apply {
+            setAudioSource(MediaRecorder.AudioSource.MIC)
+            setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP)
+            setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB)
+            setOutputFile("")
+
+
+            try {
+                prepare()
+                start()
+
+            } catch (e: IOException) {
+                Log.e("MyLog", "Ошибка при подготовке к записи: ${e.message}")
+            }
+        }
+    }
+
+    fun stopRecording(){
+        mediaRecorder?.apply {
+            stop()
+            release()
+            if (audioFilePath != null) {
+                val audioData = File(audioFilePath!!).readBytes()
+                val savedFilePath = saveAudioToInternalStorage(audioData, "audio_${UUID.randomUUID()}")
+                audioFilePath = null
+
+                // Добавьте логику для сохранения информации о звуковом посте в репозитории
+                // Например: localRepositoryHelper.addAudioPost(profileId, savedFilePath)
+
+
+            }
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        mediaRecorder?.release()
+    }
+
+
+
+
+
+
+
     init {
         updateUserProfile()
         updateUserEventsList(profileId)
     }
+
+    // for image in profile and soundFormat(posts)
+
+    private fun saveAudioToInternalStorage(audioData: ByteArray, fileName: String): String {
+        val fileOutputStream = getApplication<Application>().openFileOutput("$fileName.3gp", 0)
+
+        try {
+            fileOutputStream.write(audioData)
+            fileOutputStream.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return File(getApplication<Application>().filesDir, "$fileName.3gp").absolutePath
+    }
+
+
 
     private fun saveImageToInternalStorage(bitmap: Bitmap, fileName: String): String {
         val fileOutputStream: FileOutputStream
@@ -167,6 +223,7 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
             Log.d("MyLog", "Изображение $fileName не существует.")
         }
     }
+
 
 
 }

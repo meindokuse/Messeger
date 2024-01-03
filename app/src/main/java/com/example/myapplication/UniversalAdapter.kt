@@ -24,6 +24,9 @@ class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
     companion object {
         const val EVENT_KEY = "event"
         const val USER_KEY = "user"
+
+        private const val VIEW_TYPE_TEXT_POST = 1
+        private const val VIEW_TYPE_AUDIO_POST = 2
     }
 
     val selectionChats = HashSet<Int>()
@@ -46,15 +49,7 @@ class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
         selectionChats.clear()
         notifyDataSetChanged()
     }
-//    fun deleteSelectionChats(){
-//        val selectedItems = getSelectedItems()
-//        for (position in selectedItems.sortedDescending()){
-//            contentList.removeAt(position)
-//            notifyItemRemoved(position)
-//        }
-//        clearSelection()
-//
-//    }
+
     fun getSelectedItems(): List<Int> {
         return ArrayList(selectionChats)
     }

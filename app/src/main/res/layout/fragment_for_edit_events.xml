@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="400dp"
     tools:context=".profile.FragmentForEditEvents">
 
     <LinearLayout
@@ -34,12 +34,12 @@
             android:textStyle="bold" />
 
         <com.google.android.material.textfield.TextInputLayout
-            app:counterEnabled="true"
-            app:counterMaxLength="50"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+            app:counterEnabled="true"
+            app:counterMaxLength="50">
 
 
             <com.google.android.material.textfield.TextInputEditText
@@ -52,19 +52,30 @@
                 android:textSize="20sp" />
         </com.google.android.material.textfield.TextInputLayout>
 
-        <EditText
-            android:id="@+id/DescriptionForEvent"
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
             android:layout_width="match_parent"
-            android:layout_height="400dp"
+            android:layout_height="wrap_content"
             android:layout_margin="10dp"
-            android:background="@android:color/transparent"
-            android:ems="10"
-            android:gravity="start|top"
-            android:hint="Добавьте описание..."
-            android:inputType="textMultiLine"
-            android:textColor="@color/white"
-            android:textSize="20sp"
-            android:textColorHint="#60000000" />
+            android:background="#A2A1A1">
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="обычное " />
+
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Голосовое " />
+
+        </com.google.android.material.tabs.TabLayout>
+
+
+        <FrameLayout
+            android:id="@+id/descriptionContainer"
+            android:layout_width="match_parent"
+            android:layout_height="400dp" />
 
     </LinearLayout>
 

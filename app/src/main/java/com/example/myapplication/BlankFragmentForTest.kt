@@ -38,9 +38,17 @@ class BlankFragmentForTest : Fragment() {
             .into(view.findViewById(R.id.profileImage))
 
         adapter = UniversalAdapter(object: ItemListener {
-            override fun onClick(position: Int) {
+            override fun onClickDelete(position: Int) {
                 val event = adapter.getAllItems()[position]
                 adapter.removeItem(position)
+            }
+
+            override fun onClickStartListen(position: Int) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onClickStopListen(position: Int) {
+                TODO("Not yet implemented")
             }
         },constanse.KEY_FOR_POSTS)
 
@@ -78,7 +86,7 @@ class BlankFragmentForTest : Fragment() {
     }
     fun testAddItems(){
         for(i in 1..10){
-            adapter.addData(Event("qwe","Ауе","sadasdasdasdasdasd"))
+            adapter.addData(Event("qwe","Ауе","sadasdasdasdasdasd",1,1))
         }
     }
 

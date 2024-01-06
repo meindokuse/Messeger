@@ -1,8 +1,7 @@
 package com.example.myapplication.profile
 
-import android.content.SharedPreferences
+import android.media.MediaPlayer
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -10,24 +9,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
+import com.example.myapplication.EventsAdapter
 import com.example.myapplication.R
-import com.example.myapplication.UniversalAdapter
-import com.example.myapplication.constanse
-import com.example.myapplication.profile.rcview.EventListAdapter
-import com.example.myapplication.databinding.FragmentBlankBinding
 import com.example.myapplication.databinding.FragmentProfileBinding
-import com.example.myapplication.elements.Event
 import com.example.myapplication.profile.rcview.ItemListener
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import com.example.myapplication.viewmodel.MyViewModel
+import java.io.IOException
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -41,13 +35,14 @@ import com.example.myapplication.viewmodel.MyViewModel
  */
 class ProfileFragment : Fragment() {
 
-    var EditEventTime = false
+   private var EditEventTime = false
 
     val fragmentForEditEvents = FragmentForEditEvents()
     val editFragmentForProfile = EditFragmentForProfile()
 
     private lateinit var binding:FragmentProfileBinding
-    lateinit var adapter: UniversalAdapter<Event>
+//    lateinit var adapter: UniversalAdapter<Event>
+    lateinit var adapter:EventsAdapter
     private val DataModel: MyViewModel by activityViewModels{
         MyViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
     }
@@ -62,15 +57,42 @@ class ProfileFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        adapter = UniversalAdapter(object: ItemListener{
-            override fun onClick(position: Int) {
+        super.onViewCreated(view, savedInstanceState)
+
+        adapter = EventsAdapter(object: ItemListener{
+            override fun onClickDelete(position: Int) {
                 val event = adapter.getAllItems()[position]
-                DataModel.DeleteEvent(event,1)
+                DataModel.DeleteEvent(event)
                 adapter.removeItem(position)
             }
-        },constanse.KEY_FOR_POSTS)
 
-        binding.postsRecyclerView.layoutManager = LinearLayoutManager(activity)
+            override fun onClickStartListen(position: Int,mediaPlayer: MediaPlayer) {
+//                val event = adapter.getAllItems()[position]
+                stopAllMediaPlayersExcept(mediaPlayer)
+//                if (event.type == 2){
+//                    mediaPlayer.reset()
+//                    try {
+//                        mediaPlayer.apply {
+//                            setDataSource(event.desc)
+//                        }
+//                    } catch (e: IOException) {
+//                        Log.e("YourAudioPlaybackClass", "Ошибка при воспроизведении аудио: ${e.message}")
+//                    }
+//
+//                    mediaPlayer.setOnCompletionListener {
+//                        mediaPlayer.release()
+//                    }
+//                }
+            }
+            override fun onClickStopListen(position: Int) {
+                TODO("Not yet implemented")
+            }
+        })
+
+        val layoutManager = LinearLayoutManager(requireContext())
+        layoutManager.reverseLayout = true
+
+        binding.postsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
         binding.postsRecyclerView.adapter = adapter
         binding.postsRecyclerView.isNestedScrollingEnabled = false
 
@@ -88,11 +110,19 @@ class ProfileFragment : Fragment() {
 
 
     }
+    private fun stopAllMediaPlayersExcept(exceptPlayer: MediaPlayer) {
+        for (player in adapter.mediaPlayers) {
+            if (player != exceptPlayer && player.isPlaying) {
+                player.pause()
+                player.seekTo(0)
+            }
+        }
+    }
     private fun init() {
         binding.EditProfile.setColorFilter(ContextCompat.getColor(requireContext(),R.color.white))
 
         if(DataModel.userEvents.value != null) {
-            adapter.addListData(DataModel.userEvents.value!!)
+            adapter.addListEvent(DataModel.userEvents.value!!)
         }else
             Toast.makeText(activity,"Постов пока что нету",Toast.LENGTH_SHORT).show()
 
@@ -117,14 +147,13 @@ class ProfileFragment : Fragment() {
 
         DataModel.UserEventRightNow.observe(viewLifecycleOwner){
             Log.d("MyLog","UserEventRightNow")
-            if(it != null && EditEventTime ) adapter.addData(it)
+            if(it != null && EditEventTime ) adapter.addEvent(it)
         }
-
     }
+
     companion object {
         @JvmStatic
         fun newInstance() = ProfileFragment()
-
     }
 
 

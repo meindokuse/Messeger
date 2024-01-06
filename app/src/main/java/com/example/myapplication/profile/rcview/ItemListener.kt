@@ -1,8 +1,12 @@
 package com.example.myapplication.profile.rcview
 
-import androidx.recyclerview.widget.RecyclerView
+import android.media.MediaPlayer
 
 interface ItemListener {
-    fun onClick(position:Int)
+    fun onClickDelete(position:Int)
+
+    fun onClickStartListen(position: Int,mediaPlayer: MediaPlayer)
+
+    fun onClickStopListen(position: Int)
 
 }

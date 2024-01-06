@@ -101,7 +101,7 @@ class AddNewChatFragment() : BottomSheetDialogFragment() {
 
         usersAdapter = UniversalAdapter(object: ItemListener{
 
-            override fun onClick(position: Int) {
+            override fun onClickDelete(position: Int) {
                 val user = usersAdapter.getAllItems()[position]
                 usersAdapter.toggleSelection(position)
 
@@ -109,6 +109,14 @@ class AddNewChatFragment() : BottomSheetDialogFragment() {
                     selectedUsers.add(user)
                 } else selectedUsers.remove(user)
                 updateWhoGetText()
+            }
+
+            override fun onClickStartListen(position: Int) {
+                TODO("Not yet implemented")
+            }
+
+            override fun onClickStopListen(position: Int) {
+                TODO("Not yet implemented")
             }
 
         } , constanse.KEY_FOR_USERS)

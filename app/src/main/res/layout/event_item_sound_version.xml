@@ -31,41 +31,39 @@
                 android:textSize="20sp" />
 
             <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp">
-
-            <com.google.android.material.floatingactionbutton.FloatingActionButton
-                android:id="@+id/playButton"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:clickable="true"
-                android:scaleX="0.8"
-                android:scaleY="0.8"
-                android:src="@drawable/baseline_play_arrow_24"
-                app:backgroundTint="@color/grey_white" />
+                android:orientation="horizontal"
+                android:padding="16dp">
 
-            <TextView
-                android:id="@+id/durationTextView"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="8dp"
-                android:text="0:00"
-                android:textSize="16sp" />
+                <com.google.android.material.floatingactionbutton.FloatingActionButton
+                    android:id="@+id/playButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:src="@drawable/baseline_play_arrow_24"
+                    app:backgroundTint="@color/grey_white" />
 
-            <ProgressBar
-                android:id="@+id/progressSound"
-                style="?android:attr/progressBarStyleHorizontal"
-                android:layout_width="234dp"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:layout_weight="1"
-                android:scaleY="1.5" />
+                <TextView
+                    android:id="@+id/durationTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="8dp"
+                    android:text="0:00"
+                    android:textSize="16sp" />
+
+                <SeekBar
+                    android:id="@+id/seekBar"
+                    android:layout_width="120dp"
+                    android:layout_height="20dp"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="20dp"
+                    android:layout_weight="1"
+                    android:thumbTint="#000000"
+                    android:translationX="5dp" />
 
 
             </LinearLayout>
@@ -97,7 +95,6 @@
                     app:backgroundTint="@color/white" />
             </LinearLayout>
         </LinearLayout>
-
 
 
     </androidx.cardview.widget.CardView>

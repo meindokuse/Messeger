@@ -29,12 +29,11 @@ import java.util.UUID
  * create an instance of this fragment.
  */
 class FragmentForEditEvents : BottomSheetDialogFragment() {
-    var selectedValue = ""
+
     val descriptionVoiceFragment = DescriptionVoiceFragment()
     val descriptionTextFragment = DescriptionTextFragment()
 
     var TextOrVoice = 1
-
 
 
     val DataModel: MyViewModel by activityViewModels{
@@ -57,6 +56,10 @@ class FragmentForEditEvents : BottomSheetDialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         showTextDescriptionEditText()
+
+        DataModel.isRecording.observe(viewLifecycleOwner){
+            binding.doneButton.isEnabled = !it
+        }
 
         binding.tabLayout.addOnTabSelectedListener(object :TabLayout.OnTabSelectedListener{
             override fun onTabSelected(tab: TabLayout.Tab?) {
@@ -92,13 +95,23 @@ class FragmentForEditEvents : BottomSheetDialogFragment() {
                     descriptionTextFragment.error()
                 }else {
                     val uniqueKey = UUID.randomUUID().toString()
-                    val event = Event(uniqueKey, title, desc)
-                    DataModel.addEventToReposetory(event, 1)
+                    val currentTime = System.currentTimeMillis()
+                    val event = Event(uniqueKey, title, desc,currentTime,TextOrVoice)
+                    DataModel.addEventToReposetory(event)
                     dismiss()
                 }
                 }
             if (TextOrVoice == 2 ){
-                    Toast.makeText(requireContext(),"Звуковые посты пока что в разработке",Toast.LENGTH_SHORT).show()
+                val audioDesc = descriptionVoiceFragment.getAudio()
+                if (audioDesc == null){
+                    Toast.makeText(requireContext(),"Произошла ошибка записи",Toast.LENGTH_SHORT).show()
+                }else{
+                    val uniqueKey = UUID.randomUUID().toString()
+                    val currentTime = System.currentTimeMillis()
+                    val event = Event(uniqueKey, title, audioDesc,currentTime,TextOrVoice)
+                    DataModel.addEventToReposetory(event)
+                    dismiss()
+                }
                 }
         }
     }

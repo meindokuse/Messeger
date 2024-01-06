@@ -27,7 +27,7 @@ class EventListAdapter(val itemListener: ItemListener,):RecyclerView.Adapter<Eve
             binding.title.text = "Тема: ${event.title}"
             binding.description.text = event.desc
             binding.deleteButton.setOnClickListener {
-                 itemListener.onClick(adapterPosition)
+                 itemListener.onClickDelete(adapterPosition)
             }
 
         }

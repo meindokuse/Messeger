@@ -66,7 +66,7 @@ class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
             binding.title.text = "Тема: ${event.title}"
             binding.description.text = event.desc
             binding.deleteButton.setOnClickListener {
-                itemListener.onClick(adapterPosition)
+                itemListener.onClickDelete(adapterPosition)
             }
 
         }
@@ -87,7 +87,7 @@ class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
             binding.nickname.text = userForChoose.nickname
 
             binding.avatarView.setOnClickListener {
-                itemListener.onClick(position)
+                itemListener.onClickDelete(position)
             }
 
            if(isSelected(position)){
@@ -145,7 +145,6 @@ class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
 
     fun removeItem(position: Int) {
         contentList.removeAt(position)
-        notifyDataSetChanged()
         notifyItemRemoved(position)
     }
 

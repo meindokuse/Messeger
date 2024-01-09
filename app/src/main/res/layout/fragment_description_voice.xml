@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".DescriptionVoiceFragment">
+    tools:context=".profile.DescriptionVoiceFragment">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -26,22 +26,27 @@
             app:layout_constraintVertical_bias="0.228" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/startOrPauseRecordingButton"
+            android:id="@+id/startRecordingButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="64dp"
-            android:layout_marginTop="84dp"
+            android:layout_marginStart="176dp"
+            android:layout_marginTop="144dp"
+            android:layout_marginEnd="176dp"
             android:clickable="true"
             android:src="@android:drawable/ic_btn_speak_now"
-            app:backgroundTint="@color/grey_white"
+            app:backgroundTint="@color/white"
+            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/durationText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="104dp"
+            android:layout_width="54dp"
+            android:layout_height="31dp"
+            android:layout_marginStart="176dp"
+            android:layout_marginTop="92dp"
+            android:layout_marginEnd="176dp"
+            android:gravity="center"
             android:text="0:00"
             android:textSize="20sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -52,10 +57,26 @@
             android:id="@+id/stopButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:layout_marginEnd="64dp"
+            android:layout_marginStart="176dp"
+            android:layout_marginTop="84dp"
+            android:layout_marginEnd="176dp"
             android:clickable="true"
-            android:src="@android:drawable/ic_menu_send"
+            android:src="@drawable/baseline_stop_24"
+            android:visibility="gone"
+            app:backgroundTint="#EF0202"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView3" />
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/cancelButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="85dp"
+            android:layout_marginEnd="88dp"
+            android:clickable="true"
+            android:src="@android:drawable/ic_popup_sync"
+            android:visibility="gone"
             app:backgroundTint="@color/white"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView3" />

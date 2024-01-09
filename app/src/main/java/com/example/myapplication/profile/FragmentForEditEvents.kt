@@ -1,5 +1,6 @@
 package com.example.myapplication.profile
 
+import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -9,8 +10,6 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.activityViewModels
-import com.example.myapplication.DescriptionTextFragment
-import com.example.myapplication.DescriptionVoiceFragment
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentForEditEventsBinding
 import com.example.myapplication.elements.Event
@@ -41,6 +40,7 @@ class FragmentForEditEvents : BottomSheetDialogFragment() {
     }
     private lateinit var binding: FragmentForEditEventsBinding
     private lateinit var adapter: ArrayAdapter<CharSequence>
+    private var isCompleteAudio = false
 
 
 
@@ -60,6 +60,7 @@ class FragmentForEditEvents : BottomSheetDialogFragment() {
         DataModel.isRecording.observe(viewLifecycleOwner){
             binding.doneButton.isEnabled = !it
         }
+        isCompleteAudio = false
 
         binding.tabLayout.addOnTabSelectedListener(object :TabLayout.OnTabSelectedListener{
             override fun onTabSelected(tab: TabLayout.Tab?) {
@@ -83,8 +84,6 @@ class FragmentForEditEvents : BottomSheetDialogFragment() {
 
         })
 
-
-//
         binding.doneButton.setOnClickListener {
             Log.d("MyLog","${DataModel.userEvents.value}")
             val title = binding.titileForEvent.text.toString()
@@ -106,6 +105,7 @@ class FragmentForEditEvents : BottomSheetDialogFragment() {
                 if (audioDesc == null){
                     Toast.makeText(requireContext(),"Произошла ошибка записи",Toast.LENGTH_SHORT).show()
                 }else{
+                    isCompleteAudio = true
                     val uniqueKey = UUID.randomUUID().toString()
                     val currentTime = System.currentTimeMillis()
                     val event = Event(uniqueKey, title, audioDesc,currentTime,TextOrVoice)
@@ -114,6 +114,14 @@ class FragmentForEditEvents : BottomSheetDialogFragment() {
                 }
                 }
         }
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        if (!isCompleteAudio && descriptionVoiceFragment.getAudio() != null) {
+            descriptionVoiceFragment.clearAudioPath()
+        }
+        if (isCompleteAudio ) descriptionVoiceFragment.audioDescToNull()
+        super.onDismiss(dialog)
     }
 
     companion object {

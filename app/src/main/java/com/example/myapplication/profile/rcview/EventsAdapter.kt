@@ -1,8 +1,8 @@
-package com.example.myapplication
+package com.example.myapplication.profile.rcview
 
+import android.annotation.SuppressLint
 import android.media.MediaPlayer
 import android.os.Handler
-import android.os.HandlerThread
 import android.os.Looper
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,14 +10,16 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myapplication.R
 import com.example.myapplication.databinding.EventItemBinding
 import com.example.myapplication.databinding.EventItemSoundVersionBinding
 import com.example.myapplication.elements.Event
-import com.example.myapplication.profile.rcview.ItemListener
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+
 
 class EventsAdapter(val itemListener: ItemListener):RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -28,12 +30,12 @@ class EventsAdapter(val itemListener: ItemListener):RecyclerView.Adapter<Recycle
 
     private val posts = mutableListOf<Event>()
 
-    val mediaPlayers = mutableListOf<MediaPlayer>()
     inner class TextPostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
 
         val binding = EventItemBinding.bind(itemView)
-        fun bind(textPost: Event,position: Int) {
-            binding.title.text = "Tема:${textPost.title}"
+        @SuppressLint("SetTextI18n")
+        fun bind(textPost: Event, position: Int) {
+            binding.title.text = "Tема: ${textPost.title}"
             binding.description.text = textPost.desc
             val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
             val formattedDate = sdf.format(Date(textPost.data))
@@ -47,73 +49,102 @@ class EventsAdapter(val itemListener: ItemListener):RecyclerView.Adapter<Recycle
 
 
     inner class AudioPostViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val mediaPlayer = MediaPlayer()
+        val mediaPlayer = MediaPlayer()
         private val updateHandler = Handler(Looper.getMainLooper())
 
         val binding = EventItemSoundVersionBinding.bind(itemView)
 
         init {
             mediaPlayer.setOnPreparedListener {
-                val durationInSeconds = mediaPlayer.duration / 1000
+                val durationInSeconds = mediaPlayer.duration
                 binding.seekBar.max = durationInSeconds
                 binding.durationTextView.text = formatDuration(durationInSeconds)
             }
         }
 
+        @SuppressLint("SetTextI18n")
         fun bind(audioPost: Event, position: Int) {
-            binding.titleVsound.text = audioPost.title
+            binding.titleVsound.text = "Tема: ${audioPost.title}"
 
             binding.deleteButtonVsound.setOnClickListener {
                 itemListener.onClickDelete(position)
             }
             binding.playButton.setOnClickListener {
-                itemListener.onClickStartListen(position, mediaPlayer)
-                binding.playButton.setImageResource(R.drawable.baseline_pause_24)
-                mediaPlayer.start()
-                updateHandler.post(object : Runnable {
-                    override fun run() {
-                        if (mediaPlayer.isPlaying) {
-                            updateSeekListener(mediaPlayer.currentPosition / 1000)
-                            updateHandler.postDelayed(this, 1000)
-                        }
-                    }
-                })
+                if (mediaPlayer.isPlaying) {
+                    binding.playButton.setImageResource(R.drawable.baseline_play_arrow_24)
+                    mediaPlayer.pause()
+                    itemListener.onClickStopListen(position,mediaPlayer)
+
+                } else {
+                    itemListener.onClickStartListen(position, mediaPlayer)
+                    binding.playButton.setImageResource(R.drawable.baseline_pause_24)
+                    mediaPlayer.start()
+                    updateHandler.post(updateRunnable)
+                }
             }
+
             binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {}
+                override fun onProgressChanged(
+                    seekBar: SeekBar?,
+                    progress: Int,
+                    fromUser: Boolean
+                ) {
+                    if (fromUser) {
+                        binding.durationTextView.text = formatDuration(progress)
+                    }
+                }
 
                 override fun onStartTrackingTouch(seekBar: SeekBar?) {
-                    mediaPlayer.pause()
+                    updateHandler.removeCallbacks(updateRunnable)
                 }
 
                 override fun onStopTrackingTouch(seekBar: SeekBar?) {
                     val progress = seekBar?.progress ?: 0
-                    mediaPlayer.seekTo(progress * 1000)
-                    mediaPlayer.start()
+                    mediaPlayer.seekTo(progress)
+                    updateHandler.post(updateRunnable)
                 }
             })
+            mediaPlayer.setOnInfoListener { mediaplay, what, _ ->
+                Log.d("MyLog", "setOnInfoListener")
+
+                true
+            }
 
             mediaPlayer.setOnSeekCompleteListener {
+                Log.d("MyLog", "setOnSeekCompleteListener")
+
                 updateHandler.post {
-                    updateSeekListener(mediaPlayer.currentPosition / 1000)
+                    updateSeekListener(mediaPlayer.currentPosition)
                 }
             }
+
             mediaPlayer.reset()
             try {
                 mediaPlayer.apply {
                     setDataSource(audioPost.desc)
                     prepareAsync()
                 }
-                mediaPlayers.add(mediaPlayer)
+
             } catch (e: IOException) {
                 Log.e("YourAudioPlaybackClass", "Ошибка при воспроизведении аудио: ${e.message}")
             }
             mediaPlayer.setOnCompletionListener {
                 binding.playButton.setImageResource(R.drawable.baseline_play_arrow_24)
-                val durationInSeconds = mediaPlayer.duration / 1000
+                val durationInSeconds = mediaPlayer.duration
                 binding.seekBar.max = durationInSeconds
                 binding.durationTextView.text = formatDuration(durationInSeconds)
                 binding.seekBar.progress = 0
+            }
+
+        }
+
+        val updateRunnable = object : Runnable {
+            override fun run() {
+                if (mediaPlayer.isPlaying) {
+                    binding.seekBar.progress = mediaPlayer.currentPosition
+                    binding.durationTextView.text = formatDuration(mediaPlayer.currentPosition)
+                    updateHandler.postDelayed(this, 100)
+                }
             }
         }
 
@@ -122,11 +153,20 @@ class EventsAdapter(val itemListener: ItemListener):RecyclerView.Adapter<Recycle
             binding.durationTextView.text = formatDuration(currentPosition)
         }
 
-        private fun formatDuration(seconds: Int): String {
-            val minutes = seconds / 60
-            val remainingSeconds = seconds % 60
-            return String.format(Locale.getDefault(), "%d:%02d", minutes, remainingSeconds)
+        private fun formatDuration(milliseconds: Int): String {
+            val totalSeconds = milliseconds / 1000
+            val minutes = totalSeconds / 60
+            val seconds = totalSeconds % 60
+            return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
         }
+        fun updatePlayButtonImage(isPlaying: Boolean) {
+            if (isPlaying) {
+                binding.playButton.setImageResource(R.drawable.baseline_pause_24)
+            } else {
+                binding.playButton.setImageResource(R.drawable.baseline_play_arrow_24)
+            }
+        }
+
     }
 
 
@@ -183,5 +223,8 @@ class EventsAdapter(val itemListener: ItemListener):RecyclerView.Adapter<Recycle
         return posts
     }
 
-
 }
+
+
+
+

@@ -14,6 +14,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
+
+
     val globalData: SharedViewModel by viewModels{
         SharedViewModelFactory(LocalReposetoryHelper(this))
     }
@@ -25,10 +27,6 @@ class MainActivity : AppCompatActivity() {
         val fragmentHostNavigate = supportFragmentManager.findFragmentById(R.id.placeholder) as NavHostFragment
         val controller = fragmentHostNavigate.navController
         NavigationUI.setupWithNavController(binding.BNV,controller)
-
-
-
-
 
 
         init()

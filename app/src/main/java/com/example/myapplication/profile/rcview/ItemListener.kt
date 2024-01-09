@@ -7,6 +7,6 @@ interface ItemListener {
 
     fun onClickStartListen(position: Int,mediaPlayer: MediaPlayer)
 
-    fun onClickStopListen(position: Int)
+    fun onClickStopListen(position: Int,mediaPlayer: MediaPlayer)
 
 }

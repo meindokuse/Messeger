@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.profile
 
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -9,13 +9,14 @@ import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
-import com.example.myapplication.profile.MyViewModelFactory
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import com.example.myapplication.viewmodel.MyViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import android.Manifest
 import android.widget.TextView
+import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
+import com.example.myapplication.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -37,6 +38,10 @@ class DescriptionVoiceFragment : Fragment() {
     lateinit var textProcess:TextView
     private var timerJob: Job? = null
 
+    private lateinit var startOrStopButton:FloatingActionButton
+    private lateinit var stopButton:FloatingActionButton
+    private lateinit var cancelButton: FloatingActionButton
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,12 +54,14 @@ class DescriptionVoiceFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val startOrStopButton = view.findViewById<FloatingActionButton>(R.id.startOrPauseRecordingButton)
-        val stopButton = view.findViewById<FloatingActionButton>(R.id.stopButton)
+        startOrStopButton = view.findViewById(R.id.startRecordingButton)
+        stopButton = view.findViewById(R.id.stopButton)
         textProcess = view.findViewById(R.id.durationText)
-        stopButton.isEnabled = false
-        textProcess.text = "Запись не идет"
-        formatDuration(0)
+        cancelButton = view.findViewById(R.id.cancelButton)
+        time = 0
+
+        stopButton.setColorFilter(ContextCompat.getColor(requireContext(), R.color.white))
+        textProcess.text = formatDuration(0)
 
         startOrStopButton.setOnClickListener {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
@@ -62,17 +69,24 @@ class DescriptionVoiceFragment : Fragment() {
                 ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.RECORD_AUDIO), RECORD_AUDIO_PERMISSION_REQUEST_CODE)
             } else {
                 // Если разрешение уже есть, выполняем запись
-               audioDesc = profileViewModel.startRecording()
                 stopButton.isEnabled = true
+                clearAudioPath()
+                audioDesc = profileViewModel.startRecording()
                 profileViewModel.isRecording.value = true
                 startRecordingTimer()
+                setStartButtonToStop(stopButton,startOrStopButton)
+
             }
         }
         stopButton.setOnClickListener {
             profileViewModel.stopRecording()
             profileViewModel.isRecording.value = false
+            stopButton.isEnabled = false
             stopRecordingTimer()
+            startOrStopButton.setImageResource(R.drawable.baseline_settings_backup_restore_24)
+            setStartButtonToStop(startOrStopButton,stopButton)
         }
+
 
 
     }
@@ -108,4 +122,35 @@ class DescriptionVoiceFragment : Fragment() {
         val remainingSeconds = seconds % 60
         return String.format(Locale.getDefault(), "%d:%02d", minutes, remainingSeconds)
     }
+    fun setStartButtonToStop(newButton: View,hideButton: View){
+        hideButton.animate()
+            .translationYBy(hideButton.height.toFloat())
+            .alpha(0.0f)
+            .setDuration(500)
+            .withEndAction {
+                hideButton.visibility = View.GONE
+            }
+
+        newButton.visibility = View.VISIBLE
+        newButton.alpha = 0.0f
+
+        newButton.animate()
+            .translationYBy(-newButton.height.toFloat())
+            .alpha(1.0f).duration = 500
+    }
+    fun clearAudioPath(){
+        if (audioDesc != null ) {
+            profileViewModel.deleteSoundFromEvent(audioDesc!!)
+            audioDescToNull()
+        }
+    }
+
+    override fun onResume() {
+        clearAudioPath()
+        super.onResume()
+    }
+    fun audioDescToNull(){
+        audioDesc = null
+    }
+
 }

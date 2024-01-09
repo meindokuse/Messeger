@@ -15,34 +15,25 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
-import com.example.myapplication.EventsAdapter
+import com.example.myapplication.profile.rcview.EventsAdapter
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentProfileBinding
 import com.example.myapplication.profile.rcview.ItemListener
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import com.example.myapplication.viewmodel.MyViewModel
-import java.io.IOException
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-//private const val ARG_PARAM1 = "param1"
-//private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [ProfileFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class ProfileFragment : Fragment() {
 
    private var EditEventTime = false
 
     val fragmentForEditEvents = FragmentForEditEvents()
     val editFragmentForProfile = EditFragmentForProfile()
+    private var currentlyPlayingViewHolder: EventsAdapter.AudioPostViewHolder? = null
+
 
     private lateinit var binding:FragmentProfileBinding
-//    lateinit var adapter: UniversalAdapter<Event>
-    lateinit var adapter:EventsAdapter
+    lateinit var adapter: EventsAdapter
     private val DataModel: MyViewModel by activityViewModels{
         MyViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
     }
@@ -67,25 +58,15 @@ class ProfileFragment : Fragment() {
             }
 
             override fun onClickStartListen(position: Int,mediaPlayer: MediaPlayer) {
-//                val event = adapter.getAllItems()[position]
-                stopAllMediaPlayersExcept(mediaPlayer)
-//                if (event.type == 2){
-//                    mediaPlayer.reset()
-//                    try {
-//                        mediaPlayer.apply {
-//                            setDataSource(event.desc)
-//                        }
-//                    } catch (e: IOException) {
-//                        Log.e("YourAudioPlaybackClass", "Ошибка при воспроизведении аудио: ${e.message}")
-//                    }
-//
-//                    mediaPlayer.setOnCompletionListener {
-//                        mediaPlayer.release()
-//                    }
-//                }
+                stopCurrentlyPlaying()
+                val viewHolder = binding.postsRecyclerView.findViewHolderForAdapterPosition(position) as? EventsAdapter.AudioPostViewHolder
+                viewHolder?.updatePlayButtonImage(true)
+                currentlyPlayingViewHolder = viewHolder
+
             }
-            override fun onClickStopListen(position: Int) {
-                TODO("Not yet implemented")
+            override fun onClickStopListen(position: Int, mediaPlayer: MediaPlayer) {
+                currentlyPlayingViewHolder?.updatePlayButtonImage(false)
+                currentlyPlayingViewHolder = null
             }
         })
 
@@ -105,17 +86,11 @@ class ProfileFragment : Fragment() {
             fragmentForEditEvents.show(childFragmentManager,fragmentForEditEvents.tag)
             EditEventTime = true
         }
-
-
-
-
     }
-    private fun stopAllMediaPlayersExcept(exceptPlayer: MediaPlayer) {
-        for (player in adapter.mediaPlayers) {
-            if (player != exceptPlayer && player.isPlaying) {
-                player.pause()
-                player.seekTo(0)
-            }
+    private fun stopCurrentlyPlaying() {
+        currentlyPlayingViewHolder?.let {
+            it.updatePlayButtonImage(false)
+            it.mediaPlayer.pause()
         }
     }
     private fun init() {
@@ -150,11 +125,5 @@ class ProfileFragment : Fragment() {
             if(it != null && EditEventTime ) adapter.addEvent(it)
         }
     }
-
-    companion object {
-        @JvmStatic
-        fun newInstance() = ProfileFragment()
-    }
-
 
 }

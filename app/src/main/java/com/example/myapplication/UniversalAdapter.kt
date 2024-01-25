@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
+import com.example.myapplication.chats.UsersListener
 import com.example.myapplication.databinding.EventItemBinding
 import com.example.myapplication.databinding.UserForChooseBinding
 import com.example.myapplication.elements.Event
@@ -16,7 +17,7 @@ import com.example.myapplication.elements.UserForChoose
 import com.example.myapplication.profile.rcview.ItemListener
 
 
-class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
+class UniversalAdapter<T>(val itemListener: UsersListener, val key: String) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val contentList = ArrayList<T>()
@@ -66,7 +67,7 @@ class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
             binding.title.text = "Тема: ${event.title}"
             binding.description.text = event.desc
             binding.deleteButton.setOnClickListener {
-                itemListener.onClickDelete(adapterPosition)
+                itemListener.clickToUser(adapterPosition)
             }
 
         }
@@ -87,7 +88,7 @@ class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
             binding.nickname.text = userForChoose.nickname
 
             binding.avatarView.setOnClickListener {
-                itemListener.onClickDelete(position)
+                itemListener.clickToUser(position)
             }
 
            if(isSelected(position)){

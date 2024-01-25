@@ -43,12 +43,17 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
     fun addUser(context: Context,info:ArrayList<String> ,avatar:Bitmap?){
         val id = UUID.randomUUID().toString()
 
+        Log.d("MyLog","$info")
+
+
         if (avatar == null){
            val defaultFoto = BitmapFactory.decodeResource(context.resources,R.drawable.profile_foro)
             val uniqueKey = UUID.randomUUID().toString()
             val fotoForAvatar = saveImageToInternalStorage(defaultFoto,uniqueKey)
-            val profileInfo = ProfileInfo(id,info[0],info[1],info[2],info[3],info[4],info[5],fotoForAvatar)
+            val profileInfo = ProfileInfo(id.reversed(),info[0],info[1],info[2],info[3],info[4],info[5],fotoForAvatar)
+
             Log.d("MyLog","Во вьюхе заварушка")
+            Log.d("MyLog","$profileInfo")
             localReposetoryHelper.addProfile(profileInfo)
         }else {
             val uniqueKey = UUID.randomUUID().toString()
@@ -58,7 +63,6 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
             localReposetoryHelper.addProfile(profileInfo)
         }
         updateUserProfile()
-
 
     }
 

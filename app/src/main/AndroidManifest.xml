@@ -16,11 +16,6 @@
         android:theme="@style/Theme.MyApplication"
         tools:targetApi="31" >
         <activity
-            android:name=".RegistrationOrLoginActivity"
-            android:exported="false"
-            android:label="@string/title_activity_registration_or_login"
-            android:theme="@style/Theme.MyApplication" />
-        <activity
             android:name=".MainActivity"
             android:configChanges="keyboardHidden|orientation|screenSize"
             android:exported="true" >

@@ -16,7 +16,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
 
 
     companion object{
-        private const val DATABASE_VERSION = 13
+        private const val DATABASE_VERSION = 17
         private const val DATABASE_NAME = "LocalReposeroty.db"
 
         private const val TABLE_NAME = "profile"
@@ -57,7 +57,6 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
 
     }
 
-
     override fun onCreate(db: SQLiteDatabase?) {
         val createTable = "CREATE TABLE $TABLE_NAME ($KEY_ID TEXT,$KEY_FIRSTNAME TEXT,$KEY_SECONDNAME TEXT,$KEY_SCHOOL TEXT,$KEY_CITY TEXT,$KEY_AGE TEXT,$KEY_TARGET_CLASS TEXT,$KEY_PROFILE_AVATAR TEXT)"
         db?.execSQL(createTable)
@@ -80,7 +79,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
         onCreate(db)
     }
     fun getUserId():String{
-        var userId = " "
+        var userId = "NoN"
         val db = this.readableDatabase
         val selectQuery = "SELECT $KEY_ID FROM $TABLE_NAME"
         val cursor = db.rawQuery(selectQuery,null)

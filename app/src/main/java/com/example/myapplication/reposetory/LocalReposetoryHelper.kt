@@ -27,11 +27,11 @@ class LocalReposetoryHelper(context: Context) {
     }
 
     // makes for RecyclerView ( events )
-    fun addEventForRcView(event: Event,profileID:Long){
-        localReposetory.addEvent(event,profileID)
+    fun addEventForRcView(event: Event,){
+        localReposetory.addEvent(event)
     }
-    fun getAllEvents(profileID: Long): List<Event>{
-        return localReposetory.getAllEvents(profileID).reversed()
+    fun getAllEvents(): List<Event>{
+        return localReposetory.getAllEvents().reversed()
     }
     fun deleteAll(event: Event){
         localReposetory.deleteEvent(event)

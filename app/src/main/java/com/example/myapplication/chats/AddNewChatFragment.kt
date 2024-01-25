@@ -99,9 +99,8 @@ class AddNewChatFragment() : BottomSheetDialogFragment() {
         binding.MessageText.isEnabled = false
 
 
-        usersAdapter = UniversalAdapter(object: ItemListener{
-
-            override fun onClick(position: Int) {
+        usersAdapter = UniversalAdapter(object: UsersListener{
+            override fun clickToUser(position: Int) {
                 val user = usersAdapter.getAllItems()[position]
                 usersAdapter.toggleSelection(position)
 

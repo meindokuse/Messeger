@@ -9,18 +9,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
-import com.example.myapplication.chats.MessageInChat
+import com.example.myapplication.chats.UsersListener
 import com.example.myapplication.databinding.EventItemBinding
-import com.example.myapplication.databinding.MessageBodyBinding
 import com.example.myapplication.databinding.UserForChooseBinding
 import com.example.myapplication.elements.Event
 import com.example.myapplication.elements.UserForChoose
 import com.example.myapplication.profile.rcview.ItemListener
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
 
-class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
+
+class UniversalAdapter<T>(val itemListener: UsersListener, val key: String) :
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val contentList = ArrayList<T>()
@@ -28,7 +25,9 @@ class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
     companion object {
         const val EVENT_KEY = "event"
         const val USER_KEY = "user"
-        const val MESSAGE_KEY = "message"
+
+        private const val VIEW_TYPE_TEXT_POST = 1
+        private const val VIEW_TYPE_AUDIO_POST = 2
     }
 
     val selectionChats = HashSet<Int>()
@@ -51,15 +50,7 @@ class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
         selectionChats.clear()
         notifyDataSetChanged()
     }
-    fun deleteSelectionChats(){
-        val selectedItems = getSelectedItems()
-        for (position in selectedItems.sortedDescending()){
-            contentList.removeAt(position)
-            notifyItemRemoved(position)
-        }
-        clearSelection()
 
-    }
     fun getSelectedItems(): List<Int> {
         return ArrayList(selectionChats)
     }
@@ -76,7 +67,7 @@ class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
             binding.title.text = "Тема: ${event.title}"
             binding.description.text = event.desc
             binding.deleteButton.setOnClickListener {
-                itemListener.onClick(adapterPosition)
+                itemListener.clickToUser(adapterPosition)
             }
 
         }
@@ -97,7 +88,7 @@ class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
             binding.nickname.text = userForChoose.nickname
 
             binding.avatarView.setOnClickListener {
-                itemListener.onClick(position)
+                itemListener.clickToUser(position)
             }
 
            if(isSelected(position)){
@@ -155,7 +146,6 @@ class UniversalAdapter<T>(val itemListener: ItemListener, val key: String) :
 
     fun removeItem(position: Int) {
         contentList.removeAt(position)
-        notifyDataSetChanged()
         notifyItemRemoved(position)
     }
 

@@ -3,6 +3,8 @@ import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.media.MediaRecorder
+import android.os.Build
 import android.util.Log
 import android.view.ActionMode.Callback
 import androidx.lifecycle.AndroidViewModel
@@ -22,6 +24,7 @@ import retrofit2.Call
 import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.lang.Exception
 import java.util.UUID
 
@@ -29,7 +32,6 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
 
 
     val userProfile: LiveData<ProfileInfo> = MutableLiveData()
-    val statusMessege: MutableLiveData<String?> = MutableLiveData()
 
 
     private fun updateUserProfile(){
@@ -41,12 +43,17 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
     fun addUser(context: Context,info:ArrayList<String> ,avatar:Bitmap?){
         val id = UUID.randomUUID().toString()
 
+        Log.d("MyLog","$info")
+
+
         if (avatar == null){
            val defaultFoto = BitmapFactory.decodeResource(context.resources,R.drawable.profile_foro)
             val uniqueKey = UUID.randomUUID().toString()
             val fotoForAvatar = saveImageToInternalStorage(defaultFoto,uniqueKey)
-            val profileInfo = ProfileInfo(id,info[0],info[1],info[2],info[3],info[4],info[5],fotoForAvatar)
+            val profileInfo = ProfileInfo(id.reversed(),info[0],info[1],info[2],info[3],info[4],info[5],fotoForAvatar)
+
             Log.d("MyLog","Во вьюхе заварушка")
+            Log.d("MyLog","$profileInfo")
             localReposetoryHelper.addProfile(profileInfo)
         }else {
             val uniqueKey = UUID.randomUUID().toString()
@@ -57,80 +64,124 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
         }
         updateUserProfile()
 
-
     }
 
-    fun uppdateProfile(FirstName:String,SecondName:String,avatar: Bitmap?){
+    fun uppdateProfile(FirstName:String,SecondName:String,avatar: Bitmap?) {
         val path = userProfile.value!!.avatar
         val id = userProfile.value!!.idUser
 
         viewModelScope.launch(Dispatchers.IO) {
-            if(avatar != null) {
+            if (avatar != null) {
                 val uniqueKey = UUID.randomUUID().toString()
-                val targetFoto = updateImageInInternalStorage(avatar,path,uniqueKey)
-                localReposetoryHelper.updateProfile(id,FirstName, SecondName, targetFoto)
-            }else{
-                localReposetoryHelper.updateProfile(id,FirstName, SecondName, path)
+                val targetFoto = updateImageInInternalStorage(avatar, path, uniqueKey)
+                localReposetoryHelper.updateProfile(id, FirstName, SecondName, targetFoto)
+            } else {
+                localReposetoryHelper.updateProfile(id, FirstName, SecondName, path)
             }
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 updateUserProfile()
             }
-//            ApiClient.apiServer.getProfile(id).enqueue(object : retrofit2.Callback<ProfileInfo?> {
-//                override fun onResponse(call: Call<ProfileInfo?>, response: Response<ProfileInfo?>) {
-//                    // Обработка ответа
-//                    if (response.isSuccessful) {
-//                        val profileInfo = response.body()
-//                        // Обработка profileInfo
-//                        (userProfile as MutableLiveData).value = profileInfo
-//                        statusMessege.value = null
-//                    } else {
-//                        statusMessege.value = "Ошибка получения данных"
-//                    }
-//                }
-//
-//                override fun onFailure(call: Call<ProfileInfo?>, t: Throwable) {
-//                    statusMessege.value = "Офлайн режим"
-//                }
-//            })
 
         }
 
     }
 
 
-
-
     //makes for RcView ( events )
+
     val userEvents: LiveData<List<Event>> = MutableLiveData()
     val UserEventRightNow:MutableLiveData<Event> = MutableLiveData()
 
-    fun UdpateUserEventRightNow(event: Event){
+//    fun UdpateUserEventRightNow(event: Event){
+//        UserEventRightNow.value = event
+//    }
+
+    fun addEventToReposetory(event: Event){
+        localReposetoryHelper.addEventForRcView(event)
+        updateUserEventsList()
         UserEventRightNow.value = event
 
-    }
-
-    fun addEventToReposetory(event: Event,profileId:Long){
-        localReposetoryHelper.addEventForRcView(event,profileId)
-        updateUserEventsList(profileId)
-        UserEventRightNow.value = event
-
 
     }
-    fun updateUserEventsList(profileId: Long){
+    fun updateUserEventsList(){
         Log.d("MyLog","Лист выгружен")
 
-        (userEvents as MutableLiveData).value = localReposetoryHelper.getAllEvents(profileId)
+        (userEvents as MutableLiveData).value = localReposetoryHelper.getAllEvents()
         Log.d("MyLog","${userEvents.value}")
     }
 
-    fun DeleteEvent(event: Event,profileId: Long){
+    fun DeleteEvent(event: Event){
         localReposetoryHelper.deleteAll(event)
-        updateUserEventsList(profileId)
+        if (event.type == 2){
+            deleteSoundFromEvent(event.desc)
+        }
+        updateUserEventsList()
     }
+
+    // FOR SOUND EVENTS (POSTS)
+
+    private var mediaRecorder:MediaRecorder? = null
+
+    val isRecording: MutableLiveData<Boolean> = MutableLiveData()
+
+
+    @Suppress("DEPRECATION")
+    fun startRecording(): String {
+        // Проверяем, что запись не выполняется в данный момент
+        if (mediaRecorder != null) {
+            stopRecording()
+        }
+
+        val audioFilePath = "${getApplication<Application>().filesDir}/audio_${UUID.randomUUID()}.3gp"
+
+        mediaRecorder = MediaRecorder().apply {
+            setAudioSource(MediaRecorder.AudioSource.MIC)
+            setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS)
+            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
+            setAudioSamplingRate(44100) // Частота дискретизации 44.1 kHz (стандарт для CD-качества)
+            setAudioEncodingBitRate(320000) // Битрейт 128 kbps (стандарт для хорошего качества звука)
+            setOutputFile(audioFilePath)
+
+            try {
+                prepare()
+                start()
+            } catch (e: IOException) {
+                Log.e("YourAudioRecordingClass", "Ошибка при подготовке к записи: ${e.message}")
+            }
+        }
+
+        return audioFilePath
+    }
+
+    fun stopRecording(){
+
+        try {
+            mediaRecorder?.apply {
+                stop()
+                release()
+            }
+
+        } catch (e: RuntimeException) {
+            Log.e("YourAudioRecordingClass", "Ошибка при остановке записи: ${e.message}")
+        }
+        mediaRecorder = null
+    }
+
+
+
+    override fun onCleared() {
+        super.onCleared()
+        mediaRecorder?.release()
+    }
+
     init {
         updateUserProfile()
-        updateUserEventsList(profileId)
+        updateUserEventsList()
+        isRecording.value = false
     }
+
+    // for image in profile and soundFormat(posts)
+
 
     private fun saveImageToInternalStorage(bitmap: Bitmap, fileName: String): String {
         val fileOutputStream: FileOutputStream
@@ -157,7 +208,6 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
         return saveImageToInternalStorage(newBitmap, fileName)
     }
     private fun deleteImageFromInternalStorage(fileName: String) {
-        val context = getApplication<Application>()
         val file = File(fileName)
 
         if (file.exists()) {
@@ -167,6 +217,14 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
             Log.d("MyLog", "Изображение $fileName не существует.")
         }
     }
+    fun deleteSoundFromEvent(fileName: String){
+        val file = File(fileName)
 
-
+        if (file.exists()) {
+            file.delete()
+            Log.d("MyLog", "Аудио $fileName успешно удалено.")
+        } else {
+            Log.d("MyLog", "Аудио $fileName не существует.")
+        }
+    }
 }

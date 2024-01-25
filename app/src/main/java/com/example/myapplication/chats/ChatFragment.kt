@@ -75,7 +75,6 @@ class ChatFragment : Fragment() {
             val newMessageForMe = MessageInChat(mesId,userId,chatId,textForMessage,currentTime)
             adapter.addData(newMessageForMe)
             binding.editTextTextMultiLine.text.clear()
-//            binding.editTextTextMultiLine.
         }
 
     }
@@ -118,12 +117,5 @@ class ChatFragment : Fragment() {
     }
 
 
-//    fun toSendMessage(view: View) {
-//        val mesId = UUID.randomUUID().toString()
-//        val currentTime = System.currentTimeMillis()
-//        val textForMessage = binding.editTextTextMultiLine.text.toString()
-//        val newMessageForMe = MessageInChat(mesId,userId,chatId,textForMessage,currentTime)
-//        adapter.addData(newMessageForMe)
-//    }
 
 }

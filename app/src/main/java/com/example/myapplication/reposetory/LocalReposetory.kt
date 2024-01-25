@@ -16,7 +16,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
 
 
     companion object{
-        private const val DATABASE_VERSION = 11
+        private const val DATABASE_VERSION = 17
         private const val DATABASE_NAME = "LocalReposeroty.db"
 
         private const val TABLE_NAME = "profile"
@@ -32,30 +32,42 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
 
         private const val TABLE_NAME_POSTS = "posts"
 
-        private const val KEY_ID_POST = "id"
+        private const val KEY_ID_POST = "id_post"
         private const val KEY_TITLE = "title"
         private const val KEY_DESCRIPTION = "description"
-        private const val KEY_ID_PROFILE_FK= "profile_id"
+        private const val KEY_POST_TYPE = "type_post"
+        private const val KEY_POST_DATA = "data_post"
 
         private const val TABLE_CHAT_LIST = "last_message"
 
-        private const val KEY_CHAT_ID = "id"
+        private const val KEY_CHAT_ID = "id_chat"
         private const val KEY_AVATAR = "avatar"
         private const val KEY_SENDER = "name"
         private const val KEY_LAST_MES = "message"
         private const val KEY_TIME = "time"
-    }
 
+        private const val TABLE_LAST_MES = "last_messages"
+
+        private const val KEY_ID_MESS = "id_mes"
+        private const val KEY_ID_SENDER = "id_sender"
+        private const val KEY_ID_CHAT = "id_chat"
+        private const val KEY_TEXT_IN_MESS = "text_in_mess"
+        private const val KEY_DATA_TIME_MESS = "data_in_mess"
+
+
+    }
 
     override fun onCreate(db: SQLiteDatabase?) {
         val createTable = "CREATE TABLE $TABLE_NAME ($KEY_ID TEXT,$KEY_FIRSTNAME TEXT,$KEY_SECONDNAME TEXT,$KEY_SCHOOL TEXT,$KEY_CITY TEXT,$KEY_AGE TEXT,$KEY_TARGET_CLASS TEXT,$KEY_PROFILE_AVATAR TEXT)"
         db?.execSQL(createTable)
         val createTablePosts = "CREATE TABLE $TABLE_NAME_POSTS($KEY_ID_POST TEXT," +
-                "$KEY_TITLE TEXT,$KEY_DESCRIPTION TEXT,$KEY_ID_PROFILE_FK INTEGER," +
-                "FOREIGN KEY($KEY_ID_PROFILE_FK) REFERENCES $TABLE_NAME($KEY_ID))"
+                "$KEY_TITLE TEXT,$KEY_DESCRIPTION TEXT, $KEY_POST_DATA INTEGER , $KEY_POST_TYPE INTEGER)"
         db?.execSQL(createTablePosts)
         val createTableListChats = "CREATE TABLE $TABLE_CHAT_LIST($KEY_CHAT_ID TEXT, $KEY_AVATAR TEXT,$KEY_SENDER TEXT,$KEY_LAST_MES TEXT,$KEY_TIME INTEGER)"
         db?.execSQL(createTableListChats)
+        val createTableListMessege = "CREATE TABLE $TABLE_LAST_MES($KEY_ID_MESS TEXT, " +
+                "$KEY_ID_SENDER TEXT,$KEY_ID_CHAT TEXT, $KEY_TEXT_IN_MESS TEXT , $KEY_DATA_TIME_MESS INTEGER)"
+        db?.execSQL(createTableListMessege)
 
     }
 
@@ -63,10 +75,11 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_NAME_POSTS")
         db?.execSQL("DROP TABLE IF EXISTS $TABLE_CHAT_LIST")
+        db?.execSQL("DROP TABLE IF EXISTS $TABLE_LAST_MES")
         onCreate(db)
     }
     fun getUserId():String{
-        var userId = " "
+        var userId = "NoN"
         val db = this.readableDatabase
         val selectQuery = "SELECT $KEY_ID FROM $TABLE_NAME"
         val cursor = db.rawQuery(selectQuery,null)
@@ -139,29 +152,33 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
 
     }
     // методы для таблицы постов снизу
-    fun addEvent(event: Event,profileID:Long){
+    fun addEvent(event: Event){
         Log.d("MyLog","ЗАВАРУШКА В БД")
         val db  = this.writableDatabase
         val values = ContentValues().apply {
             put(KEY_ID_POST,event.ID)
             put(KEY_TITLE,event.title)
             put(KEY_DESCRIPTION,event.desc)
-            put(KEY_ID_PROFILE_FK,profileID)
+            put(KEY_POST_DATA,event.data)
+            put(KEY_POST_TYPE,event.type)
         }
         db.insert(TABLE_NAME_POSTS,null,values)
         db.close()
     }
-    fun getAllEvents(profileID:Long):List<Event>{
+    fun getAllEvents():List<Event>{
         val eventList = ArrayList<Event>()
         val db = this.readableDatabase
-        val selectQuery = "SELECT * FROM $TABLE_NAME_POSTS WHERE $KEY_ID_PROFILE_FK = $profileID"
+        val selectQuery = "SELECT * FROM $TABLE_NAME_POSTS "
         val cursor = db.rawQuery(selectQuery,null)
         if(cursor.moveToFirst()){
             do {
                 val event = Event(
                     cursor.getString(cursor.getColumnIndex(KEY_ID_POST)),
                     cursor.getString(cursor.getColumnIndex(KEY_TITLE)),
-                    cursor.getString(cursor.getColumnIndex(KEY_DESCRIPTION))
+                    cursor.getString(cursor.getColumnIndex(KEY_DESCRIPTION)),
+                    cursor.getLong(cursor.getColumnIndex(KEY_POST_DATA)),
+                    cursor.getInt(cursor.getColumnIndex(KEY_POST_TYPE))
+
                 )
                 eventList.add(event)
             }while (cursor.moveToNext())

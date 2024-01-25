@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".LoginOrRegFragment"
+    tools:ignore="MissingDefaultResource">
+
+    <TextView
+        android:id="@+id/textView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:text="Добро пожаловать!"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.441"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
+        android:id="@+id/firstNameReg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:hint="Имя"
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="@+id/fotoReg"
+        app:layout_constraintHorizontal_bias="0.379"
+        app:layout_constraintStart_toStartOf="@+id/fotoReg"
+        app:layout_constraintTop_toBottomOf="@+id/fotoReg" />
+
+    <EditText
+        android:id="@+id/ageReg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:hint="Возраст"
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="@+id/seondNameReg"
+        app:layout_constraintStart_toStartOf="@+id/seondNameReg"
+        app:layout_constraintTop_toBottomOf="@+id/seondNameReg" />
+
+    <EditText
+        android:id="@+id/classReg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:hint="Класс*"
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="@+id/ageReg"
+        app:layout_constraintStart_toStartOf="@+id/ageReg"
+        app:layout_constraintTop_toBottomOf="@+id/ageReg" />
+
+    <EditText
+        android:id="@+id/seondNameReg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:hint="Фамилия"
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="@+id/firstNameReg"
+        app:layout_constraintStart_toStartOf="@+id/firstNameReg"
+        app:layout_constraintTop_toBottomOf="@+id/firstNameReg" />
+
+    <EditText
+        android:id="@+id/cityReg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:hint="Город*"
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="@+id/classReg"
+        app:layout_constraintStart_toStartOf="@+id/classReg"
+        app:layout_constraintTop_toBottomOf="@+id/classReg" />
+
+    <EditText
+        android:id="@+id/schoolReg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:ems="10"
+        android:hint="Учеба*"
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="@+id/cityReg"
+        app:layout_constraintStart_toStartOf="@+id/cityReg"
+        app:layout_constraintTop_toBottomOf="@+id/cityReg" />
+
+    <ImageView
+        android:id="@+id/fotoReg"
+        android:layout_width="131dp"
+        android:layout_height="115dp"
+        android:layout_marginStart="122dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="158dp"
+        android:src="@drawable/profile_foro"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/DoneReg"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="52dp"
+        android:clickable="true"
+        android:src="@drawable/baseline_done_24"
+        app:backgroundTint="@color/grey_white"
+        app:layout_constraintEnd_toEndOf="@+id/schoolReg"
+        app:layout_constraintHorizontal_bias="0.551"
+        app:layout_constraintStart_toStartOf="@+id/schoolReg"
+        app:layout_constraintTop_toBottomOf="@+id/schoolReg" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

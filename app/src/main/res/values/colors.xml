@@ -12,9 +12,8 @@
     <color name="wow_color">#7272C3</color>
     <color name="for_hint">#032735</color>
     <color name="grey_white">#A3A5A6</color>
-
-
-
+    <color name="black_for_cardview">#2C2C2C</color>
+    <color name="red">#F10000</color>
 
 
 

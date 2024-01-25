@@ -1,8 +1,7 @@
 package com.example.myapplication.profile
 
-import android.content.SharedPreferences
+import android.media.MediaPlayer
 import android.os.Bundle
-import android.preference.PreferenceManager
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -10,41 +9,31 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
+import com.example.myapplication.profile.rcview.EventsAdapter
 import com.example.myapplication.R
-import com.example.myapplication.UniversalAdapter
-import com.example.myapplication.constanse
-import com.example.myapplication.profile.rcview.EventListAdapter
-import com.example.myapplication.databinding.FragmentBlankBinding
-import com.example.myapplication.elements.Event
+import com.example.myapplication.databinding.FragmentProfileBinding
 import com.example.myapplication.profile.rcview.ItemListener
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import com.example.myapplication.viewmodel.MyViewModel
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-//private const val ARG_PARAM1 = "param1"
-//private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [ProfileFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class ProfileFragment : Fragment() {
 
-    var EditEventTime = false
+   private var EditEventTime = false
 
     val fragmentForEditEvents = FragmentForEditEvents()
     val editFragmentForProfile = EditFragmentForProfile()
+    private var currentlyPlayingViewHolder: EventsAdapter.AudioPostViewHolder? = null
 
-    private lateinit var binding:FragmentBlankBinding
-    lateinit var adapter: UniversalAdapter<Event>
+
+    private lateinit var binding:FragmentProfileBinding
+    lateinit var adapter: EventsAdapter
     private val DataModel: MyViewModel by activityViewModels{
         MyViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
     }
@@ -53,40 +42,62 @@ class ProfileFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         // Inflate the layout for this fragment
-        binding = FragmentBlankBinding.inflate(inflater)
+        binding = FragmentProfileBinding.inflate(inflater)
         activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING)
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        adapter = UniversalAdapter(object: ItemListener{
-            override fun onClick(position: Int) {
+        super.onViewCreated(view, savedInstanceState)
+
+        adapter = EventsAdapter(object: ItemListener{
+            override fun onClickDelete(position: Int) {
                 val event = adapter.getAllItems()[position]
-                DataModel.DeleteEvent(event,1)
+                DataModel.DeleteEvent(event)
                 adapter.removeItem(position)
             }
-        },constanse.KEY_FOR_POSTS)
 
-        binding.RcView.layoutManager = LinearLayoutManager(activity)
-        binding.RcView.adapter = adapter
-        binding.RcView.isNestedScrollingEnabled = false
+            override fun onClickStartListen(position: Int,mediaPlayer: MediaPlayer) {
+                stopCurrentlyPlaying()
+                val viewHolder = binding.postsRecyclerView.findViewHolderForAdapterPosition(position) as? EventsAdapter.AudioPostViewHolder
+                viewHolder?.updatePlayButtonImage(true)
+                currentlyPlayingViewHolder = viewHolder
+
+            }
+            override fun onClickStopListen(position: Int, mediaPlayer: MediaPlayer) {
+                currentlyPlayingViewHolder?.updatePlayButtonImage(false)
+                currentlyPlayingViewHolder = null
+            }
+        })
+
+        val layoutManager = LinearLayoutManager(requireContext())
+        layoutManager.reverseLayout = true
+
+        binding.postsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.postsRecyclerView.adapter = adapter
+        binding.postsRecyclerView.isNestedScrollingEnabled = false
 
         init()
 
-        binding.EditProfileButton.setOnClickListener {
+        binding.EditProfile.setOnClickListener {
             editFragmentForProfile.show(childFragmentManager,  editFragmentForProfile.tag)
         }
-        binding.EditNowAcivities.setOnClickListener {
+        binding.AddEventButton.setOnClickListener {
             fragmentForEditEvents.show(childFragmentManager,fragmentForEditEvents.tag)
             EditEventTime = true
         }
-
-
-
+    }
+    private fun stopCurrentlyPlaying() {
+        currentlyPlayingViewHolder?.let {
+            it.updatePlayButtonImage(false)
+            it.mediaPlayer.pause()
+        }
     }
     private fun init() {
+        binding.EditProfile.setColorFilter(ContextCompat.getColor(requireContext(),R.color.white))
+
         if(DataModel.userEvents.value != null) {
-            adapter.addListData(DataModel.userEvents.value!!)
+            adapter.addListEvent(DataModel.userEvents.value!!)
         }else
             Toast.makeText(activity,"Постов пока что нету",Toast.LENGTH_SHORT).show()
 
@@ -98,28 +109,21 @@ class ProfileFragment : Fragment() {
                 .load(it.avatar)
                 .error(R.drawable.profile_foro)
                 .apply(RequestOptions.bitmapTransform(CircleCrop()))
-                .into(binding.AvatarImage)
+                .into(binding.profileImage)
 
-            binding.FirstNameText.text = it.firstname
-            binding.SecondNameText.text = it.secondname
-            binding.SchoolText.text = it.scholl
-            binding.AgeText.text = it.age
-            binding.CityText.text = it.city
-            binding.ClassText.text = it.targetClass
+            binding.firstName.text = it.firstname
+            binding.secondName.text = it.secondname
+            binding.schoolText.text = it.scholl
+            binding.ageText.text = it.age
+            binding.cityText.text = it.city
+            binding.classText.text = it.targetClass
 
         }
 
         DataModel.UserEventRightNow.observe(viewLifecycleOwner){
             Log.d("MyLog","UserEventRightNow")
-            if(it != null && EditEventTime ) adapter.addData(it)
+            if(it != null && EditEventTime ) adapter.addEvent(it)
         }
-
     }
-    companion object {
-        @JvmStatic
-        fun newInstance() = ProfileFragment()
-
-    }
-
 
 }

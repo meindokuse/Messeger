@@ -1,19 +1,16 @@
-package com.example.myapplication.profile
+package com.example.myapplication.profile.editable
 
 import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
@@ -22,8 +19,9 @@ import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentEditForProfileBinding
+import com.example.myapplication.profile.domain.MyViewModelFactory
 import com.example.myapplication.reposetory.LocalReposetoryHelper
-import com.example.myapplication.viewmodel.MyViewModel
+import com.example.myapplication.profile.domain.MyViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 
@@ -87,9 +85,6 @@ class EditFragmentForProfile :  BottomSheetDialogFragment() {
                 val Name = binding.NameEdit.text.toString()
                 val Familia = binding.SecondNameEdit.text.toString()
                 Log.d("MyLog","Полная Обработка")
-
-//                DataModel.addUser(requireContext(),profile,foto)
-
                 DataModel.uppdateProfile(Name,Familia,foto)
                 dismiss()
             }
@@ -120,10 +115,7 @@ class EditFragmentForProfile :  BottomSheetDialogFragment() {
             } else{
                 binding.AvatarChange.setImageResource(R.drawable.profile_foro)
             }
-
         }
-
-
         DataModel.userProfile.observe(viewLifecycleOwner){
             binding.NameEdit.setText(it.firstname)
         }

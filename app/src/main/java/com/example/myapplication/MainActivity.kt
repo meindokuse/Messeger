@@ -1,25 +1,26 @@
 package com.example.myapplication
 
+import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
-import androidx.activity.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
 import com.example.myapplication.databinding.ActivityMainBinding
-import com.example.myapplication.reposetory.LocalReposetoryHelper
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    val globalData: SharedViewModel by viewModels{
-        SharedViewModelFactory(LocalReposetoryHelper(this))
-    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        val sharedPreferences = this.getSharedPreferences(Constance.KEY_USER_PREFERENCES, Context.MODE_PRIVATE)
+
+        val user_id = sharedPreferences.getString(Constance.KEY_USER_ID,null)
+
 
         val fragmentHostNavigate =
             supportFragmentManager.findFragmentById(R.id.placeholder) as NavHostFragment
@@ -27,28 +28,23 @@ class MainActivity : AppCompatActivity() {
         NavigationUI.setupWithNavController(binding.BNV, controller)
         setContentView(binding.root)
 
-        if (globalData.userId.value == "NoN") {
+        if (user_id != null) {
+            controller.navigate(R.id.action_loginOrRegFragment_to_profileFragment)
+        } else{
             supportActionBar?.hide()
             hideBottomNavigationBar()
-            controller.navigate(R.id.loginOrRegFragment)
         }
-
             init()
 
             binding.BNV.setOnNavigationItemSelectedListener {
                 when (it.itemId) {
                     R.id.profile -> {
-                        controller.navigate(R.id.profileFragment)
-                        supportActionBar?.title = "Ваш Профиль"
+                        controller.navigate(R.id.profileFragment,)
                     }
 
                     R.id.chats -> {
-                        controller.navigate(
-                            R.id.listOfChatsFragment,
-                        )
-                        supportActionBar?.title = "Чаты"
+                        controller.navigate(R.id.listOfChatsFragment,)
                     }
-
                 }
                 true
             }
@@ -76,11 +72,6 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         binding.BNV.menu.findItem(R.id.chats).isChecked=false
-//        supportFragmentManager
-//            .beginTransaction()
-//            .replace(R.id.placeholder, ProfileFragment.newInstance())
-//            .commit()
-
 
     }
     fun hideBottomNavigationBar(){

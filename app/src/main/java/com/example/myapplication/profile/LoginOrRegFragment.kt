@@ -1,12 +1,10 @@
-package com.example.myapplication
+package com.example.myapplication.profile
 
-import android.Manifest
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,38 +12,32 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
-import com.example.myapplication.profile.DescriptionVoiceFragment
-import com.example.myapplication.profile.MyViewModelFactory
+import com.example.myapplication.MainActivity
+import com.example.myapplication.R
+import com.example.myapplication.profile.domain.MyViewModelFactory
 import com.example.myapplication.reposetory.LocalReposetoryHelper
-import com.example.myapplication.viewmodel.MyViewModel
+import com.example.myapplication.profile.domain.MyViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
-/**
- * A simple [Fragment] subclass.
- * Use the [LoginOrRegFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class LoginOrRegFragment : Fragment() {
 
-    val DataModel:MyViewModel by viewModels {
-
-        MyViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
+    val DataModel: MyViewModel by activityViewModels{
+        MyViewModelFactory(LocalReposetoryHelper(requireContext()), requireActivity().application)
     }
-    lateinit var fotoImage:ImageView
+    private lateinit var fotoImage: ImageView
+
 
     private val changeAvatar = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->
 
@@ -83,7 +75,7 @@ class LoginOrRegFragment : Fragment() {
         // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_login_or_reg, container, false)
     }
-    var foto:Bitmap? = null
+    var foto: Bitmap? = null
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -92,9 +84,10 @@ class LoginOrRegFragment : Fragment() {
         val secondName = view.findViewById<EditText>(R.id.seondNameReg)
         val age = view.findViewById<EditText>(R.id.ageReg)
         val school = view.findViewById<EditText>(R.id.schoolReg)
-        val targetClass = view.findViewById<EditText>(R.id.classReg)
         val city = view.findViewById<EditText>(R.id.cityReg)
         val doneButton = view.findViewById<FloatingActionButton>(R.id.DoneReg)
+        val email = view.findViewById<EditText>(R.id.email)
+        val password = view.findViewById<EditText>(R.id.password)
 
         fotoImage.setOnClickListener {
             val pickImageIntent = Intent(Intent.ACTION_GET_CONTENT)
@@ -102,10 +95,8 @@ class LoginOrRegFragment : Fragment() {
             changeAvatar.launch(pickImageIntent)
         }
 
-
-
         fun areFieldsEmpty(): Boolean {
-            val fields = listOf(firstName, secondName, age, school, targetClass, city)
+            val fields = listOf(firstName, secondName, age, school, city)
 
             for (field in fields) {
                 if (field.text.isNullOrEmpty()) {
@@ -121,28 +112,32 @@ class LoginOrRegFragment : Fragment() {
             val sch = school.text.toString()
             val cityyy = city.text.toString()
             val ageee = age.text.toString()
-            val tClass = targetClass.text.toString()
+            val tClass = "11"
+            val login = email.text.toString()
+            val passwordToReg = password.text.toString()
 
-            val profile = arrayListOf(name, name2, sch, cityyy, ageee, tClass)
+            val profile = arrayListOf(name, name2, sch, cityyy, ageee, tClass,login,passwordToReg)
 
             if (!areFieldsEmpty()) {
-                DataModel.addUser(requireContext(), profile, foto)
+                lifecycleScope.launch {
+                   val result = DataModel.addUser(requireContext(), profile, foto)
+                    withContext(Dispatchers.Main){
+                        if (result == 200){
+                            (activity as MainActivity).showBottomNavigationBar()
+                            (activity as MainActivity).supportActionBar?.show()
+                            findNavController().navigate(R.id.action_loginOrRegFragment_to_profileFragment)
+                        } else {
+                            Toast.makeText(requireContext(), "Ошибка!",Toast.LENGTH_SHORT).show()
+                        }
+                    }
 
-                (activity as MainActivity).showBottomNavigationBar()
-                (activity as MainActivity).supportActionBar?.show()
-                findNavController().popBackStack()
+
+                }
             } else {
                 Toast.makeText(requireContext(), "Не все поля заполнены!", Toast.LENGTH_SHORT).show()
             }
         }
-
-
-
-
-
-
     }
-
 
     companion object {
         @JvmStatic

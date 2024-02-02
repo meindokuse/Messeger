@@ -1,6 +1,8 @@
-package com.example.myapplication.elements
+package com.example.myapplication.models
 
-data class ProfileInfo(
+data class UserReg(
+    val password:String,
+    val login:String,
     val idUser:String,
     val firstname:String,
     val secondname:String,

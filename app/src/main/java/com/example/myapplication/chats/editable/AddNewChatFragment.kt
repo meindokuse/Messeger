@@ -1,8 +1,6 @@
-package com.example.myapplication.chats
+package com.example.myapplication.chats.editable
 
 
-import android.content.res.Configuration
-import android.graphics.Rect
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -10,9 +8,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.view.ViewTreeObserver
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,19 +15,19 @@ import com.example.myapplication.R
 import com.example.myapplication.SharedViewModel
 import com.example.myapplication.SharedViewModelFactory
 import com.example.myapplication.UniversalAdapter
-import com.example.myapplication.viewmodel.ViewModelForChats
+import com.example.myapplication.chats.domain.ChatsViewModelFactory
+import com.example.myapplication.chats.UsersListener
+import com.example.myapplication.chats.domain.ViewModelForChats
 import com.example.myapplication.databinding.FragmentAddNewChatBinding
-import com.example.myapplication.elements.UserForChoose
-import com.example.myapplication.profile.rcview.ItemListener
+import com.example.myapplication.models.UserForChoose
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
-import com.example.myapplication.constanse
-import com.example.myapplication.databinding.FragmentChatBinding
-import com.example.myapplication.databinding.ListOfChatsBinding
+import com.example.myapplication.Constance
 import java.util.Locale
 
 class AddNewChatFragment() : BottomSheetDialogFragment() {
+    private lateinit var userId:String
     private var usersNames = arrayListOf("Паша","Гриша","Евгений","Рома")
     private var usersAvatars = arrayListOf(
         R.drawable.people_first,
@@ -68,12 +63,12 @@ class AddNewChatFragment() : BottomSheetDialogFragment() {
         binding.toSendButton.setOnClickListener {
             lifecycleScope.launch {
                 if (!Empty()) {
-                    val message = binding.MessageText.text.toString()
+                    val text = binding.MessageText.text.toString()
                     if (selectedUsers.size > 1) {
-                        ChatViewModel.AddChats(requireContext(),selectedUsers,message)
+                        ChatViewModel.AddChats(requireContext(),selectedUsers,text,userId)
                     } else {
                         val singleUser = selectedUsers[0]
-                        ChatViewModel.AddNewChat(requireContext(),singleUser,message)
+                        ChatViewModel.AddNewChat(requireContext(),singleUser,text,userId)
                     }
                     dismiss()
                 }
@@ -96,10 +91,14 @@ class AddNewChatFragment() : BottomSheetDialogFragment() {
 
     fun init(){
 
+        globalViewModel.userId.observe(viewLifecycleOwner){
+            userId = it
+        }
+
         binding.MessageText.isEnabled = false
 
 
-        usersAdapter = UniversalAdapter(object: UsersListener{
+        usersAdapter = UniversalAdapter(object: UsersListener {
             override fun clickToUser(position: Int) {
                 val user = usersAdapter.getAllItems()[position]
                 usersAdapter.toggleSelection(position)
@@ -110,7 +109,7 @@ class AddNewChatFragment() : BottomSheetDialogFragment() {
                 updateWhoGetText()
             }
 
-        } , constanse.KEY_FOR_USERS)
+        } , Constance.KEY_FOR_USERS)
 
 
         binding.ListUsers.adapter = usersAdapter
@@ -186,9 +185,7 @@ class AddNewChatFragment() : BottomSheetDialogFragment() {
     }
 
 
-
-    // ПОЗЖЕ ДОДЕЛАТЬ
-    fun setupKeyboardListener(isKeyboardVisible: Boolean) {
+    private fun setupKeyboardListener(isKeyboardVisible: Boolean) {
         if (isKeyboardVisible) {
             // Обработка появления клавиатуры
             val params = binding.ListUsers.layoutParams as ViewGroup.MarginLayoutParams
@@ -201,10 +198,5 @@ class AddNewChatFragment() : BottomSheetDialogFragment() {
             binding.ListUsers.layoutParams = params
         }
     }
-
-
-
-
-
 }
 

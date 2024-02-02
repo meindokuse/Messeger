@@ -12,7 +12,7 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.example.myapplication.R
 import com.example.myapplication.databinding.ItemChatBinding
-import com.example.myapplication.elements.ItemChat
+import com.example.myapplication.models.ItemChat
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -62,16 +62,16 @@ class RvChats(private val context: Context): RecyclerView.Adapter<RvChats.ChatHo
 
         fun bind(chat: ItemChat, position: Int){
             binding.NameWhoWtiteText.text=chat.nickname
-            binding.LastMesText.text=chat.lastMes
+            binding.LastMesText.text=chat.mes_text
 
             Glide.with(context)
-                .load(chat.foto)
+                .load(chat.avatar)
                 .apply(RequestOptions.bitmapTransform(CircleCrop()))
                 .override(300, 300)
             .into(binding.FotoWhoWrite)
 
             val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
-            val formattedDate = sdf.format(Date(chat.time))
+            val formattedDate = sdf.format(Date(chat.mes_time))
             binding.DataTimeText.text = formattedDate
 
             val backgroundColor = if(isSelected(position)){

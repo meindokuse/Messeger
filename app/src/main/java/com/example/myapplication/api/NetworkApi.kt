@@ -1,11 +1,9 @@
 package com.example.myapplication.api
 
 
-import android.provider.ContactsContract.CommonDataKinds.Email
-import com.example.myapplication.chats.MessageInChat
-import com.example.myapplication.elements.ItemChat
-import com.example.myapplication.elements.ProfileInfo
-import retrofit2.Call
+import com.example.myapplication.models.MessageInChat
+import com.example.myapplication.models.ProfileInfo
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -15,44 +13,39 @@ import retrofit2.http.Path
 
 
 interface NetworkApi {
-    @POST("/users/register")
-    fun registerUser(@Body request: RegistrationRequest): Call<ProfileInfo>
+    @GET("/user/{user_id}")
+    suspend fun getInfoUser(
+        @Path("user_id") id:String
+    ): Response<User>
 
-    @GET("/users/login")
-    fun loginUser(@Body request: LoginRequest): Call<ProfileInfo>
+    @POST("/user/")
+    suspend fun postUser(
+        @Body userdata: ProfileInfo
+    ):Response<ApiResponse>
 
-    @GET("/users/{id_user}")
-    fun getProfile(@Path("id_user") idProfile: String):Call<ProfileInfo>
+    @POST("/post_message")
+    suspend fun postMessage(
+        @Body message: MessageInChat
+    ):Response<ApiResponse>
 
-    @GET("chats/{id_profile}/")
-     fun getChats(@Path("id_profile") idProfile: String):Call<List<ItemChat>>
+    @POST("/post_chat")
+    suspend fun postChat(
+        @Body message: DataForCreateChat
+    ):Response<ApiResponse>
 
-    @GET("messages/{id_chat}/{id_user}")
-    fun getMessendges(
-        @Path("id_chat") chatId:String,
-        @Path("id_user") idUser:String
-    ):Call<List<MessageInChat>>
+    @GET("/get_messages/{chat_id}")
+    suspend fun getAllMessage(
+        @Path("chat_id") chatId:String
+    ):Response<MessageResponse>
 
-    @POST("profile/{id_profile}")
-    fun changeProfileInfo(@Path("id_profile") idProfile:String):Call<ProfileInfo>
+    @GET("/open_chats/{user_id}")
+    suspend fun getAllChats(
+        @Path("user_id") userId:String
+    ):Response<ChatResponse>
 
-
-    data class LoginRequest(
-        val id:String,
-        val login:Email,
-        val password:String)
-
-    data class RegistrationRequest(
-        val profileInfo: ProfileInfo,
-        val login:String,
-        val password: String)
-
-    data class PostChat(
-        val idChat: String,
-        val lastMessageInChat: MessageInChat,
-        val idSecondUser:String
+    data class ApiResponse(
+        val message:String,
+        val status:Int
     )
-
-
 
 }

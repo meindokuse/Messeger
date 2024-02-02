@@ -13,8 +13,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
 import com.example.myapplication.databinding.EventItemBinding
 import com.example.myapplication.databinding.EventItemSoundVersionBinding
-import com.example.myapplication.elements.Event
-import com.google.android.material.floatingactionbutton.FloatingActionButton
+import com.example.myapplication.models.Event
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -35,8 +34,10 @@ class EventsAdapter(val itemListener: ItemListener):RecyclerView.Adapter<Recycle
         val binding = EventItemBinding.bind(itemView)
         @SuppressLint("SetTextI18n")
         fun bind(textPost: Event, position: Int) {
+
             binding.title.text = "Tема: ${textPost.title}"
             binding.description.text = textPost.desc
+
             val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
             val formattedDate = sdf.format(Date(textPost.data))
             binding.DataText.text = formattedDate

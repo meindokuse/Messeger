@@ -9,17 +9,31 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.MainActivity
+import com.example.myapplication.chats.domain.ChatsViewModelFactory
+import com.example.myapplication.chats.domain.ViewModelForChats
 import com.example.myapplication.databinding.FragmentChatBinding
+import com.example.myapplication.models.MessageInChat
+import com.example.myapplication.reposetory.LocalReposetoryHelper
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.launch
 import java.util.UUID
 
 
 class ChatFragment : Fragment() {
-    lateinit var userId:String
-    lateinit var chatId:String
-    val listTextForMessage = arrayListOf("Привет","Как Дела","Как ты?")
+    private lateinit var userId:String
+    private lateinit var chatId:String
+
+
+    val chatDataModel: ViewModelForChats by activityViewModels {
+        ChatsViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
+    }
+
     lateinit var adapter: MessageListAdapter
     lateinit var binding:FragmentChatBinding
 
@@ -27,7 +41,6 @@ class ChatFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
     }
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,10 +63,15 @@ class ChatFragment : Fragment() {
 
     }
 
+
     private fun init(){
         chatId = arguments?.getString(chatIdKey).toString()
         userId = arguments?.getString(userIdKey).toString()
         Log.d("MyLog",userId.toString())
+
+        lifecycleScope.launch {
+            chatDataModel.getAllMessages(chatId)
+        }
 
         val actionBar = (requireActivity() as AppCompatActivity).supportActionBar
         actionBar?.setDisplayHomeAsUpEnabled(true)
@@ -66,13 +84,22 @@ class ChatFragment : Fragment() {
         binding.RcViewMesseges.adapter = adapter
         binding.RcViewMesseges.layoutManager = layoutManager
 
-        addMessages(userId)
+        lifecycleScope.launchWhenStarted {
+            chatDataModel.listMessages.onEach { messageInChats ->
+                adapter.addListData(messageInChats)
+            }.collect()
+        }
+
+
 
         binding.floatingActionButton.setOnClickListener {
             val mesId = UUID.randomUUID().toString()
             val currentTime = System.currentTimeMillis()
             val textForMessage = binding.editTextTextMultiLine.text.toString()
             val newMessageForMe = MessageInChat(mesId,userId,chatId,textForMessage,currentTime)
+            viewLifecycleOwner.lifecycleScope.launch{
+                chatDataModel.sendMessage(newMessageForMe)
+            }
             adapter.addData(newMessageForMe)
             binding.editTextTextMultiLine.text.clear()
         }
@@ -93,21 +120,6 @@ class ChatFragment : Fragment() {
     companion object{
         const val userIdKey = "id"
         const val chatIdKey = "id_chat"
-    }
-
-    //for test
-    fun addMessages(userId:String){
-        for(i in 0..<listTextForMessage.size){
-            val mesId = UUID.randomUUID().toString()
-            val currentTime = System.currentTimeMillis()
-            val newMessage = MessageInChat(mesId,"qwe",chatId,listTextForMessage[i],currentTime)
-            adapter.addData(newMessage)
-            val newMessageForMe = MessageInChat(mesId,userId,chatId,listTextForMessage[i],currentTime)
-            adapter.addData(newMessageForMe)
-
-        }
-
-
     }
 
     override fun onDestroyView() {

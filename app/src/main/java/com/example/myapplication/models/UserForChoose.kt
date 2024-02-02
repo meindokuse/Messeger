@@ -1,4 +1,4 @@
-package com.example.myapplication.elements
+package com.example.myapplication.models
 
 data class UserForChoose(
     val id : String,

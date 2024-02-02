@@ -1,4 +1,4 @@
-package com.example.myapplication.profile
+package com.example.myapplication.profile.editable
 
 import android.content.DialogInterface
 import android.os.Bundle
@@ -12,9 +12,10 @@ import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentForEditEventsBinding
-import com.example.myapplication.elements.Event
+import com.example.myapplication.models.Event
+import com.example.myapplication.profile.domain.MyViewModelFactory
 import com.example.myapplication.reposetory.LocalReposetoryHelper
-import com.example.myapplication.viewmodel.MyViewModel
+import com.example.myapplication.profile.domain.MyViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.tabs.TabLayout
 import java.util.UUID

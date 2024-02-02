@@ -5,9 +5,9 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
 import android.util.Log
-import com.example.myapplication.elements.ItemChat
-import com.example.myapplication.elements.Event
-import com.example.myapplication.elements.ProfileInfo
+import com.example.myapplication.models.ItemChat
+import com.example.myapplication.models.Event
+import com.example.myapplication.models.ProfileInfo
 
 class LocalReposetory(context: Context):SQLiteOpenHelper(context,
     DATABASE_NAME,null,
@@ -16,7 +16,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
 
 
     companion object{
-        private const val DATABASE_VERSION = 17
+        private const val DATABASE_VERSION = 18
         private const val DATABASE_NAME = "LocalReposeroty.db"
 
         private const val TABLE_NAME = "profile"
@@ -29,6 +29,8 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
         private const val KEY_SCHOOL = "school"
         private const val KEY_TARGET_CLASS = "target_class"
         private const val KEY_PROFILE_AVATAR = "profile_avatar"
+        private const val KEY_EMAIL = "login"
+        private const val KEY_PASSWORD = "password"
 
         private const val TABLE_NAME_POSTS = "posts"
 
@@ -42,9 +44,11 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
 
         private const val KEY_CHAT_ID = "id_chat"
         private const val KEY_AVATAR = "avatar"
-        private const val KEY_SENDER = "name"
         private const val KEY_LAST_MES = "message"
+        private const val KEY_USER_ID_1 = "user_id_1"
+        private const val KEY_USER_ID_2 = "user_id_2"
         private const val KEY_TIME = "time"
+        private const val KEY_NICKNAME = "nickname"
 
         private const val TABLE_LAST_MES = "last_messages"
 
@@ -58,12 +62,14 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
     }
 
     override fun onCreate(db: SQLiteDatabase?) {
-        val createTable = "CREATE TABLE $TABLE_NAME ($KEY_ID TEXT,$KEY_FIRSTNAME TEXT,$KEY_SECONDNAME TEXT,$KEY_SCHOOL TEXT,$KEY_CITY TEXT,$KEY_AGE TEXT,$KEY_TARGET_CLASS TEXT,$KEY_PROFILE_AVATAR TEXT)"
+        val createTable = "CREATE TABLE $TABLE_NAME ($KEY_ID TEXT,$KEY_FIRSTNAME TEXT,$KEY_SECONDNAME TEXT," +
+                "$KEY_SCHOOL TEXT,$KEY_CITY TEXT,$KEY_AGE TEXT,$KEY_TARGET_CLASS TEXT,$KEY_PROFILE_AVATAR TEXT,$KEY_EMAIL TEXT,$KEY_PASSWORD TEXT)"
         db?.execSQL(createTable)
         val createTablePosts = "CREATE TABLE $TABLE_NAME_POSTS($KEY_ID_POST TEXT," +
                 "$KEY_TITLE TEXT,$KEY_DESCRIPTION TEXT, $KEY_POST_DATA INTEGER , $KEY_POST_TYPE INTEGER)"
         db?.execSQL(createTablePosts)
-        val createTableListChats = "CREATE TABLE $TABLE_CHAT_LIST($KEY_CHAT_ID TEXT, $KEY_AVATAR TEXT,$KEY_SENDER TEXT,$KEY_LAST_MES TEXT,$KEY_TIME INTEGER)"
+        val createTableListChats = "CREATE TABLE $TABLE_CHAT_LIST($KEY_CHAT_ID TEXT, $KEY_AVATAR TEXT," +
+                "$KEY_NICKNAME TEXT,$KEY_LAST_MES TEXT,$KEY_TIME INTEGER,$KEY_USER_ID_1 TEXT, $KEY_USER_ID_2 TEXT)"
         db?.execSQL(createTableListChats)
         val createTableListMessege = "CREATE TABLE $TABLE_LAST_MES($KEY_ID_MESS TEXT, " +
                 "$KEY_ID_SENDER TEXT,$KEY_ID_CHAT TEXT, $KEY_TEXT_IN_MESS TEXT , $KEY_DATA_TIME_MESS INTEGER)"
@@ -94,14 +100,16 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
     fun addOrChangeProfile(profileInfo: ProfileInfo){
         val db  = this.writableDatabase
         val values = ContentValues().apply {
-            put(KEY_ID,profileInfo.idUser)
+            put(KEY_ID,profileInfo.user_id)
             put(KEY_FIRSTNAME,profileInfo.firstname)
             put(KEY_SECONDNAME,profileInfo.secondname)
             put(KEY_AGE,profileInfo.age)
             put(KEY_CITY,profileInfo.city)
-            put(KEY_SCHOOL,profileInfo.scholl)
+            put(KEY_SCHOOL,profileInfo.school)
             put(KEY_TARGET_CLASS,profileInfo.targetClass)
             put(KEY_PROFILE_AVATAR,profileInfo.avatar)
+            put(KEY_EMAIL,profileInfo.email)
+            put(KEY_PASSWORD,profileInfo.password)
         }
         db.insert(TABLE_NAME,null,values)
         Log.d("MyLog","В бд ")
@@ -126,11 +134,13 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
                 cursor.getString(cursor.getColumnIndex(KEY_AGE)),
                 cursor.getString(cursor.getColumnIndex(KEY_TARGET_CLASS)),
                 cursor.getString(cursor.getColumnIndex(KEY_PROFILE_AVATAR)),
+                cursor.getString(cursor.getColumnIndex(KEY_EMAIL)),
+                cursor.getString(cursor.getColumnIndex(KEY_PASSWORD)),
 
             )
         } else {
             // если курсор пуст, вернем объект с пустыми значениями
-            profileInfo = ProfileInfo("", "", "", "", "", "","","")
+            profileInfo = ProfileInfo("", "", "", "", "", "","","","","")
         }
 
         cursor.close()
@@ -206,12 +216,15 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
                 if (cursor.moveToFirst()) {
                     do {
                         val itemChat = ItemChat(
-
                             cursor.getString(cursor.getColumnIndex(KEY_CHAT_ID)),
+                            cursor.getString(cursor.getColumnIndex(KEY_USER_ID_1)),
+                            cursor.getString(cursor.getColumnIndex(KEY_USER_ID_2)),
                             cursor.getString(cursor.getColumnIndex(KEY_AVATAR)),
-                            cursor.getString(cursor.getColumnIndex(KEY_SENDER)),
+                            cursor.getString(cursor.getColumnIndex(KEY_NICKNAME)),
                             cursor.getString(cursor.getColumnIndex(KEY_LAST_MES)),
-                            cursor.getLong(cursor.getColumnIndex(KEY_TIME))
+                            cursor.getLong(cursor.getColumnIndex(KEY_TIME)),
+
+
                         )
                         chatList.add(itemChat)
                         Log.d("MyLog","Процесс получения новых данных")
@@ -230,11 +243,11 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
         Log.d("MyLog","Добавление чатов в БД")
         writableDatabase.use { db ->
             val values = ContentValues().apply {
-                put(KEY_CHAT_ID, itemChat.IDchat)
-                put(KEY_SENDER, itemChat.nickname)
-                put(KEY_LAST_MES, itemChat.lastMes)
-                put(KEY_AVATAR, itemChat.foto)
-                put(KEY_TIME, itemChat.time)
+                put(KEY_CHAT_ID, itemChat.chat_id)
+                put(KEY_NICKNAME, itemChat.nickname)
+                put(KEY_LAST_MES, itemChat.mes_text)
+                put(KEY_AVATAR, itemChat.avatar)
+                put(KEY_TIME, itemChat.mes_time)
             }
             db.insert(TABLE_CHAT_LIST, null, values)
         }
@@ -244,7 +257,7 @@ class LocalReposetory(context: Context):SQLiteOpenHelper(context,
 
     fun removeChat(itemChat: ItemChat){
         val db = this.writableDatabase
-        db.delete(TABLE_CHAT_LIST,"$KEY_CHAT_ID=?", arrayOf(itemChat.IDchat))
+        db.delete(TABLE_CHAT_LIST,"$KEY_CHAT_ID=?", arrayOf(itemChat.chat_id))
         db.close()
 
     }

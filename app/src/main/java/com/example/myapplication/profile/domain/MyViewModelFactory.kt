@@ -1,4 +1,4 @@
-package com.example.myapplication.profile
+package com.example.myapplication.profile.domain
 
 
 
@@ -6,7 +6,6 @@ import android.app.Application
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication.reposetory.LocalReposetoryHelper
-import com.example.myapplication.viewmodel.MyViewModel
 
 
 class MyViewModelFactory(private val localReposetoryHelper: LocalReposetoryHelper,private val application: Application) : ViewModelProvider.Factory {

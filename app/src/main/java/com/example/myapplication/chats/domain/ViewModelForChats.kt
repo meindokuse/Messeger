@@ -1,0 +1,190 @@
+package com.example.myapplication.chats.domain
+
+import android.app.Application
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.util.Log
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.myapplication.api.DataForCreateChat
+import com.example.myapplication.models.ItemChat
+import com.example.myapplication.models.MessageInChat
+import com.example.myapplication.models.UserForChoose
+import com.example.myapplication.reposetory.LocalReposetoryHelper
+import com.example.myapplication.reposetory.RemoteReposetory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.launch
+import java.io.FileOutputStream
+import java.lang.Exception
+import java.util.UUID
+
+open class ViewModelForChats(
+    private val localReposetoryHelper: LocalReposetoryHelper,
+    @get:JvmName("getApplicationNonNull") val application: Application
+) : AndroidViewModel(application) {
+
+    private val _listOfChats: MutableStateFlow<List<ItemChat>> = MutableStateFlow(emptyList())
+    val listOfChats: StateFlow<List<ItemChat>> = _listOfChats
+
+    private val _listMessages: MutableStateFlow<List<MessageInChat>> = MutableStateFlow(emptyList())
+    val listMessages: StateFlow<List<MessageInChat>> = _listMessages
+
+    private suspend fun initChatList() {
+        Log.d("MyLog", "Обновление модели чатов")
+        val savedChats = localReposetoryHelper.GetAllChats()
+        _listOfChats.emit(savedChats)
+
+    }
+
+    suspend fun syncChats(userId:String){
+        val chats = RemoteReposetory.getAllChats(userId)
+        if (chats != null) _listOfChats.emit(chats)
+    }
+
+    fun AddNewChat(context: Context, user: UserForChoose, text: String, userCreater: String) {
+
+        viewModelScope.launch(Dispatchers.IO) {
+            val bitmapFoto = BitmapFactory.decodeResource(
+                context.resources,
+                user.foto
+            )
+            val chatId = UUID.randomUUID().toString()
+            val messageId = UUID.randomUUID().toString()
+            val currentTime = System.currentTimeMillis()
+            val fotoInChat = saveImageToInternalStorage(bitmapFoto, chatId)
+
+            val messageInChat = MessageInChat(
+                messageId,
+                userCreater,
+                chatId,
+                text,
+                currentTime
+            )
+            val itemChat = ItemChat(
+                chatId,
+                userCreater,
+                user.id,
+                fotoInChat,
+                user.nickname,
+                text,
+                currentTime
+            )
+            val dataForCreateChat = DataForCreateChat(itemChat, messageInChat)
+            val response = RemoteReposetory.createNewChat(dataForCreateChat)
+
+            if (response.isSuccessful) {
+                localReposetoryHelper.addChat(itemChat)
+                _listOfChats.emit(_listOfChats.value.toMutableList().apply { add(itemChat) })
+            } else Log.d("MyLog", "${response.body()} ошибка сети ")
+        }
+    }
+
+    fun AddChats(
+        context: Context,
+        listWhoGetMes: List<UserForChoose>,
+        text: String,
+        userCreater: String
+    ) {
+        val NewChatsList = ArrayList<ItemChat>()
+
+        viewModelScope.launch(Dispatchers.IO) {
+            for (user in listWhoGetMes) {
+                val bitmapFoto = BitmapFactory.decodeResource(
+                    context.resources,
+                    user.foto
+                )
+                val chatId = UUID.randomUUID().toString()
+                val messageId = UUID.randomUUID().toString()
+                val currentTime = System.currentTimeMillis()
+                val fotoInChat = saveImageToInternalStorage(bitmapFoto, chatId)
+
+                val messageInChat = MessageInChat(
+                    messageId,
+                    userCreater,
+                    chatId,
+                    text,
+                    currentTime
+                )
+                val itemChat = ItemChat(
+                    chatId,
+                    userCreater,
+                    user.id,
+                    fotoInChat,
+                    user.nickname,
+                    text,
+                    currentTime
+                )
+                val dataForCreateChat = DataForCreateChat(itemChat, messageInChat)
+                val response = RemoteReposetory.createNewChat(dataForCreateChat)
+                if (response.isSuccessful) {
+                    NewChatsList.add(itemChat)
+                }
+            }
+            localReposetoryHelper.AddNewChats(NewChatsList)
+            _listOfChats.emit(_listOfChats.value.toMutableList().apply { addAll(NewChatsList) })
+        }
+    }
+
+    fun sendMessage(message: MessageInChat) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val response = RemoteReposetory.createNewMessage(message)
+            if (response.isSuccessful) {
+                _listMessages.emit(
+                    _listMessages.value.toMutableList().apply { add(message) })
+            }
+        }
+    }
+
+    suspend fun getAllMessages(idChat: String) {
+        val list = RemoteReposetory.getAllMessage(idChat)
+        if (list != null) _listMessages.emit(_listMessages.value.toMutableList().apply { addAll(list) })
+    }
+
+    fun deleteChat(chats: List<ItemChat>) {
+        viewModelScope.launch(Dispatchers.IO) {
+            localReposetoryHelper.ChatDelete(chats)
+            _listOfChats.emit(_listOfChats.value.toMutableList().apply { removeAll(chats) })
+            chats.forEach {
+                Log.d("MyLog", it.chat_id)
+                deleteImageFromInternalStorage(it.chat_id)
+            }
+        }
+
+    }
+
+    private fun saveImageToInternalStorage(bitmap: Bitmap, fileName: String): String {
+        val fileOutputStream: FileOutputStream
+        val context = getApplication<Application>()
+        try {
+            fileOutputStream = context.openFileOutput("$fileName.jpg", Context.MODE_PRIVATE)
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, fileOutputStream)
+            fileOutputStream.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+        return context.getFileStreamPath("$fileName.jpg").absolutePath
+    }
+
+    private fun deleteImageFromInternalStorage(fileName: String) {
+        val context = getApplication<Application>()
+        val file = context.getFileStreamPath("$fileName.jpg")
+
+        if (file.exists()) {
+            file.delete()
+            Log.d("MyLog", "Изображение $fileName успешно удалено.")
+        } else {
+            Log.d("MyLog", "Изображение $fileName не существует.")
+        }
+
+    }
+
+
+    init {
+        viewModelScope.launch(Dispatchers.IO) {
+            initChatList()
+        }
+    }
+}

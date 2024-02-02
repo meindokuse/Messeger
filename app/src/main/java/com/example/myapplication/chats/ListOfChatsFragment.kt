@@ -7,7 +7,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.util.Log
 import android.view.ActionMode
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -28,22 +27,23 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.myapplication.Constance
 import com.example.myapplication.R
 import com.example.myapplication.SharedViewModel
 import com.example.myapplication.SharedViewModelFactory
+import com.example.myapplication.chats.domain.ChatsViewModelFactory
+import com.example.myapplication.chats.domain.ViewModelForChats
+import com.example.myapplication.chats.editable.AddNewChatFragment
 import com.example.myapplication.databinding.ListOfChatsBinding
-import com.example.myapplication.elements.ItemChat
+import com.example.myapplication.models.ItemChat
 import com.example.myapplication.reposetory.LocalReposetoryHelper
-import com.example.myapplication.viewmodel.ViewModelForChats
-import com.google.android.material.bottomsheet.BottomSheetBehavior
-import com.google.android.material.bottomsheet.BottomSheetDialog
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.lang.Math.abs
 
 
 class ListOfChatsFragment : Fragment() {
-    var userId = " "
     private lateinit var binding: ListOfChatsBinding
     private lateinit var handler: Handler
     private var actionMode: ActionMode? = null
@@ -55,9 +55,11 @@ class ListOfChatsFragment : Fragment() {
     val globalViewModel:SharedViewModel by activityViewModels{
         SharedViewModelFactory(LocalReposetoryHelper(requireContext()))
     }
-    val addNewchatFragment:AddNewChatFragment by lazy {
+    val addNewchatFragment: AddNewChatFragment by lazy {
         AddNewChatFragment()
     }
+
+
     lateinit var adapter: RvChats
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -81,7 +83,6 @@ class ListOfChatsFragment : Fragment() {
                 if (lastRootHeight != currentRootHeight) {
                     val isKeyboardVisible = currentRootHeight < lastRootHeight
                     globalViewModel.setKeyBoardStatus(isKeyboardVisible)
-//                    setupKeyboardListener(isKeyboardVisible)
                 }
 
                 lastRootHeight = currentRootHeight
@@ -105,10 +106,6 @@ class ListOfChatsFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility")
     fun init() {
 
-        globalViewModel.userId.observe(viewLifecycleOwner){
-            userId = it
-        }
-
         binding.FindNewChatButton.setColorFilter(ContextCompat.getColor(requireContext(),R.color.white))
 
         val activity = requireActivity() as AppCompatActivity
@@ -120,9 +117,17 @@ class ListOfChatsFragment : Fragment() {
         binding.ListChats.layoutManager = LinearLayoutManager(requireContext())
         binding.ListChats.adapter = adapter
 
-        ChatDataModel.ListOfChats.observe(viewLifecycleOwner) {
-            Log.d("MyLog","Модель обновила чаты")
-            adapter.setChats(it.agregate())
+        val user_id = requireContext().getSharedPreferences(Constance.KEY_USER_PREFERENCES, Context.MODE_PRIVATE)
+                .getString(Constance.KEY_USER_ID, null)
+
+        user_id?.let { syncChats(it) }
+
+        lifecycleScope.launchWhenStarted {
+            ChatDataModel.listOfChats.onEach { messageInChats ->
+                if (messageInChats != null && messageInChats.isNotEmpty()){
+                    adapter.setChats(messageInChats.agregate())
+                }
+            }.collect()
         }
 
         binding.ListChats.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
@@ -189,7 +194,7 @@ class ListOfChatsFragment : Fragment() {
                                 val name = chat.nickname
 
                                 controler.navigate(R.id.action_listOfChatsFragment_to_chat,
-                                    bundleOf(ChatFragment.userIdKey to userId,ChatFragment.chatIdKey to chat.IDchat)
+                                    bundleOf(ChatFragment.userIdKey to user_id,ChatFragment.chatIdKey to chat.chat_id)
                                 )
                                 activity.supportActionBar?.title = name
 
@@ -239,7 +244,6 @@ class ListOfChatsFragment : Fragment() {
                         R.id.menu_delete -> {
                             mode?.title = "Удаление..."
                             lifecycleScope.launch {
-
                                 ChatDataModel.deleteChat(adapter.outGetSelectedChats())
                                 actionMode?.finish()
                             }
@@ -277,61 +281,13 @@ class ListOfChatsFragment : Fragment() {
             vibrator.vibrate(duration)
         }
     }
+    private fun syncChats(userId:String){
+        lifecycleScope.launch {
+            ChatDataModel.syncChats(userId)
+        }
+    }
 
-    fun List<ItemChat>.agregate():List<ItemChat> =
-        sortedByDescending{ it.time }
-
-//    override fun onDestroyView() {
-//        super.onDestroyView()
-//    }
-
-//    fun setupKKeyboardListner(isKeyboardVisible: Boolean){
-//        val bottomSheetDialogFragment = addNewchatFragment as BottomSheetDialogFragment
-//        if (isKeyboardVisible){
-//            val layoutParams = bottomSheetDialogFragment.behavior?.params
-//        }
-//
-//    }
-
-//    fun setupKeyboardListener(isKeyboardVisible: Boolean) {
-//        val bottomSheetDialogFragment = addNewchatFragment as BottomSheetDialogFragment
-//
-//        val dialog = bottomSheetDialogFragment.dialog
-//        if (dialog != null && dialog is BottomSheetDialog) {
-//            val bottomSheet = dialog.findViewById<View>(com.google.android.material.R.id.design_bottom_sheet)
-//            val behavior = BottomSheetBehavior.from(bottomSheet!!)
-//
-//            if (isKeyboardVisible) {
-//                behavior.peekHeight = resources.getDimensionPixelSize(R.dimen.keyboard_height)
-//                behavior.state = BottomSheetBehavior.STATE_COLLAPSED
-//            } else {
-//                behavior.peekHeight = 0
-//                behavior.state = BottomSheetBehavior.STATE_EXPANDED
-//
-//            }
-//        }
-//    }
-//
-////    fun setupKeyboardListener(isKeyboardVisible: Boolean) {
-////        val bottomSheetDialogFragment = addNewchatFragment as BottomSheetDialogFragment
-////
-////        val view = bottomSheetDialogFragment.view
-////        if (view != null) {
-////            val behavior = BottomSheetBehavior.from(view)
-////
-////            if (isKeyboardVisible) {
-////                behavior.state = BottomSheetBehavior.STATE_HIDDEN
-////            } else {
-////                behavior.state = BottomSheetBehavior.STATE_COLLAPSED
-////            }
-////        }
-////    }
-
-
-
-
-
-
-
+    private fun List<ItemChat>.agregate():List<ItemChat> =
+        sortedByDescending{ it.mes_time }
 }
 

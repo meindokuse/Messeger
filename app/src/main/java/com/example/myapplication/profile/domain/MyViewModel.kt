@@ -1,74 +1,139 @@
-package com.example.myapplication.viewmodel
+package com.example.myapplication.profile.domain
+
 import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.media.MediaRecorder
-import android.os.Build
 import android.util.Log
-import android.view.ActionMode.Callback
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
+import com.example.myapplication.Constance
 import com.example.myapplication.R
-import com.example.myapplication.api.ApiClient
-import com.example.myapplication.elements.Event
-import com.example.myapplication.elements.ProfileInfo
+import com.example.myapplication.models.Event
+import com.example.myapplication.models.ProfileInfo
+import com.example.myapplication.profile.AudioRecorder
 import com.example.myapplication.reposetory.LocalReposetoryHelper
+import com.example.myapplication.reposetory.RemoteReposetory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import org.jetbrains.annotations.Nullable
-import retrofit2.Call
-import retrofit2.Response
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.lang.Exception
 import java.util.UUID
 
-open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,profileId: Long,application: Application): AndroidViewModel(application) {
+open class MyViewModel(
+    private val localReposetoryHelper: LocalReposetoryHelper,
+    profileId: Long,
+    application: Application
+) : AndroidViewModel(application) {
 
 
     val userProfile: LiveData<ProfileInfo> = MutableLiveData()
 
 
-    private fun updateUserProfile(){
-        Log.d("MyLog","Инит")
-        Log.d("MyLog","${localReposetoryHelper.getAllInfo()}")
+    private fun updateUserProfile() {
+        Log.d("MyLog", "Инит")
+        Log.d("MyLog", "${localReposetoryHelper.getAllInfo()}")
         (userProfile as MutableLiveData).value = localReposetoryHelper.getAllInfo()
-
     }
-    fun addUser(context: Context,info:ArrayList<String> ,avatar:Bitmap?){
-        val id = UUID.randomUUID().toString()
 
-        Log.d("MyLog","$info")
+    suspend fun syncUser(id: String): Int {
+        return try {
+            val profileInfo = RemoteReposetory.getUser(id)
+            if (profileInfo != null) {
+                withContext(Dispatchers.Main) {
+                    (userProfile as MutableLiveData).value = profileInfo
+                }
+                localReposetoryHelper.updateProfile(
+                    profileInfo.user_id,
+                    profileInfo.firstname,
+                    profileInfo.secondname,
+                    profileInfo.avatar
+                )
+                1
+            } else 0
+        } catch (e: Exception) {
+            Log.d("MyLog", e.message.toString())
+            0
+        }
+    }
 
-
-        if (avatar == null){
-           val defaultFoto = BitmapFactory.decodeResource(context.resources,R.drawable.profile_foro)
+    suspend fun addUser(context: Context, info: ArrayList<String>, avatar: Bitmap?): Int {
+        val id = UUID.randomUUID().toString().reversed()
+        return if (avatar == null) {
+            val defaultFoto =
+                BitmapFactory.decodeResource(context.resources, R.drawable.profile_foro)
             val uniqueKey = UUID.randomUUID().toString()
-            val fotoForAvatar = saveImageToInternalStorage(defaultFoto,uniqueKey)
-            val profileInfo = ProfileInfo(id.reversed(),info[0],info[1],info[2],info[3],info[4],info[5],fotoForAvatar)
+            val fotoForAvatar = saveImageToInternalStorage(defaultFoto, uniqueKey)
+            val profileInfo = ProfileInfo(
+                id,
+                info[0],
+                info[1],
+                info[2],
+                info[3],
+                info[4],
+                info[5],
+                fotoForAvatar,
+                info[6],
+                info[7]
+            )
+            Log.d("MyLog", "$info")
+            Log.d("MyLog", "$profileInfo")
+            val response = RemoteReposetory.regUser(profileInfo)
+            if (response.isSuccessful) {
+                val sharedPreferences =
+                    context.getSharedPreferences(Constance.KEY_USER_PREFERENCES, Context.MODE_PRIVATE)
+                sharedPreferences.edit().putString(Constance.KEY_USER_ID, id).apply()
+                localReposetoryHelper.addProfile(profileInfo)
+                updateUserProfile()
 
-            Log.d("MyLog","Во вьюхе заварушка")
-            Log.d("MyLog","$profileInfo")
-            localReposetoryHelper.addProfile(profileInfo)
-        }else {
+                200
+            } else {
+                deleteImageFromInternalStorage(uniqueKey)
+                400
+            }
+
+        } else {
             val uniqueKey = UUID.randomUUID().toString()
             val fotoForAvatar = saveImageToInternalStorage(avatar, uniqueKey)
-            val profileInfo = ProfileInfo(id,info[0], info[1], info[2], info[3], info[4], info[5], fotoForAvatar)
-            Log.d("MyLog", "Во вьюхе заварушка")
-            localReposetoryHelper.addProfile(profileInfo)
-        }
-        updateUserProfile()
+            val profileInfo = ProfileInfo(
+                id,
+                info[0],
+                info[1],
+                info[2],
+                info[3],
+                info[4],
+                info[5],
+                fotoForAvatar,
+                info[6],
+                info[7]
+            )
+            val response = RemoteReposetory.regUser(profileInfo)
+            if (response.isSuccessful) {
 
+                val sharedPreferences = context.getSharedPreferences(Constance.KEY_USER_PREFERENCES, Context.MODE_PRIVATE)
+
+                sharedPreferences.edit()
+                    .putString(Constance.KEY_USER_ID, id)
+                    .apply()
+                localReposetoryHelper.addProfile(profileInfo)
+                updateUserProfile()
+                200
+            } else {
+                deleteImageFromInternalStorage(uniqueKey)
+                400
+            }
+        }
     }
 
-    fun uppdateProfile(FirstName:String,SecondName:String,avatar: Bitmap?) {
+    fun uppdateProfile(FirstName: String, SecondName: String, avatar: Bitmap?) {
         val path = userProfile.value!!.avatar
-        val id = userProfile.value!!.idUser
+        val id = userProfile.value!!.user_id
 
         viewModelScope.launch(Dispatchers.IO) {
             if (avatar != null) {
@@ -81,38 +146,35 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
             withContext(Dispatchers.Main) {
                 updateUserProfile()
             }
-
         }
-
     }
 
 
     //makes for RcView ( events )
 
     val userEvents: LiveData<List<Event>> = MutableLiveData()
-    val UserEventRightNow:MutableLiveData<Event> = MutableLiveData()
+    val UserEventRightNow: MutableLiveData<Event> = MutableLiveData()
 
 //    fun UdpateUserEventRightNow(event: Event){
 //        UserEventRightNow.value = event
 //    }
 
-    fun addEventToReposetory(event: Event){
+    fun addEventToReposetory(event: Event) {
         localReposetoryHelper.addEventForRcView(event)
         updateUserEventsList()
         UserEventRightNow.value = event
-
-
     }
-    fun updateUserEventsList(){
-        Log.d("MyLog","Лист выгружен")
+
+    private fun updateUserEventsList() {
+        Log.d("MyLog", "Лист выгружен")
 
         (userEvents as MutableLiveData).value = localReposetoryHelper.getAllEvents()
-        Log.d("MyLog","${userEvents.value}")
+        Log.d("MyLog", "${userEvents.value}")
     }
 
-    fun DeleteEvent(event: Event){
+    fun DeleteEvent(event: Event) {
         localReposetoryHelper.deleteAll(event)
-        if (event.type == 2){
+        if (event.type == 2) {
             deleteSoundFromEvent(event.desc)
         }
         updateUserEventsList()
@@ -120,7 +182,9 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
 
     // FOR SOUND EVENTS (POSTS)
 
-    private var mediaRecorder:MediaRecorder? = null
+    val audioRecorder = AudioRecorder(application)
+
+    private var mediaRecorder: MediaRecorder? = null
 
     val isRecording: MutableLiveData<Boolean> = MutableLiveData()
 
@@ -132,7 +196,8 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
             stopRecording()
         }
 
-        val audioFilePath = "${getApplication<Application>().filesDir}/audio_${UUID.randomUUID()}.3gp"
+        val audioFilePath =
+            "${getApplication<Application>().filesDir}/audio_${UUID.randomUUID()}.3gp"
 
         mediaRecorder = MediaRecorder().apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)
@@ -153,7 +218,7 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
         return audioFilePath
     }
 
-    fun stopRecording(){
+    fun stopRecording() {
 
         try {
             mediaRecorder?.apply {
@@ -166,7 +231,6 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
         }
         mediaRecorder = null
     }
-
 
 
     override fun onCleared() {
@@ -199,7 +263,11 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
         return file.absolutePath
     }
 
-    private fun updateImageInInternalStorage(newBitmap: Bitmap,oldName:String, fileName: String): String {
+    private fun updateImageInInternalStorage(
+        newBitmap: Bitmap,
+        oldName: String,
+        fileName: String
+    ): String {
 
         // Удаляем старый файл
         deleteImageFromInternalStorage(oldName)
@@ -207,6 +275,7 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
         // Сохраняем новый файл
         return saveImageToInternalStorage(newBitmap, fileName)
     }
+
     private fun deleteImageFromInternalStorage(fileName: String) {
         val file = File(fileName)
 
@@ -217,7 +286,8 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
             Log.d("MyLog", "Изображение $fileName не существует.")
         }
     }
-    fun deleteSoundFromEvent(fileName: String){
+
+    fun deleteSoundFromEvent(fileName: String) {
         val file = File(fileName)
 
         if (file.exists()) {
@@ -227,4 +297,5 @@ open class MyViewModel(private val localReposetoryHelper: LocalReposetoryHelper,
             Log.d("MyLog", "Аудио $fileName не существует.")
         }
     }
+    //NETWORK METHODS
 }

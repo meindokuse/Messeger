@@ -2,9 +2,9 @@ package com.example.myapplication.reposetory
 
 import android.content.Context
 import android.util.Log
-import com.example.myapplication.elements.ItemChat
-import com.example.myapplication.elements.Event
-import com.example.myapplication.elements.ProfileInfo
+import com.example.myapplication.models.ItemChat
+import com.example.myapplication.models.Event
+import com.example.myapplication.models.ProfileInfo
 
 
 class LocalReposetoryHelper(context: Context) {

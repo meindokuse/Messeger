@@ -1,4 +1,4 @@
-package com.example.myapplication.profile
+package com.example.myapplication.profile.editable
 
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -10,13 +10,13 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import com.example.myapplication.reposetory.LocalReposetoryHelper
-import com.example.myapplication.viewmodel.MyViewModel
+import com.example.myapplication.profile.domain.MyViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import android.Manifest
 import android.widget.TextView
-import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.R
+import com.example.myapplication.profile.domain.MyViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

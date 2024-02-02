@@ -12,9 +12,8 @@ import com.bumptech.glide.request.RequestOptions
 import com.example.myapplication.chats.UsersListener
 import com.example.myapplication.databinding.EventItemBinding
 import com.example.myapplication.databinding.UserForChooseBinding
-import com.example.myapplication.elements.Event
-import com.example.myapplication.elements.UserForChoose
-import com.example.myapplication.profile.rcview.ItemListener
+import com.example.myapplication.models.Event
+import com.example.myapplication.models.UserForChoose
 
 
 class UniversalAdapter<T>(val itemListener: UsersListener, val key: String) :
@@ -25,9 +24,6 @@ class UniversalAdapter<T>(val itemListener: UsersListener, val key: String) :
     companion object {
         const val EVENT_KEY = "event"
         const val USER_KEY = "user"
-
-        private const val VIEW_TYPE_TEXT_POST = 1
-        private const val VIEW_TYPE_AUDIO_POST = 2
     }
 
     val selectionChats = HashSet<Int>()

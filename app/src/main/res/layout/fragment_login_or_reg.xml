@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".LoginOrRegFragment"
+    tools:context=".profile.LoginOrRegFragment"
     tools:ignore="MissingDefaultResource">
 
     <TextView
@@ -45,18 +45,6 @@
         app:layout_constraintTop_toBottomOf="@+id/seondNameReg" />
 
     <EditText
-        android:id="@+id/classReg"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:ems="10"
-        android:hint="Класс*"
-        android:inputType="text"
-        app:layout_constraintEnd_toEndOf="@+id/ageReg"
-        app:layout_constraintStart_toStartOf="@+id/ageReg"
-        app:layout_constraintTop_toBottomOf="@+id/ageReg" />
-
-    <EditText
         android:id="@+id/seondNameReg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -72,13 +60,12 @@
         android:id="@+id/cityReg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:ems="10"
         android:hint="Город*"
         android:inputType="text"
-        app:layout_constraintEnd_toEndOf="@+id/classReg"
-        app:layout_constraintStart_toStartOf="@+id/classReg"
-        app:layout_constraintTop_toBottomOf="@+id/classReg" />
+        app:layout_constraintEnd_toEndOf="@+id/ageReg"
+        app:layout_constraintStart_toStartOf="@+id/ageReg"
+        app:layout_constraintTop_toBottomOf="@+id/ageReg" />
 
     <EditText
         android:id="@+id/schoolReg"
@@ -109,7 +96,7 @@
         android:id="@+id/DoneReg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="52dp"
+        android:layout_marginTop="168dp"
         android:clickable="true"
         android:src="@drawable/baseline_done_24"
         app:backgroundTint="@color/grey_white"
@@ -117,5 +104,28 @@
         app:layout_constraintHorizontal_bias="0.551"
         app:layout_constraintStart_toStartOf="@+id/schoolReg"
         app:layout_constraintTop_toBottomOf="@+id/schoolReg" />
+
+    <EditText
+        android:id="@+id/email"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:ems="10"
+        android:hint="Email"
+        android:inputType="text"
+        app:layout_constraintEnd_toEndOf="@+id/schoolReg"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="@+id/schoolReg"
+        app:layout_constraintTop_toBottomOf="@+id/schoolReg" />
+
+    <EditText
+        android:id="@+id/password"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:hint="Пароль"
+        android:inputType="text"
+        tools:layout_editor_absoluteX="92dp"
+        tools:layout_editor_absoluteY="567dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,6 +7,7 @@ import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myapplication.FileManager
 import com.example.myapplication.api.DataForCreateChat
 import com.example.myapplication.models.ItemChat
 import com.example.myapplication.models.MessageInChat
@@ -32,6 +33,11 @@ open class ViewModelForChats(
     private val _listMessages: MutableStateFlow<List<MessageInChat>> = MutableStateFlow(emptyList())
     val listMessages: StateFlow<List<MessageInChat>> = _listMessages
 
+    private val _usersForNewChat: MutableStateFlow<List<UserForChoose>> = MutableStateFlow(emptyList())
+    val usersForNewChat: StateFlow<List<UserForChoose>> = _usersForNewChat
+
+    private val fileManager = FileManager(application)
+
     private suspend fun initChatList() {
         Log.d("MyLog", "Обновление модели чатов")
         val savedChats = localReposetoryHelper.GetAllChats()
@@ -54,7 +60,7 @@ open class ViewModelForChats(
             val chatId = UUID.randomUUID().toString()
             val messageId = UUID.randomUUID().toString()
             val currentTime = System.currentTimeMillis()
-            val fotoInChat = saveImageToInternalStorage(bitmapFoto, chatId)
+            val fotoInChat = fileManager.saveImageToInternalStorage(bitmapFoto, chatId)
 
             val messageInChat = MessageInChat(
                 messageId,
@@ -99,7 +105,7 @@ open class ViewModelForChats(
                 val chatId = UUID.randomUUID().toString()
                 val messageId = UUID.randomUUID().toString()
                 val currentTime = System.currentTimeMillis()
-                val fotoInChat = saveImageToInternalStorage(bitmapFoto, chatId)
+                val fotoInChat = fileManager.saveImageToInternalStorage(bitmapFoto, chatId)
 
                 val messageInChat = MessageInChat(
                     messageId,
@@ -128,6 +134,10 @@ open class ViewModelForChats(
         }
     }
 
+    fun getUsersForNewChat(){
+
+    }
+
     fun sendMessage(message: MessageInChat) {
         viewModelScope.launch(Dispatchers.IO) {
             val response = RemoteReposetory.createNewMessage(message)
@@ -149,38 +159,11 @@ open class ViewModelForChats(
             _listOfChats.emit(_listOfChats.value.toMutableList().apply { removeAll(chats) })
             chats.forEach {
                 Log.d("MyLog", it.chat_id)
-                deleteImageFromInternalStorage(it.chat_id)
+                fileManager.deleteImageFromInternalStorage(it.chat_id)
             }
         }
 
     }
-
-    private fun saveImageToInternalStorage(bitmap: Bitmap, fileName: String): String {
-        val fileOutputStream: FileOutputStream
-        val context = getApplication<Application>()
-        try {
-            fileOutputStream = context.openFileOutput("$fileName.jpg", Context.MODE_PRIVATE)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, fileOutputStream)
-            fileOutputStream.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return context.getFileStreamPath("$fileName.jpg").absolutePath
-    }
-
-    private fun deleteImageFromInternalStorage(fileName: String) {
-        val context = getApplication<Application>()
-        val file = context.getFileStreamPath("$fileName.jpg")
-
-        if (file.exists()) {
-            file.delete()
-            Log.d("MyLog", "Изображение $fileName успешно удалено.")
-        } else {
-            Log.d("MyLog", "Изображение $fileName не существует.")
-        }
-
-    }
-
 
     init {
         viewModelScope.launch(Dispatchers.IO) {

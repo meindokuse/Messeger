@@ -13,13 +13,13 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
-        val sharedPreferences = this.getSharedPreferences(Constance.KEY_USER_PREFERENCES, Context.MODE_PRIVATE)
+        val sharedPreferences =
+            this.getSharedPreferences(Constance.KEY_USER_PREFERENCES, Context.MODE_PRIVATE)
 
-        val user_id = sharedPreferences.getString(Constance.KEY_USER_ID,null)
+        val user_id = sharedPreferences.getString(Constance.KEY_USER_ID, null)
 
 
         val fragmentHostNavigate =
@@ -30,58 +30,58 @@ class MainActivity : AppCompatActivity() {
 
         if (user_id != null) {
             controller.navigate(R.id.action_loginOrRegFragment_to_profileFragment)
-        } else{
+        } else {
             supportActionBar?.hide()
             hideBottomNavigationBar()
         }
-            init()
+        init()
 
-            binding.BNV.setOnNavigationItemSelectedListener {
-                when (it.itemId) {
-                    R.id.profile -> {
-                        controller.navigate(R.id.profileFragment,)
-                    }
-
-                    R.id.chats -> {
-                        controller.navigate(R.id.listOfChatsFragment,)
-                    }
+        binding.BNV.setOnNavigationItemSelectedListener {
+            when (it.itemId) {
+                R.id.profile -> {
+                    controller.navigate(R.id.profileFragment)
                 }
-                true
-            }
-            controller.addOnDestinationChangedListener { _, destination, _ ->
-                when (destination.id) {
-                    R.id.profileFragment -> {
-                        binding.BNV.menu.findItem(R.id.profile).isChecked = true
-                        supportActionBar?.title = "Ваш Профиль"
-                    }
 
-                    R.id.listOfChatsFragment -> {
-                        binding.BNV.menu.findItem(R.id.chats).isChecked = true
-                        supportActionBar?.title = "Чаты"
-                    }
+                R.id.chats -> {
+                    controller.navigate(R.id.listOfChatsFragment)
                 }
             }
+            true
+        }
+        controller.addOnDestinationChangedListener { _, destination, _ ->
+            when (destination.id) {
+                R.id.profileFragment -> {
+                    binding.BNV.menu.findItem(R.id.profile).isChecked = true
+                    supportActionBar?.title = "Ваш Профиль"
+                }
+
+                R.id.listOfChatsFragment -> {
+                    binding.BNV.menu.findItem(R.id.chats).isChecked = true
+                    supportActionBar?.title = "Чаты"
+                }
+            }
+        }
 
 
     }
 
 
-    private fun init(){
+    private fun init() {
 
-        supportActionBar?.title="Ваш Профиль"
+        supportActionBar?.title = "Ваш Профиль"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        binding.BNV.menu.findItem(R.id.chats).isChecked=false
+        binding.BNV.menu.findItem(R.id.chats).isChecked = false
 
     }
-    fun hideBottomNavigationBar(){
+
+    fun hideBottomNavigationBar() {
         binding.BNV.visibility = View.GONE
     }
 
-    fun showBottomNavigationBar(){
+    fun showBottomNavigationBar() {
         binding.BNV.visibility = View.VISIBLE
     }
-
 
 
 }

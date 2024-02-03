@@ -15,7 +15,7 @@ import com.example.myapplication.databinding.FragmentForEditEventsBinding
 import com.example.myapplication.models.Event
 import com.example.myapplication.profile.domain.MyViewModelFactory
 import com.example.myapplication.reposetory.LocalReposetoryHelper
-import com.example.myapplication.profile.domain.MyViewModel
+import com.example.myapplication.profile.domain.ProfileViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.tabs.TabLayout
 import java.util.UUID
@@ -36,7 +36,7 @@ class FragmentForEditEvents : BottomSheetDialogFragment() {
     var TextOrVoice = 1
 
 
-    val DataModel: MyViewModel by activityViewModels{
+    val DataModel: ProfileViewModel by activityViewModels{
         MyViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
     }
     private lateinit var binding: FragmentForEditEventsBinding

@@ -3,10 +3,13 @@ package com.example.myapplication.api
 
 import com.example.myapplication.models.MessageInChat
 import com.example.myapplication.models.ProfileInfo
+import com.example.myapplication.models.UpdateUserInfo
+import com.example.myapplication.models.UserForChoose
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.PUT
 import retrofit2.http.Path
 
 
@@ -21,6 +24,12 @@ interface NetworkApi {
     @POST("/user/")
     suspend fun postUser(
         @Body userdata: ProfileInfo
+    ):Response<ApiResponse>
+
+    @PUT("/update_user/{user_id}")
+    suspend fun updateUser(
+        @Path("user_id") userId: String,
+        @Body updateUserInfo:UpdateUserInfo
     ):Response<ApiResponse>
 
     @POST("/post_message")
@@ -42,6 +51,11 @@ interface NetworkApi {
     suspend fun getAllChats(
         @Path("user_id") userId:String
     ):Response<ChatResponse>
+
+    @GET("{user_id}/users/")
+    suspend fun getUsersForNewChat(
+        @Path("user_id") userId: String
+    ):Response<UserForChoose>
 
     data class ApiResponse(
         val message:String,

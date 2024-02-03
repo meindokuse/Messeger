@@ -1,4 +1,4 @@
-package com.example.myapplication.profile
+package com.example.myapplication
 
 import android.content.Context
 import android.media.MediaRecorder
@@ -50,4 +50,7 @@ class AudioRecorder(private val context: Context) {
         mediaRecorder = null
     }
 
+    fun clearRecording() {
+        mediaRecorder?.release()
+    }
 }

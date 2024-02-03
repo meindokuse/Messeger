@@ -4,29 +4,27 @@ import android.app.Application
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.media.MediaRecorder
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.Constance
+import com.example.myapplication.FileManager
 import com.example.myapplication.R
 import com.example.myapplication.models.Event
 import com.example.myapplication.models.ProfileInfo
-import com.example.myapplication.profile.AudioRecorder
+import com.example.myapplication.AudioRecorder
+import com.example.myapplication.models.UpdateUserInfo
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import com.example.myapplication.reposetory.RemoteReposetory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.lang.Exception
 import java.util.UUID
+import kotlin.Exception
 
-open class MyViewModel(
+open class ProfileViewModel(
     private val localReposetoryHelper: LocalReposetoryHelper,
     profileId: Long,
     application: Application
@@ -69,7 +67,7 @@ open class MyViewModel(
             val defaultFoto =
                 BitmapFactory.decodeResource(context.resources, R.drawable.profile_foro)
             val uniqueKey = UUID.randomUUID().toString()
-            val fotoForAvatar = saveImageToInternalStorage(defaultFoto, uniqueKey)
+            val fotoForAvatar = saveImage(defaultFoto, uniqueKey)
             val profileInfo = ProfileInfo(
                 id,
                 info[0],
@@ -87,20 +85,23 @@ open class MyViewModel(
             val response = RemoteReposetory.regUser(profileInfo)
             if (response.isSuccessful) {
                 val sharedPreferences =
-                    context.getSharedPreferences(Constance.KEY_USER_PREFERENCES, Context.MODE_PRIVATE)
+                    context.getSharedPreferences(
+                        Constance.KEY_USER_PREFERENCES,
+                        Context.MODE_PRIVATE
+                    )
                 sharedPreferences.edit().putString(Constance.KEY_USER_ID, id).apply()
                 localReposetoryHelper.addProfile(profileInfo)
                 updateUserProfile()
 
                 200
             } else {
-                deleteImageFromInternalStorage(uniqueKey)
+                deleteFile(uniqueKey)
                 400
             }
 
         } else {
             val uniqueKey = UUID.randomUUID().toString()
-            val fotoForAvatar = saveImageToInternalStorage(avatar, uniqueKey)
+            val fotoForAvatar = saveImage(avatar, uniqueKey)
             val profileInfo = ProfileInfo(
                 id,
                 info[0],
@@ -116,7 +117,10 @@ open class MyViewModel(
             val response = RemoteReposetory.regUser(profileInfo)
             if (response.isSuccessful) {
 
-                val sharedPreferences = context.getSharedPreferences(Constance.KEY_USER_PREFERENCES, Context.MODE_PRIVATE)
+                val sharedPreferences = context.getSharedPreferences(
+                    Constance.KEY_USER_PREFERENCES,
+                    Context.MODE_PRIVATE
+                )
 
                 sharedPreferences.edit()
                     .putString(Constance.KEY_USER_ID, id)
@@ -125,39 +129,66 @@ open class MyViewModel(
                 updateUserProfile()
                 200
             } else {
-                deleteImageFromInternalStorage(uniqueKey)
+                deleteFile(uniqueKey)
                 400
             }
         }
     }
 
     fun uppdateProfile(FirstName: String, SecondName: String, avatar: Bitmap?) {
-        val path = userProfile.value!!.avatar
-        val id = userProfile.value!!.user_id
+
+        val user = userProfile.value!!
 
         viewModelScope.launch(Dispatchers.IO) {
             if (avatar != null) {
-                val uniqueKey = UUID.randomUUID().toString()
-                val targetFoto = updateImageInInternalStorage(avatar, path, uniqueKey)
-                localReposetoryHelper.updateProfile(id, FirstName, SecondName, targetFoto)
+                val newPath = UUID.randomUUID().toString()
+                try {
+                    val updateUserInfo = UpdateUserInfo(FirstName, SecondName, newPath)
+                    val response = RemoteReposetory.updateUser(user.user_id,updateUserInfo)
+
+                    if (response.isSuccessful){
+                        val targetParhForAvatar = updateImageInInternalStorage(avatar, user.avatar, newPath)
+                        localReposetoryHelper.updateProfile(
+                            user.user_id,
+                            FirstName,
+                            SecondName,
+                            targetParhForAvatar
+                        )
+                        withContext(Dispatchers.Main) {
+                            updateUserProfile()
+                        }
+                    }
+
+                } catch (e: Exception) {
+                    Log.d("MyLog", "Ошибка updateProfile ${e.message}")
+                }
             } else {
-                localReposetoryHelper.updateProfile(id, FirstName, SecondName, path)
-            }
-            withContext(Dispatchers.Main) {
-                updateUserProfile()
+                try {
+                    val updateUserInfo = UpdateUserInfo(FirstName, SecondName, user.avatar)
+                    val response = RemoteReposetory.updateUser(user.user_id,updateUserInfo)
+                    if (response.isSuccessful){
+                        localReposetoryHelper.updateProfile(
+                            user.user_id,
+                            FirstName,
+                            SecondName,
+                            user.avatar
+                        )
+                        withContext(Dispatchers.Main) {
+                            updateUserProfile()
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.d("MyLog", "Ошибка updateProfile ${e.message}")
+                }
             }
         }
     }
-
 
     //makes for RcView ( events )
 
     val userEvents: LiveData<List<Event>> = MutableLiveData()
     val UserEventRightNow: MutableLiveData<Event> = MutableLiveData()
 
-//    fun UdpateUserEventRightNow(event: Event){
-//        UserEventRightNow.value = event
-//    }
 
     fun addEventToReposetory(event: Event) {
         localReposetoryHelper.addEventForRcView(event)
@@ -175,7 +206,7 @@ open class MyViewModel(
     fun DeleteEvent(event: Event) {
         localReposetoryHelper.deleteAll(event)
         if (event.type == 2) {
-            deleteSoundFromEvent(event.desc)
+            deleteFile(event.desc)
         }
         updateUserEventsList()
     }
@@ -184,58 +215,37 @@ open class MyViewModel(
 
     val audioRecorder = AudioRecorder(application)
 
-    private var mediaRecorder: MediaRecorder? = null
-
     val isRecording: MutableLiveData<Boolean> = MutableLiveData()
 
 
     @Suppress("DEPRECATION")
     fun startRecording(): String {
-        // Проверяем, что запись не выполняется в данный момент
-        if (mediaRecorder != null) {
-            stopRecording()
-        }
-
-        val audioFilePath =
-            "${getApplication<Application>().filesDir}/audio_${UUID.randomUUID()}.3gp"
-
-        mediaRecorder = MediaRecorder().apply {
-            setAudioSource(MediaRecorder.AudioSource.MIC)
-            setOutputFormat(MediaRecorder.OutputFormat.AAC_ADTS)
-            setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-            setAudioSamplingRate(44100) // Частота дискретизации 44.1 kHz (стандарт для CD-качества)
-            setAudioEncodingBitRate(320000) // Битрейт 128 kbps (стандарт для хорошего качества звука)
-            setOutputFile(audioFilePath)
-
-            try {
-                prepare()
-                start()
-            } catch (e: IOException) {
-                Log.e("YourAudioRecordingClass", "Ошибка при подготовке к записи: ${e.message}")
-            }
-        }
-
-        return audioFilePath
+        return audioRecorder.startRecording()
     }
 
     fun stopRecording() {
-
-        try {
-            mediaRecorder?.apply {
-                stop()
-                release()
-            }
-
-        } catch (e: RuntimeException) {
-            Log.e("YourAudioRecordingClass", "Ошибка при остановке записи: ${e.message}")
-        }
-        mediaRecorder = null
+        audioRecorder.stopRecording()
     }
 
+    // for image in profile and soundFormat(posts)
 
-    override fun onCleared() {
-        super.onCleared()
-        mediaRecorder?.release()
+
+    private val fileManager = FileManager(application)
+
+    private fun saveImage(bitmap: Bitmap, fileName: String): String {
+        return fileManager.saveImageToInternalStorage(bitmap, fileName)
+    }
+
+    private fun updateImageInInternalStorage(
+        newBitmap: Bitmap,
+        oldName: String,
+        fileName: String
+    ): String {
+        return fileManager.updateImageInInternalStorage(newBitmap, oldName, fileName)
+    }
+
+    fun deleteFile(fileName: String) {
+        fileManager.deleteImageFromInternalStorage(fileName)
     }
 
     init {
@@ -244,58 +254,6 @@ open class MyViewModel(
         isRecording.value = false
     }
 
-    // for image in profile and soundFormat(posts)
 
-
-    private fun saveImageToInternalStorage(bitmap: Bitmap, fileName: String): String {
-        val fileOutputStream: FileOutputStream
-        val context = getApplication<Application>()
-        val file = File(context.filesDir, "$fileName.jpg")
-
-        try {
-            fileOutputStream = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.JPEG, 80, fileOutputStream)
-            fileOutputStream.close()
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
-        return file.absolutePath
-    }
-
-    private fun updateImageInInternalStorage(
-        newBitmap: Bitmap,
-        oldName: String,
-        fileName: String
-    ): String {
-
-        // Удаляем старый файл
-        deleteImageFromInternalStorage(oldName)
-
-        // Сохраняем новый файл
-        return saveImageToInternalStorage(newBitmap, fileName)
-    }
-
-    private fun deleteImageFromInternalStorage(fileName: String) {
-        val file = File(fileName)
-
-        if (file.exists()) {
-            file.delete()
-            Log.d("MyLog", "Изображение $fileName успешно удалено.")
-        } else {
-            Log.d("MyLog", "Изображение $fileName не существует.")
-        }
-    }
-
-    fun deleteSoundFromEvent(fileName: String) {
-        val file = File(fileName)
-
-        if (file.exists()) {
-            file.delete()
-            Log.d("MyLog", "Аудио $fileName успешно удалено.")
-        } else {
-            Log.d("MyLog", "Аудио $fileName не существует.")
-        }
-    }
     //NETWORK METHODS
 }

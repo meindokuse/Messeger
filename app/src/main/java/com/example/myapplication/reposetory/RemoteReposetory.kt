@@ -6,6 +6,7 @@ import com.example.myapplication.api.RetrofitInstanse
 import com.example.myapplication.models.MessageInChat
 import com.example.myapplication.models.ItemChat
 import com.example.myapplication.models.ProfileInfo
+import com.example.myapplication.models.UpdateUserInfo
 import retrofit2.Response
 
 object RemoteReposetory {
@@ -22,6 +23,14 @@ object RemoteReposetory {
         } else{
             null
         }
+    }
+
+    suspend fun updateUser(userId:String,updateUserInfo: UpdateUserInfo):Response<NetworkApi.ApiResponse>{
+        return retrofit.updateUser(userId,updateUserInfo)
+    }
+
+    suspend fun getUsersForNewChat(userId: String){
+
     }
     suspend fun createNewChat(dataForNewChat: DataForCreateChat): Response<NetworkApi.ApiResponse> {
         return retrofit.postChat(dataForNewChat)

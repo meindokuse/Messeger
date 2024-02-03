@@ -26,8 +26,7 @@ import kotlinx.coroutines.launch
 import com.example.myapplication.Constance
 import java.util.Locale
 
-class AddNewChatFragment() : BottomSheetDialogFragment() {
-    private lateinit var userId:String
+class AddNewChatFragment(private val userId:String) : BottomSheetDialogFragment() {
     private var usersNames = arrayListOf("Паша","Гриша","Евгений","Рома")
     private var usersAvatars = arrayListOf(
         R.drawable.people_first,
@@ -91,9 +90,6 @@ class AddNewChatFragment() : BottomSheetDialogFragment() {
 
     fun init(){
 
-        globalViewModel.userId.observe(viewLifecycleOwner){
-            userId = it
-        }
 
         binding.MessageText.isEnabled = false
 

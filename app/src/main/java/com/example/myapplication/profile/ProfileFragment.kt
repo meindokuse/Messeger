@@ -26,7 +26,8 @@ import com.example.myapplication.profile.editable.EditFragmentForProfile
 import com.example.myapplication.profile.editable.FragmentForEditEvents
 import com.example.myapplication.profile.rcview.ItemListener
 import com.example.myapplication.reposetory.LocalReposetoryHelper
-import com.example.myapplication.profile.domain.MyViewModel
+import com.example.myapplication.profile.domain.ProfileViewModel
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -43,7 +44,7 @@ class ProfileFragment : Fragment() {
 
     private lateinit var binding: FragmentProfileBinding
     lateinit var adapter: EventsAdapter
-    private val DataModel: MyViewModel by activityViewModels {
+    private val profileViewModel: ProfileViewModel by activityViewModels {
         MyViewModelFactory(LocalReposetoryHelper(requireContext()), requireActivity().application)
     }
 
@@ -65,7 +66,7 @@ class ProfileFragment : Fragment() {
         adapter = EventsAdapter(object : ItemListener {
             override fun onClickDelete(position: Int) {
                 val event = adapter.getAllItems()[position]
-                DataModel.DeleteEvent(event)
+                profileViewModel.DeleteEvent(event)
                 adapter.removeItem(position)
             }
 
@@ -115,13 +116,13 @@ class ProfileFragment : Fragment() {
 
         binding.EditProfile.setColorFilter(ContextCompat.getColor(requireContext(), R.color.white))
 
-        if (DataModel.userEvents.value != null) {
-            adapter.addListEvent(DataModel.userEvents.value!!)
+        if (profileViewModel.userEvents.value != null) {
+            adapter.addListEvent(profileViewModel.userEvents.value!!)
         } else
             Toast.makeText(activity, "Постов пока что нету", Toast.LENGTH_SHORT).show()
 
         Log.d("MyLog", "Load Init")
-        DataModel.userProfile.observe(viewLifecycleOwner) {
+        profileViewModel.userProfile.observe(viewLifecycleOwner) {
 
             Log.d("MyLog", "Changed $it")
             Glide.with(binding.root.context)
@@ -145,7 +146,7 @@ class ProfileFragment : Fragment() {
             syncUserData(it)
         }
 
-        DataModel.UserEventRightNow.observe(viewLifecycleOwner) {
+        profileViewModel.UserEventRightNow.observe(viewLifecycleOwner) {
             Log.d("MyLog", "UserEventRightNow")
             if (it != null && EditEventTime) adapter.addEvent(it)
         }
@@ -153,12 +154,21 @@ class ProfileFragment : Fragment() {
 
     private fun syncUserData(idUser: String) {
         lifecycleScope.launch(Dispatchers.IO) {
-            val code = DataModel.syncUser(idUser)
+            val code = profileViewModel.syncUser(idUser)
             if (code == 0) {
-                withContext(Dispatchers.Main){
-                    Toast.makeText(requireContext(), "Произошла ошибка сети!", Toast.LENGTH_SHORT).show()
+                withContext(Dispatchers.Main) {
+                    showErrorSnackbar(idUser)
                 }
             }
+        }
+    }
+    private fun showErrorSnackbar(userId:String) {
+        view?.let { view ->
+            Snackbar.make(view, "Произошла ошибка при получении чатов", Snackbar.LENGTH_LONG)
+                .setAction("Повторить") {
+                    syncUserData(userId)
+                }
+                .show()
         }
     }
 }

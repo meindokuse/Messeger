@@ -21,7 +21,7 @@ import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentEditForProfileBinding
 import com.example.myapplication.profile.domain.MyViewModelFactory
 import com.example.myapplication.reposetory.LocalReposetoryHelper
-import com.example.myapplication.profile.domain.MyViewModel
+import com.example.myapplication.profile.domain.ProfileViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 
@@ -30,7 +30,7 @@ class EditFragmentForProfile :  BottomSheetDialogFragment() {
     var profile = arrayListOf<String>("Ромн","Самофалов","ОГБОУ СОЩ 3","Строитель","17","11 А")
     lateinit var binding: FragmentEditForProfileBinding
 
-    val DataModel: MyViewModel by activityViewModels{
+    val DataModel: ProfileViewModel by activityViewModels{
         MyViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
     }
 
@@ -82,10 +82,10 @@ class EditFragmentForProfile :  BottomSheetDialogFragment() {
         binding.DoneButton.setOnClickListener{
             Log.d("MyLog","Чатичгая Обработка")
             if (!isEmptyData()){
-                val Name = binding.NameEdit.text.toString()
-                val Familia = binding.SecondNameEdit.text.toString()
+                val name = binding.NameEdit.text.toString()
+                val familia = binding.SecondNameEdit.text.toString()
                 Log.d("MyLog","Полная Обработка")
-                DataModel.uppdateProfile(Name,Familia,foto)
+                DataModel.uppdateProfile(name,familia,foto)
                 dismiss()
             }
         }

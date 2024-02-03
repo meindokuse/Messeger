@@ -1,10 +1,11 @@
 package com.example.myapplication.profile
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.os.Message
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,7 +26,7 @@ import com.example.myapplication.MainActivity
 import com.example.myapplication.R
 import com.example.myapplication.profile.domain.MyViewModelFactory
 import com.example.myapplication.reposetory.LocalReposetoryHelper
-import com.example.myapplication.profile.domain.MyViewModel
+import com.example.myapplication.profile.domain.ProfileViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -33,7 +34,7 @@ import kotlinx.coroutines.withContext
 
 class LoginOrRegFragment : Fragment() {
 
-    val DataModel: MyViewModel by activityViewModels{
+    val DataModel: ProfileViewModel by activityViewModels{
         MyViewModelFactory(LocalReposetoryHelper(requireContext()), requireActivity().application)
     }
     private lateinit var fotoImage: ImageView
@@ -119,19 +120,23 @@ class LoginOrRegFragment : Fragment() {
             val profile = arrayListOf(name, name2, sch, cityyy, ageee, tClass,login,passwordToReg)
 
             if (!areFieldsEmpty()) {
-                lifecycleScope.launch {
-                   val result = DataModel.addUser(requireContext(), profile, foto)
-                    withContext(Dispatchers.Main){
-                        if (result == 200){
-                            (activity as MainActivity).showBottomNavigationBar()
-                            (activity as MainActivity).supportActionBar?.show()
-                            findNavController().navigate(R.id.action_loginOrRegFragment_to_profileFragment)
-                        } else {
-                            Toast.makeText(requireContext(), "Ошибка!",Toast.LENGTH_SHORT).show()
+                lifecycleScope.launch(Dispatchers.IO){
+                    try {
+                        val result = DataModel.addUser(requireContext(), profile, foto)
+                        withContext(Dispatchers.Main){
+                            if (result == 200){
+                                (activity as MainActivity).showBottomNavigationBar()
+                                (activity as MainActivity).supportActionBar?.show()
+                                findNavController().navigate(R.id.action_loginOrRegFragment_to_profileFragment)
+                            } else {
+                                Toast.makeText(requireContext(), "Ошибка!",Toast.LENGTH_SHORT).show()
+                            }
                         }
+                    } catch (e:Exception){
+                        Log.d("MyLog","Ошибка при регистрации ${e.message}")
+                        Toast.makeText(requireContext(), "Ошибка!",Toast.LENGTH_SHORT).show()
+
                     }
-
-
                 }
             } else {
                 Toast.makeText(requireContext(), "Не все поля заполнены!", Toast.LENGTH_SHORT).show()

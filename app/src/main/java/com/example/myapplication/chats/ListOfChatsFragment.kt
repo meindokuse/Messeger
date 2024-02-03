@@ -7,6 +7,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.util.Log
 import android.view.ActionMode
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
@@ -37,9 +38,12 @@ import com.example.myapplication.chats.editable.AddNewChatFragment
 import com.example.myapplication.databinding.ListOfChatsBinding
 import com.example.myapplication.models.ItemChat
 import com.example.myapplication.reposetory.LocalReposetoryHelper
+import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.lang.Math.abs
 
 
@@ -49,18 +53,31 @@ class ListOfChatsFragment : Fragment() {
     private var actionMode: ActionMode? = null
     private lateinit var controler: NavController
 
+    private lateinit var userId: String
+
     val ChatDataModel: ViewModelForChats by activityViewModels {
-        ChatsViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
+        ChatsViewModelFactory(
+            LocalReposetoryHelper(requireContext()),
+            requireActivity().application
+        )
     }
-    val globalViewModel:SharedViewModel by activityViewModels{
+    val globalViewModel: SharedViewModel by activityViewModels {
         SharedViewModelFactory(LocalReposetoryHelper(requireContext()))
-    }
-    val addNewchatFragment: AddNewChatFragment by lazy {
-        AddNewChatFragment()
     }
 
 
     lateinit var adapter: RvChats
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        userId = requireContext().getSharedPreferences(
+            Constance.KEY_USER_PREFERENCES,
+            Context.MODE_PRIVATE
+        )
+            .getString(Constance.KEY_USER_ID, "NoN").toString()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -74,7 +91,8 @@ class ListOfChatsFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.root.viewTreeObserver.addOnPreDrawListener(object : ViewTreeObserver.OnPreDrawListener {
+        binding.root.viewTreeObserver.addOnPreDrawListener(object :
+            ViewTreeObserver.OnPreDrawListener {
             private var lastRootHeight = binding.root.height
 
             override fun onPreDraw(): Boolean {
@@ -94,7 +112,10 @@ class ListOfChatsFragment : Fragment() {
         controler = findNavController()
         init()
 
+        syncChats(userId)
+
         binding.FindNewChatButton.setOnClickListener {
+            val addNewchatFragment = AddNewChatFragment(userId)
             addNewchatFragment.show(childFragmentManager, addNewchatFragment.tag)
         }
     }
@@ -106,7 +127,12 @@ class ListOfChatsFragment : Fragment() {
     @SuppressLint("ClickableViewAccessibility")
     fun init() {
 
-        binding.FindNewChatButton.setColorFilter(ContextCompat.getColor(requireContext(),R.color.white))
+        binding.FindNewChatButton.setColorFilter(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.white
+            )
+        )
 
         val activity = requireActivity() as AppCompatActivity
         activity.supportActionBar?.title = "Чаты"
@@ -117,14 +143,10 @@ class ListOfChatsFragment : Fragment() {
         binding.ListChats.layoutManager = LinearLayoutManager(requireContext())
         binding.ListChats.adapter = adapter
 
-        val user_id = requireContext().getSharedPreferences(Constance.KEY_USER_PREFERENCES, Context.MODE_PRIVATE)
-                .getString(Constance.KEY_USER_ID, null)
-
-        user_id?.let { syncChats(it) }
 
         lifecycleScope.launchWhenStarted {
             ChatDataModel.listOfChats.onEach { messageInChats ->
-                if (messageInChats != null && messageInChats.isNotEmpty()){
+                if (messageInChats != null && messageInChats.isNotEmpty()) {
                     adapter.setChats(messageInChats.agregate())
                 }
             }.collect()
@@ -144,12 +166,12 @@ class ListOfChatsFragment : Fragment() {
                         startY = e.y
                         isSelectionStarted = false
                         handler.postDelayed({
-                            if (!isSelectionStarted ) {
+                            if (!isSelectionStarted) {
                                 startActionMode(rv)
                                 val childView = rv.findChildViewUnder(startX, startY)
                                 if (childView != null) {
                                     val position = rv.getChildLayoutPosition(childView)
-                                    adapter.toggleSelection(position,actionMode!!)
+                                    adapter.toggleSelection(position, actionMode!!)
                                     isSelectionStarted = true
                                 }
                             }
@@ -178,23 +200,27 @@ class ListOfChatsFragment : Fragment() {
 
                             if (childView != null) {
                                 val position = rv.getChildLayoutPosition(childView)
-                                adapter.toggleSelection(position,actionMode!!)
+                                adapter.toggleSelection(position, actionMode!!)
 
-                                if(adapter.getSelectedItems().isEmpty()){
+                                if (adapter.getSelectedItems().isEmpty()) {
                                     actionMode?.finish()
                                     cancelChat = true
                                 }
                             }
                         }
-                        if(actionMode==null && !cancelChat){
+                        if (actionMode == null && !cancelChat) {
                             val childView = rv.findChildViewUnder(startX, startY)
                             if (childView != null) {
                                 val position = rv.getChildLayoutPosition(childView)
                                 val chat = adapter.listOfChats[position]
                                 val name = chat.nickname
 
-                                controler.navigate(R.id.action_listOfChatsFragment_to_chat,
-                                    bundleOf(ChatFragment.userIdKey to user_id,ChatFragment.chatIdKey to chat.chat_id)
+                                controler.navigate(
+                                    R.id.action_listOfChatsFragment_to_chat,
+                                    bundleOf(
+                                        ChatFragment.userIdKey to userId,
+                                        ChatFragment.chatIdKey to chat.chat_id
+                                    )
                                 )
                                 activity.supportActionBar?.title = name
 
@@ -218,12 +244,12 @@ class ListOfChatsFragment : Fragment() {
     }
 
     fun startActionMode(view: View): ActionMode {
-        vibrate(requireContext(),100)
+        vibrate(requireContext(), 100)
         binding.FindNewChatButton.animate()
             .translationXBy(binding.FindNewChatButton.width.toFloat())
             .alpha(0.0f)
             .setDuration(500)
-            .withEndAction{
+            .withEndAction {
                 binding.FindNewChatButton.visibility = View.GONE
             }
         return if (actionMode == null) {
@@ -231,7 +257,7 @@ class ListOfChatsFragment : Fragment() {
             actionMode = view.startActionMode(object : ActionMode.Callback {
                 override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
                     requireActivity().menuInflater.inflate(R.menu.menu_for_chats, menu)
-                    mode?.title="Редактирование"
+                    mode?.title = "Редактирование"
                     return true
                 }
 
@@ -258,7 +284,8 @@ class ListOfChatsFragment : Fragment() {
 
                     binding.FindNewChatButton.visibility = View.VISIBLE
                     binding.FindNewChatButton.alpha = 0.0f
-                    binding.FindNewChatButton.translationX = binding.FindNewChatButton.width.toFloat() // Помещаем вправо на ширину кнопки
+                    binding.FindNewChatButton.translationX =
+                        binding.FindNewChatButton.width.toFloat() // Помещаем вправо на ширину кнопки
 
                     binding.FindNewChatButton.animate()
                         .translationXBy(-binding.FindNewChatButton.width.toFloat()) // Перемещение влево на ширину кнопки
@@ -271,23 +298,42 @@ class ListOfChatsFragment : Fragment() {
             actionMode!!
         }
     }
-    private fun vibrate(context: Context,duration: Long){
+
+    private fun vibrate(context: Context, duration: Long) {
         val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            val vibrationEffect = VibrationEffect.createOneShot(duration,VibrationEffect.DEFAULT_AMPLITUDE)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val vibrationEffect =
+                VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE)
             vibrator.vibrate(vibrationEffect)
-        }
-        else{
+        } else {
             vibrator.vibrate(duration)
         }
     }
-    private fun syncChats(userId:String){
-        lifecycleScope.launch {
-            ChatDataModel.syncChats(userId)
+
+    private fun syncChats(userId: String) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            try {
+                ChatDataModel.syncChats(userId)
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Log.e("ChatDataModel", "Ошибка при получении чатов: ${e.message}")
+                    showErrorSnackbar()
+                }
+            }
         }
     }
 
-    private fun List<ItemChat>.agregate():List<ItemChat> =
-        sortedByDescending{ it.mes_time }
+    private fun showErrorSnackbar() {
+        view?.let { view ->
+            Snackbar.make(view, "Произошла ошибка при получении чатов", Snackbar.LENGTH_LONG)
+                .setAction("Повторить") {
+                    syncChats(userId)
+                }
+                .show()
+        }
+    }
+
+    private fun List<ItemChat>.agregate(): List<ItemChat> =
+        sortedByDescending { it.mes_time }
 }
 

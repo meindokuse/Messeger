@@ -10,7 +10,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import com.example.myapplication.reposetory.LocalReposetoryHelper
-import com.example.myapplication.profile.domain.MyViewModel
+import com.example.myapplication.profile.domain.ProfileViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import android.Manifest
 import android.widget.TextView
@@ -28,9 +28,7 @@ import kotlin.coroutines.coroutineContext
 
 class DescriptionVoiceFragment : Fragment() {
 
-
-
-    val profileViewModel: MyViewModel by activityViewModels{
+    private val profileViewModel: ProfileViewModel by activityViewModels{
         MyViewModelFactory(LocalReposetoryHelper(requireContext()), requireActivity().application)
     }
     private var audioDesc:String? = null
@@ -65,10 +63,10 @@ class DescriptionVoiceFragment : Fragment() {
 
         startOrStopButton.setOnClickListener {
             if (ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.RECORD_AUDIO) != PackageManager.PERMISSION_GRANTED) {
-                // Если нет, то запрашиваем разрешение
+
                 ActivityCompat.requestPermissions(requireActivity(), arrayOf(Manifest.permission.RECORD_AUDIO), RECORD_AUDIO_PERMISSION_REQUEST_CODE)
             } else {
-                // Если разрешение уже есть, выполняем запись
+
                 stopButton.isEnabled = true
                 clearAudioPath()
                 audioDesc = profileViewModel.startRecording()
@@ -140,7 +138,7 @@ class DescriptionVoiceFragment : Fragment() {
     }
     fun clearAudioPath(){
         if (audioDesc != null ) {
-            profileViewModel.deleteSoundFromEvent(audioDesc!!)
+            profileViewModel.deleteFile(audioDesc!!)
             audioDescToNull()
         }
     }

@@ -12,9 +12,9 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.R
-import com.example.myapplication.SharedViewModel
-import com.example.myapplication.SharedViewModelFactory
-import com.example.myapplication.UniversalAdapter
+import com.example.myapplication.shared.SharedViewModel
+import com.example.myapplication.shared.SharedViewModelFactory
+import com.example.myapplication.shared.UniversalAdapter
 import com.example.myapplication.chats.domain.ChatsViewModelFactory
 import com.example.myapplication.chats.UsersListener
 import com.example.myapplication.chats.domain.ViewModelForChats
@@ -23,7 +23,7 @@ import com.example.myapplication.models.UserForChoose
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
-import com.example.myapplication.Constance
+import com.example.myapplication.shared.Constance
 import java.util.Locale
 
 class AddNewChatFragment(private val userId:String) : BottomSheetDialogFragment() {

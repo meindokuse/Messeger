@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.shared
 
 import android.app.Application
 import android.content.Context
@@ -30,12 +30,13 @@ class FileManager(val context: Context) {
     }
 
     fun deleteImageFromInternalStorage(fileName: String) {
-        val file = File(context.filesDir, fileName)
+        Log.d("MyLog","deleteImageFromInternalStorage")
+        val file = File(fileName)
         if (file.exists()) {
             file.delete()
-            Log.d("FileManager", "Изображение $fileName успешно удалено.")
+            Log.d("MyLog", "Изображение $fileName успешно удалено.")
         } else {
-            Log.d("FileManager", "Изображение $fileName не существует.")
+            Log.d("MyLog", "Изображение $fileName не существует.")
         }
     }
 }

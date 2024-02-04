@@ -1,4 +1,4 @@
-package com.example.myapplication
+package com.example.myapplication.shared
 
 import android.animation.ObjectAnimator
 import android.util.Log
@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
+import com.example.myapplication.R
 import com.example.myapplication.chats.UsersListener
 import com.example.myapplication.databinding.EventItemBinding
 import com.example.myapplication.databinding.UserForChooseBinding

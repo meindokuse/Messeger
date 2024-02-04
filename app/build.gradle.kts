@@ -4,6 +4,7 @@ import org.gradle.internal.impldep.org.bouncycastle.asn1.iana.IANAObjectIdentifi
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -58,6 +59,7 @@ dependencies {
     implementation ("com.github.bumptech.glide:glide:4.12.0")
     implementation("androidx.annotation:annotation:1.7.1")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
+    implementation("com.google.firebase:firebase-storage:20.3.0")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")

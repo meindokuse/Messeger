@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
-import android.os.Message
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -24,7 +23,7 @@ import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.example.myapplication.MainActivity
 import com.example.myapplication.R
-import com.example.myapplication.profile.domain.MyViewModelFactory
+import com.example.myapplication.profile.domain.PrifileViewModelFactory
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import com.example.myapplication.profile.domain.ProfileViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -35,7 +34,7 @@ import kotlinx.coroutines.withContext
 class LoginOrRegFragment : Fragment() {
 
     val DataModel: ProfileViewModel by activityViewModels{
-        MyViewModelFactory(LocalReposetoryHelper(requireContext()), requireActivity().application)
+        PrifileViewModelFactory(LocalReposetoryHelper(requireContext()), requireActivity().application)
     }
     private lateinit var fotoImage: ImageView
 
@@ -80,6 +79,7 @@ class LoginOrRegFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         fotoImage = view.findViewById(R.id.fotoReg)
         val firstName = view.findViewById<EditText>(R.id.firstNameReg)
         val secondName = view.findViewById<EditText>(R.id.seondNameReg)
@@ -120,7 +120,7 @@ class LoginOrRegFragment : Fragment() {
             val profile = arrayListOf(name, name2, sch, cityyy, ageee, tClass,login,passwordToReg)
 
             if (!areFieldsEmpty()) {
-                lifecycleScope.launch(Dispatchers.IO){
+                lifecycleScope.launch{
                     try {
                         val result = DataModel.addUser(requireContext(), profile, foto)
                         withContext(Dispatchers.Main){
@@ -133,9 +133,10 @@ class LoginOrRegFragment : Fragment() {
                             }
                         }
                     } catch (e:Exception){
-                        Log.d("MyLog","Ошибка при регистрации ${e.message}")
-                        Toast.makeText(requireContext(), "Ошибка!",Toast.LENGTH_SHORT).show()
-
+                        withContext(Dispatchers.Main){
+                            Log.d("MyLog","Ошибка при регистрации ${e.message}")
+                            Toast.makeText(requireContext(), "Ошибка!",Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             } else {

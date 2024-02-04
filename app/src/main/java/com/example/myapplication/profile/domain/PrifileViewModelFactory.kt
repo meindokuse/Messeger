@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 
 
-class MyViewModelFactory(private val localReposetoryHelper: LocalReposetoryHelper,private val application: Application) : ViewModelProvider.Factory {
+class PrifileViewModelFactory(private val localReposetoryHelper: LocalReposetoryHelper, private val application: Application) : ViewModelProvider.Factory {
 
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(ProfileViewModel::class.java)) {

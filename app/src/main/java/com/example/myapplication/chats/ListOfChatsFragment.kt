@@ -28,10 +28,10 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.myapplication.Constance
+import com.example.myapplication.shared.Constance
 import com.example.myapplication.R
-import com.example.myapplication.SharedViewModel
-import com.example.myapplication.SharedViewModelFactory
+import com.example.myapplication.shared.SharedViewModel
+import com.example.myapplication.shared.SharedViewModelFactory
 import com.example.myapplication.chats.domain.ChatsViewModelFactory
 import com.example.myapplication.chats.domain.ViewModelForChats
 import com.example.myapplication.chats.editable.AddNewChatFragment

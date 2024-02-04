@@ -16,7 +16,7 @@ import android.Manifest
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.R
-import com.example.myapplication.profile.domain.MyViewModelFactory
+import com.example.myapplication.profile.domain.PrifileViewModelFactory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -29,7 +29,7 @@ import kotlin.coroutines.coroutineContext
 class DescriptionVoiceFragment : Fragment() {
 
     private val profileViewModel: ProfileViewModel by activityViewModels{
-        MyViewModelFactory(LocalReposetoryHelper(requireContext()), requireActivity().application)
+        PrifileViewModelFactory(LocalReposetoryHelper(requireContext()), requireActivity().application)
     }
     private var audioDesc:String? = null
     var time = 0

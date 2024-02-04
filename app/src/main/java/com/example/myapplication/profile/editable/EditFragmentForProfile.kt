@@ -19,7 +19,7 @@ import com.bumptech.glide.request.target.SimpleTarget
 import com.bumptech.glide.request.transition.Transition
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentEditForProfileBinding
-import com.example.myapplication.profile.domain.MyViewModelFactory
+import com.example.myapplication.profile.domain.PrifileViewModelFactory
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import com.example.myapplication.profile.domain.ProfileViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -27,11 +27,10 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 
 class EditFragmentForProfile :  BottomSheetDialogFragment() {
     private var foto:Bitmap? = null
-    var profile = arrayListOf<String>("Ромн","Самофалов","ОГБОУ СОЩ 3","Строитель","17","11 А")
     lateinit var binding: FragmentEditForProfileBinding
 
     val DataModel: ProfileViewModel by activityViewModels{
-        MyViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
+        PrifileViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
     }
 
     private val changeAvatar = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ result ->

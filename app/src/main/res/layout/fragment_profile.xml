@@ -18,7 +18,9 @@
             android:layout_marginTop="20dp"
             android:clickable="true"
             android:src="@drawable/baseline_mode_24"
-            app:backgroundTint="@color/grey" />
+            app:backgroundTint="@color/grey"
+            android:focusable="true"
+            android:contentDescription="EditProfile" />
 
         <LinearLayout
             android:id="@+id/profileHeader"

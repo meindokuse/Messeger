@@ -1,9 +1,8 @@
-package com.example.myapplication
+package com.example.myapplication.shared
 
 import android.content.Context
 import android.media.MediaRecorder
 import android.util.Log
-import java.io.File
 import java.io.IOException
 import java.util.UUID
 

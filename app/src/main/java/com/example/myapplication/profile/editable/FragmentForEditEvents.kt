@@ -13,7 +13,7 @@ import androidx.fragment.app.activityViewModels
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentForEditEventsBinding
 import com.example.myapplication.models.Event
-import com.example.myapplication.profile.domain.MyViewModelFactory
+import com.example.myapplication.profile.domain.PrifileViewModelFactory
 import com.example.myapplication.reposetory.LocalReposetoryHelper
 import com.example.myapplication.profile.domain.ProfileViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -37,7 +37,7 @@ class FragmentForEditEvents : BottomSheetDialogFragment() {
 
 
     val DataModel: ProfileViewModel by activityViewModels{
-        MyViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
+        PrifileViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
     }
     private lateinit var binding: FragmentForEditEventsBinding
     private lateinit var adapter: ArrayAdapter<CharSequence>

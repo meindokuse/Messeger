@@ -2,12 +2,11 @@ package com.example.myapplication.chats.domain
 
 import android.app.Application
 import android.content.Context
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.myapplication.FileManager
+import com.example.myapplication.shared.FileManager
 import com.example.myapplication.api.DataForCreateChat
 import com.example.myapplication.models.ItemChat
 import com.example.myapplication.models.MessageInChat
@@ -18,8 +17,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import java.io.FileOutputStream
-import java.lang.Exception
 import java.util.UUID
 
 open class ViewModelForChats(

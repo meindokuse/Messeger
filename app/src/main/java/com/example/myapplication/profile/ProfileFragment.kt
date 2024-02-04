@@ -19,9 +19,9 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.example.myapplication.profile.rcview.EventsAdapter
 import com.example.myapplication.R
-import com.example.myapplication.Constance
+import com.example.myapplication.shared.Constance
 import com.example.myapplication.databinding.FragmentProfileBinding
-import com.example.myapplication.profile.domain.MyViewModelFactory
+import com.example.myapplication.profile.domain.PrifileViewModelFactory
 import com.example.myapplication.profile.editable.EditFragmentForProfile
 import com.example.myapplication.profile.editable.FragmentForEditEvents
 import com.example.myapplication.profile.rcview.ItemListener
@@ -45,7 +45,7 @@ class ProfileFragment : Fragment() {
     private lateinit var binding: FragmentProfileBinding
     lateinit var adapter: EventsAdapter
     private val profileViewModel: ProfileViewModel by activityViewModels {
-        MyViewModelFactory(LocalReposetoryHelper(requireContext()), requireActivity().application)
+        PrifileViewModelFactory(LocalReposetoryHelper(requireContext()), requireActivity().application)
     }
 
     override fun onCreateView(

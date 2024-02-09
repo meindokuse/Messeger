@@ -1,4 +1,4 @@
-package com.example.myapplication.profile.editable
+package com.example.myapplication.ui.profile.editable
 
 import android.app.Activity
 import android.content.Intent
@@ -17,23 +17,17 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentEditForProfileBinding
-import com.example.myapplication.profile.domain.ProfileViewModelFactory
-import com.example.myapplication.domain.LocalReposetoryHelper
-import com.example.myapplication.profile.domain.ProfileViewModel
+import com.example.myapplication.ui.profile.viewmodel.ProfileViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
-
+@AndroidEntryPoint
 class EditFragmentForProfile : BottomSheetDialogFragment() {
     private var foto: Uri? = null
     lateinit var binding: FragmentEditForProfileBinding
 
-    val DataModel: ProfileViewModel by activityViewModels {
-        ProfileViewModelFactory(
-            LocalReposetoryHelper(requireContext()),
-            requireActivity().application
-        )
-    }
+    val DataModel: ProfileViewModel by activityViewModels()
 
     private val changeAvatar =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->

@@ -1,8 +1,9 @@
-package com.example.myapplication.api
+package com.example.myapplication.util.api
 
 import com.example.myapplication.models.MessageInChat
 import com.example.myapplication.models.ItemChat
 import com.example.myapplication.models.ProfileInfo
+import com.example.myapplication.models.UserForChoose
 
 data class User(
     val user: ProfileInfo
@@ -16,12 +17,8 @@ data class ChatResponse(
     val chats:List<ItemChat>
 )
 
-data class Chat(
-    val chat_id: String,
-    val user_id_1: String,
-    val user_id_2: String,
-    val mes_text: String,
-    val mes_time: Int,
+data class UsersForNewChatResponse(
+    val usersForChoose: List<UserForChoose>
 )
 
 data class DataForCreateChat(

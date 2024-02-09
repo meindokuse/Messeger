@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.chats
+package com.example.myapplication.ui.chats.rcview
 
 import android.content.Context
 import android.view.ActionMode

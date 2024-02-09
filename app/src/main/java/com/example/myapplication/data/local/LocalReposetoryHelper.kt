@@ -1,4 +1,4 @@
-package com.example.myapplication.data.source.local
+package com.example.myapplication.data.local
 
 import android.content.Context
 import android.util.Log
@@ -37,7 +37,7 @@ class LocalReposetoryHelper(context: Context) {
         return localReposetory.getAllEvents().reversed()
     }
 
-    fun deleteAll(event: Event) {
+    fun deleteEvent(event: Event) {
         localReposetory.deleteEvent(event)
     }
 
@@ -55,6 +55,10 @@ class LocalReposetoryHelper(context: Context) {
             localReposetory.removeChat(it)
 
         }
+    }
+
+    fun updateChat(itemChat: ItemChat) {
+        localReposetory.updateChat(itemChat)
     }
 
     fun AddNewChats(Chats: List<ItemChat>) {

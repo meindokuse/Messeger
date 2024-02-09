@@ -1,4 +1,4 @@
-package com.example.myapplication.data.source.local
+package com.example.myapplication.data.local
 
 import android.annotation.SuppressLint
 import android.content.ContentValues
@@ -266,6 +266,17 @@ class LocalReposetory(context: Context) : SQLiteOpenHelper(
         db.delete(TABLE_CHAT_LIST, "$KEY_CHAT_ID=?", arrayOf(itemChat.chat_id))
         db.close()
 
+    }
+
+    fun updateChat(itemChat: ItemChat){
+        val db = this.writableDatabase
+        val values = ContentValues().apply {
+            put(KEY_NICKNAME, itemChat.nickname)
+            put(KEY_LAST_MES, itemChat.mes_text)
+            put(KEY_AVATAR, itemChat.avatar)
+            put(KEY_TIME, itemChat.mes_time)
+        }
+        db.update(TABLE_CHAT_LIST, values,"$KEY_CHAT_ID=?",arrayOf(itemChat.chat_id))
     }
 
 }

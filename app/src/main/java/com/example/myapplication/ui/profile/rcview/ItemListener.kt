@@ -1,4 +1,4 @@
-package com.example.myapplication.profile.rcview
+package com.example.myapplication.ui.profile.rcview
 
 import android.media.MediaPlayer
 

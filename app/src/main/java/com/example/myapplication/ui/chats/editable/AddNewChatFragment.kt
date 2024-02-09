@@ -1,4 +1,4 @@
-package com.example.myapplication.chats.editable
+package com.example.myapplication.ui.chats.editable
 
 
 import android.os.Bundle
@@ -12,27 +12,24 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.myapplication.R
-import com.example.myapplication.shared.SharedViewModel
-import com.example.myapplication.shared.SharedViewModelFactory
-import com.example.myapplication.shared.UniversalAdapter
-import com.example.myapplication.chats.domain.ChatsViewModelFactory
-import com.example.myapplication.chats.UsersListener
-import com.example.myapplication.chats.domain.ViewModelForChats
+import com.example.myapplication.util.SharedViewModel
+import com.example.myapplication.util.UniversalAdapter
+import com.example.myapplication.ui.chats.rcview.UsersListener
+import com.example.myapplication.ui.chats.viewmodel.ViewModelForChats
 import com.example.myapplication.databinding.FragmentAddNewChatBinding
 import com.example.myapplication.models.UserForChoose
-import com.example.myapplication.domain.LocalReposetoryHelper
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlinx.coroutines.launch
-import com.example.myapplication.shared.Constance
+import com.example.myapplication.util.Constance
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.onEach
 import java.util.Locale
 
-class AddNewChatFragment(private val userId:String) : BottomSheetDialogFragment() {
-    private var usersNames = arrayListOf("Паша","Гриша","Евгений","Рома")
-    private var usersAvatars = arrayListOf(
-        R.drawable.people_first,
-        R.drawable.people_second,
-        R.drawable.people_third,
-        R.drawable.people_four)
+@AndroidEntryPoint
+class AddNewChatFragment(private val userId: String) : BottomSheetDialogFragment() {
+
     private lateinit var usersAdapter: UniversalAdapter<UserForChoose>
 
     lateinit var fullList: List<UserForChoose>
@@ -40,15 +37,10 @@ class AddNewChatFragment(private val userId:String) : BottomSheetDialogFragment(
     private val selectedUsers = mutableListOf<UserForChoose>()
 
 
+    private lateinit var binding: FragmentAddNewChatBinding
 
-    private lateinit var binding : FragmentAddNewChatBinding
-
-    val ChatViewModel: ViewModelForChats by  activityViewModels{
-        ChatsViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
-    }
-    private val globalViewModel: SharedViewModel by activityViewModels{
-        SharedViewModelFactory(LocalReposetoryHelper(requireContext()))
-    }
+    val ChatViewModel: ViewModelForChats by activityViewModels()
+    private val globalViewModel: SharedViewModel by activityViewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -63,12 +55,7 @@ class AddNewChatFragment(private val userId:String) : BottomSheetDialogFragment(
             lifecycleScope.launch {
                 if (!Empty()) {
                     val text = binding.MessageText.text.toString()
-                    if (selectedUsers.size > 1) {
-                        ChatViewModel.AddChats(requireContext(),selectedUsers,text,userId)
-                    } else {
-                        val singleUser = selectedUsers[0]
-                        ChatViewModel.AddNewChat(requireContext(),singleUser,text,userId)
-                    }
+                    ChatViewModel.addChats(selectedUsers, text, userId)
                     dismiss()
                 }
             }
@@ -88,13 +75,13 @@ class AddNewChatFragment(private val userId:String) : BottomSheetDialogFragment(
 
     }
 
-    fun init(){
+    fun init() {
 
 
         binding.MessageText.isEnabled = false
 
 
-        usersAdapter = UniversalAdapter(object: UsersListener {
+        usersAdapter = UniversalAdapter(object : UsersListener {
             override fun clickToUser(position: Int) {
                 val user = usersAdapter.getAllItems()[position]
                 usersAdapter.toggleSelection(position)
@@ -105,40 +92,49 @@ class AddNewChatFragment(private val userId:String) : BottomSheetDialogFragment(
                 updateWhoGetText()
             }
 
-        } , Constance.KEY_FOR_USERS)
+        }, Constance.KEY_FOR_USERS)
 
 
         binding.ListUsers.adapter = usersAdapter
         binding.ListUsers.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
-        addPeople()
+        getPeoples()
 
         fullList = ArrayList(usersAdapter.getAllItems())
 
-        globalViewModel.isKeyBoardActive.observe(viewLifecycleOwner){
-            Log.d("MyLog","Диалог отследил изменения")
+        lifecycleScope.launchWhenStarted {
+            ChatViewModel.usersForNewChat.onEach { messageInChats ->
+                if (messageInChats.isNotEmpty()) {
+                    usersAdapter.addListData(messageInChats.toList())
+                }
+            }.collect()
+        }
+
+        globalViewModel.isKeyBoardActive.observe(viewLifecycleOwner) {
+            Log.d("MyLog", "Диалог отследил изменения")
             if (it != null && !binding.MessageText.isFocused) {
-                Log.d("MyLog",it.toString())
+                Log.d("MyLog", it.toString())
                 setupKeyboardListener(it)
             }
         }
 
     }
-    fun Empty() : Boolean {
+
+    fun Empty(): Boolean {
         binding.apply {
 
-            if(MessageText.text.isNullOrEmpty()) {
+            if (MessageText.text.isNullOrEmpty()) {
                 MessageText.error = "Заполните поле"
             }
-            return  MessageText.text.isNullOrEmpty()
+            return MessageText.text.isNullOrEmpty()
         }
     }
 
 
     private fun updateWhoGetText() {
-        if (selectedUsers.isEmpty()){
+        if (selectedUsers.isEmpty()) {
             binding.MessageText.isEnabled = false
             binding.WhoGetText.text = "Кому отправим?"
-        }else {
+        } else {
             val names = mutableListOf<String>()
             selectedUsers.forEach {
                 names.add(it.nickname)
@@ -149,18 +145,18 @@ class AddNewChatFragment(private val userId:String) : BottomSheetDialogFragment(
 
     }
 
-    fun searchUsers(query:String){
+    fun searchUsers(query: String) {
         val filteredList = ArrayList<UserForChoose>()
 
-            for (user in fullList) {
-                if (user.nickname.toLowerCase(Locale.getDefault())
+        for (user in fullList) {
+            if (user.nickname.toLowerCase(Locale.getDefault())
                     .contains(query.toLowerCase(Locale.getDefault()))
-                ) {
-                    filteredList.add(user)
-                }
+            ) {
+                filteredList.add(user)
             }
+        }
         usersAdapter.updateList(filteredList)
-        if(filteredList.size == 0){
+        if (filteredList.size == 0) {
             binding.ListUsers.visibility = View.GONE
             binding.nullListText.visibility = View.VISIBLE
         } else {
@@ -173,11 +169,11 @@ class AddNewChatFragment(private val userId:String) : BottomSheetDialogFragment(
 
 
     //FOR TEST
-    fun addPeople(){
-        for(i in 0..<usersNames.size){
-            val userForChoose = UserForChoose("qwe",usersAvatars[i],usersNames[i])
-            usersAdapter.addData(userForChoose)
+    fun getPeoples() {
+        lifecycleScope.launch(Dispatchers.IO){
+            ChatViewModel.getUsersForNewChat(userId)
         }
+
     }
 
 

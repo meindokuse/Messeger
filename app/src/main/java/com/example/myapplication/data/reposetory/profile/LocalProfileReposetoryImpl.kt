@@ -1,9 +1,10 @@
-package com.example.myapplication.data.reposetory
+package com.example.myapplication.data.reposetory.profile
 
 import android.net.Uri
-import com.example.myapplication.data.source.local.FileManager
-import com.example.myapplication.data.source.local.LocalReposetoryHelper
-import com.example.myapplication.domain.reposetory.local.LocalProfileReposetory
+import com.example.myapplication.data.local.FileManager
+import com.example.myapplication.data.local.LocalReposetoryHelper
+import com.example.myapplication.domain.reposetory.profile.LocalProfileReposetory
+import com.example.myapplication.models.Event
 import com.example.myapplication.models.ProfileInfo
 import com.example.myapplication.models.UpdateUserInfo
 
@@ -30,5 +31,32 @@ class LocalProfileReposetoryImpl(
             updateUserInfo.newSecondName,
         )
     }
+
+    override fun addEvent(event: Event) {
+        localReposetoryHelper.addEventForRcView(event)
+    }
+
+    override fun initEvents():List<Event> {
+        return localReposetoryHelper.getAllEvents()
+    }
+
+    override fun deleteEvent(event: Event) {
+        localReposetoryHelper.deleteEvent(event)
+        if (event.type == 2) fileManager.deleteFileFromInternalStorage(event.desc)
+    }
+
+    override fun startRecordAudio():String{
+        return fileManager.startRecordAudio()
+    }
+
+    override fun stopRecordAudio(){
+        fileManager.stopAudioRecord()
+    }
+
+    fun deleteAudio(fileName:String){
+        fileManager.deleteFileFromInternalStorage(fileName)
+    }
+
+
 
 }

@@ -1,4 +1,4 @@
-package com.example.myapplication.shared
+package com.example.myapplication.util
 
 import android.content.Context
 import android.media.MediaRecorder
@@ -17,8 +17,7 @@ class AudioRecorder(private val context: Context) {
             stopRecording()
         }
 
-        val audioFilePath =
-            "${context.filesDir}/audio_${UUID.randomUUID()}.3gp"
+        val audioFilePath = "${context.filesDir}/audio_${UUID.randomUUID()}.3gp"
 
         mediaRecorder = MediaRecorder().apply {
             setAudioSource(MediaRecorder.AudioSource.MIC)

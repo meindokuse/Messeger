@@ -1,3 +1,8 @@
 package com.example.myapplication.domain.models
 
-data class ChatsDataResponse()
+import com.example.myapplication.models.ItemChat
+
+data class ChatsDataResponse(
+    val status:Int,
+    val chats: List<ItemChat>?
+)

@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.messages
+package com.example.myapplication.ui.messages.rcview
 
 import android.util.Log
 import android.view.LayoutInflater

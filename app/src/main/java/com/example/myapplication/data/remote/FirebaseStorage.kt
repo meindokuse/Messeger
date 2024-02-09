@@ -4,24 +4,24 @@ import android.net.Uri
 import com.google.firebase.storage.FirebaseStorage
 import kotlinx.coroutines.tasks.await
 
-class FirebaseStorageForImage(userId: String) :
-    com.example.myapplication.domain.reposetory.FirebaseStorage {
+class FirebaseStorage() {
 
     private val storageRef = FirebaseStorage.getInstance().reference
-    private val userImageRef = storageRef.child("users/images").child(userId)
+    private val userImageRef = storageRef.child("users/files")
 
-    override suspend fun loadData(
-        filePath: Uri?,
+     fun loadData(
+         userId: String,
+        filePath: Uri,
         filename: String
     ): Boolean {
-        val fileRef = userImageRef.child(filename)
-        val task = fileRef.putFile(filePath!!)
-        return task.isSuccessful
+        val fileRef = userImageRef.child(userId).child(filename)
+        val task = fileRef.putFile(filePath)
+         return task.isSuccessful
 
     }
 
-    override suspend fun getData(fileName: String): Uri? {
-        val fileRef = userImageRef.child(fileName)
+     suspend fun getData(userId: String,fileName: String): Uri? {
+        val fileRef = userImageRef.child(userId).child(fileName)
         return fileRef.downloadUrl.await()
 
     }

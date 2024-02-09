@@ -1,4 +1,4 @@
-package com.example.myapplication.api
+package com.example.myapplication.util.api
 
 
 import com.example.myapplication.models.MessageInChat
@@ -55,11 +55,12 @@ interface NetworkApi {
     @GET("{user_id}/users/")
     suspend fun getUsersForNewChat(
         @Path("user_id") userId: String
-    ):Response<UserForChoose>
+    ):Response<UsersForNewChatResponse>
 
     data class ApiResponse(
         val message:String,
         val status:Int
     )
+
 
 }

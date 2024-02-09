@@ -1,15 +1,14 @@
-package com.example.myapplication.shared
+package com.example.myapplication.util
 
 import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.example.myapplication.domain.LocalReposetoryHelper
+import com.example.myapplication.data.local.LocalReposetoryHelper
 
-open class SharedViewModel(private val localReposetoryHelper: LocalReposetoryHelper): ViewModel(){
+open class SharedViewModel(): ViewModel(){
 
-    private val _userId = MutableLiveData<String>()
-    val userId: LiveData<String> get() = _userId
+
 
     val isKeyBoardActive = MutableLiveData<Boolean>()
 
@@ -17,9 +16,6 @@ open class SharedViewModel(private val localReposetoryHelper: LocalReposetoryHel
         Log.d("MyLog","Статус изменился")
 
         isKeyBoardActive.value = isActive
+    }
 
-    }
-    init {
-        _userId.value = localReposetoryHelper.getUserId()
-    }
 }

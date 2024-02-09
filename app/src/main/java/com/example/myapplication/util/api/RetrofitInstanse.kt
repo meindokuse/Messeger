@@ -1,4 +1,4 @@
-package com.example.myapplication.api
+package com.example.myapplication.util.api
 
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import okhttp3.OkHttpClient
@@ -23,7 +23,7 @@ object RetrofitInstanse {
             .build()
     }
 
-    val api:NetworkApi by lazy {
+    val api: NetworkApi by lazy {
         retrofit.create(NetworkApi::class.java)
     }
 }

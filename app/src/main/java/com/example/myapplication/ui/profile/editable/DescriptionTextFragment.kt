@@ -1,4 +1,4 @@
-package com.example.myapplication.profile.editable
+package com.example.myapplication.ui.profile.editable
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

@@ -1,4 +1,4 @@
-package com.example.myapplication.chats
+package com.example.myapplication.ui.chats
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -28,17 +28,17 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.myapplication.shared.Constance
+import com.example.myapplication.util.Constance
 import com.example.myapplication.R
-import com.example.myapplication.shared.SharedViewModel
-import com.example.myapplication.shared.SharedViewModelFactory
-import com.example.myapplication.chats.domain.ChatsViewModelFactory
-import com.example.myapplication.chats.domain.ViewModelForChats
-import com.example.myapplication.chats.editable.AddNewChatFragment
+import com.example.myapplication.util.SharedViewModel
+import com.example.myapplication.ui.chats.viewmodel.ViewModelForChats
+import com.example.myapplication.ui.chats.editable.AddNewChatFragment
 import com.example.myapplication.databinding.ListOfChatsBinding
 import com.example.myapplication.models.ItemChat
-import com.example.myapplication.domain.LocalReposetoryHelper
+import com.example.myapplication.ui.chats.rcview.RvChats
+import com.example.myapplication.ui.messages.ChatFragment
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
@@ -46,7 +46,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.lang.Math.abs
 
-
+@AndroidEntryPoint
 class ListOfChatsFragment : Fragment() {
     private lateinit var binding: ListOfChatsBinding
     private lateinit var handler: Handler
@@ -55,15 +55,8 @@ class ListOfChatsFragment : Fragment() {
 
     private lateinit var userId: String
 
-    val ChatDataModel: ViewModelForChats by activityViewModels {
-        ChatsViewModelFactory(
-            LocalReposetoryHelper(requireContext()),
-            requireActivity().application
-        )
-    }
-    val globalViewModel: SharedViewModel by activityViewModels {
-        SharedViewModelFactory(LocalReposetoryHelper(requireContext()))
-    }
+    val ChatDataModel: ViewModelForChats by activityViewModels()
+    val globalViewModel: SharedViewModel by activityViewModels()
 
 
     lateinit var adapter: RvChats
@@ -146,7 +139,7 @@ class ListOfChatsFragment : Fragment() {
 
         lifecycleScope.launchWhenStarted {
             ChatDataModel.listOfChats.onEach { messageInChats ->
-                if (messageInChats != null && messageInChats.isNotEmpty()) {
+                if (messageInChats.isNotEmpty()) {
                     adapter.setChats(messageInChats.agregate())
                 }
             }.collect()
@@ -333,7 +326,7 @@ class ListOfChatsFragment : Fragment() {
         }
     }
 
-    private fun List<ItemChat>.agregate(): List<ItemChat> =
+    private fun Set<ItemChat>.agregate(): List<ItemChat> =
         sortedByDescending { it.mes_time }
 }
 

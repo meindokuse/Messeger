@@ -1,4 +1,4 @@
-package com.example.myapplication.shared
+package com.example.myapplication.util
 
 import android.animation.ObjectAnimator
 import android.util.Log
@@ -10,7 +10,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.example.myapplication.R
-import com.example.myapplication.chats.UsersListener
+import com.example.myapplication.ui.chats.rcview.UsersListener
 import com.example.myapplication.databinding.EventItemBinding
 import com.example.myapplication.databinding.UserForChooseBinding
 import com.example.myapplication.models.Event

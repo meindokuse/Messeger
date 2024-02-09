@@ -1,4 +1,4 @@
-package com.example.myapplication.profile.editable
+package com.example.myapplication.ui.profile.editable
 
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -9,14 +9,13 @@ import android.view.ViewGroup
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
-import com.example.myapplication.domain.LocalReposetoryHelper
-import com.example.myapplication.profile.domain.ProfileViewModel
+import com.example.myapplication.ui.profile.viewmodel.ProfileViewModel
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import android.Manifest
 import android.widget.TextView
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.R
-import com.example.myapplication.profile.domain.ProfileViewModelFactory
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -25,12 +24,10 @@ import kotlinx.coroutines.withContext
 import java.util.Locale
 import kotlin.coroutines.coroutineContext
 
-
+@AndroidEntryPoint
 class DescriptionVoiceFragment : Fragment() {
 
-    private val profileViewModel: ProfileViewModel by activityViewModels{
-        ProfileViewModelFactory(LocalReposetoryHelper(requireContext()), requireActivity().application)
-    }
+    private val profileViewModel: ProfileViewModel by activityViewModels()
     private var audioDesc:String? = null
     var time = 0
     lateinit var textProcess:TextView

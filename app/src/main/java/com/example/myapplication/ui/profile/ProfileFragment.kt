@@ -1,4 +1,4 @@
-package com.example.myapplication.profile
+package com.example.myapplication.ui.profile
 
 import android.content.Context
 import android.media.MediaPlayer
@@ -12,28 +12,31 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
-import com.example.myapplication.profile.rcview.EventsAdapter
+import com.example.myapplication.ui.profile.rcview.EventsAdapter
 import com.example.myapplication.R
-import com.example.myapplication.shared.Constance
+import com.example.myapplication.util.Constance
 import com.example.myapplication.databinding.FragmentProfileBinding
-import com.example.myapplication.profile.domain.ProfileViewModelFactory
-import com.example.myapplication.profile.editable.EditFragmentForProfile
-import com.example.myapplication.profile.editable.FragmentForEditEvents
-import com.example.myapplication.profile.rcview.ItemListener
-import com.example.myapplication.domain.LocalReposetoryHelper
-import com.example.myapplication.profile.domain.ProfileViewModel
+import com.example.myapplication.ui.profile.editable.EditFragmentForProfile
+import com.example.myapplication.ui.profile.editable.FragmentForEditEvents
+import com.example.myapplication.ui.profile.rcview.ItemListener
+import com.example.myapplication.data.reposetory.profile.RemoteUserReposImpl
+import com.example.myapplication.domain.reposetory.profile.LocalProfileReposetory
+import com.example.myapplication.ui.profile.viewmodel.ProfileViewModel
 import com.google.android.material.snackbar.Snackbar
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import javax.inject.Inject
 
-
+@AndroidEntryPoint
 class ProfileFragment : Fragment() {
 
     private var EditEventTime = false
@@ -50,9 +53,8 @@ class ProfileFragment : Fragment() {
 
     val user_id = activity?.getSharedPreferences(Constance.KEY_USER_PREFERENCES, Context.MODE_PRIVATE)?.getString(Constance.KEY_USER_ID, null)
 
-    private val profileViewModel: ProfileViewModel by activityViewModels {
-        ProfileViewModelFactory(LocalReposetoryHelper(requireContext()), requireActivity().application)
-    }
+
+    private val profileViewModel: ProfileViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

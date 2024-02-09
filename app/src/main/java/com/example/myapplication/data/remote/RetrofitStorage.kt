@@ -8,9 +8,10 @@ import com.example.myapplication.models.MessageInChat
 import com.example.myapplication.models.ItemChat
 import com.example.myapplication.models.ProfileInfo
 import com.example.myapplication.models.UpdateUserInfo
+import com.example.myapplication.models.UserForChoose
 import retrofit2.Response
 
-object RemoteReposetory {
+object RetrofitStorage {
 
     private val retrofit = RetrofitInstanse.api
 
@@ -36,6 +37,15 @@ object RemoteReposetory {
             null
         }
     }
+    suspend fun getUsersForCreateNewChat(userId: String): List<UserForChoose>? {
+        val response = retrofit.getUsersForNewChat(userId)
+        return if (response.isSuccessful){
+            response.body()?.usersForChoose
+        } else{
+            null
+        }
+    }
+
     suspend fun createNewMessage(message: MessageInChat):Response<NetworkApi.ApiResponse>{
         return retrofit.postMessage(message)
     }
@@ -47,5 +57,6 @@ object RemoteReposetory {
             null
         }
     }
+
 
 }

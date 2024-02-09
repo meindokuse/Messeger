@@ -1,4 +1,4 @@
-package com.example.myapplication.profile.editable
+package com.example.myapplication.ui.profile.editable
 
 import android.content.DialogInterface
 import android.os.Bundle
@@ -13,21 +13,16 @@ import androidx.fragment.app.activityViewModels
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentForEditEventsBinding
 import com.example.myapplication.models.Event
-import com.example.myapplication.profile.domain.ProfileViewModelFactory
-import com.example.myapplication.domain.LocalReposetoryHelper
-import com.example.myapplication.profile.domain.ProfileViewModel
+import com.example.myapplication.ui.profile.viewmodel.ProfileViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.tabs.TabLayout
+import dagger.hilt.android.AndroidEntryPoint
 import java.util.UUID
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 
-/**
- * A simple [Fragment] subclass.
- * Use the [FragmentForEditEvents.newInstance] factory method to
- * create an instance of this fragment.
- */
+
+
+@AndroidEntryPoint
 class FragmentForEditEvents : BottomSheetDialogFragment() {
 
     val descriptionVoiceFragment = DescriptionVoiceFragment()
@@ -36,11 +31,8 @@ class FragmentForEditEvents : BottomSheetDialogFragment() {
     var TextOrVoice = 1
 
 
-    val DataModel: ProfileViewModel by activityViewModels{
-        ProfileViewModelFactory(LocalReposetoryHelper(requireContext()),requireActivity().application)
-    }
+    val DataModel: ProfileViewModel by activityViewModels()
     private lateinit var binding: FragmentForEditEventsBinding
-    private lateinit var adapter: ArrayAdapter<CharSequence>
     private var isCompleteAudio = false
 
 
@@ -125,11 +117,6 @@ class FragmentForEditEvents : BottomSheetDialogFragment() {
         super.onDismiss(dialog)
     }
 
-    companion object {
-
-        @JvmStatic
-        fun newInstance() = FragmentForEditEvents()
-    }
     fun Empty() : Boolean {
         binding.apply {
 

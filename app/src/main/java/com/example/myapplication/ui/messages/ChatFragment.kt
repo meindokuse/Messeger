@@ -1,4 +1,4 @@
-package com.example.myapplication.ui.chats
+package com.example.myapplication.ui.messages
 
 import android.os.Bundle
 import android.util.Log
@@ -18,12 +18,13 @@ import com.example.myapplication.databinding.FragmentChatBinding
 import com.example.myapplication.models.MessageInChat
 import com.example.myapplication.ui.messages.rcview.MessageListAdapter
 import com.example.myapplication.ui.messages.viewmodel.MessagesViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import java.util.UUID
 
-
+@AndroidEntryPoint
 class ChatFragment : Fragment() {
     private lateinit var userId: String
     private lateinit var chatId: String

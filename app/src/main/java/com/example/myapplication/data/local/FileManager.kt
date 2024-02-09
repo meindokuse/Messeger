@@ -1,9 +1,10 @@
-package com.example.myapplication.data.source.local
+package com.example.myapplication.data.local
 
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
+import com.example.myapplication.util.AudioRecorder
 import java.io.File
 import java.io.FileOutputStream
 import java.lang.Exception
@@ -26,12 +27,12 @@ class FileManager(private val context: Context) {
 
     fun updateImageInInternalStorage(newImageUri: Uri, fileName: String): String {
         // Удаляем старый файл
-        deleteImageFromInternalStorage(fileName)
+        deleteFileFromInternalStorage(fileName)
         // Сохраняем новый файл
         return saveImageToInternalStorage(newImageUri, fileName)
     }
 
-    fun deleteImageFromInternalStorage(fileName: String) {
+    fun deleteFileFromInternalStorage(fileName: String) {
         Log.d("MyLog", "deleteImageFromInternalStorage")
         val file = File(context.filesDir,fileName)
         if (file.exists()) {
@@ -42,17 +43,21 @@ class FileManager(private val context: Context) {
         }
     }
 
-    fun saveBitmapToInternalStorage(bitmap: Bitmap, fileName: String): String {
-        val file = File(context.filesDir, "$fileName.jpg")
-        try {
-            FileOutputStream(file).use { fileOutputStream ->
-                bitmap.compress(Bitmap.CompressFormat.JPEG, 80, fileOutputStream)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-        return fileName
+
+    private val audioRecorder = AudioRecorder(context)
+
+    fun startRecordAudio():String{
+       return audioRecorder.startRecording()
     }
+
+    fun stopAudioRecord(){
+        audioRecorder.stopRecording()
+    }
+
+    fun clearAudioRecorder(){
+        audioRecorder.clearRecording()
+    }
+
 }
 
 

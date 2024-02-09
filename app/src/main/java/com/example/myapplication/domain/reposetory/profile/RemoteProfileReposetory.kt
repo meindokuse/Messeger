@@ -1,12 +1,8 @@
-package com.example.myapplication.domain.reposetory.remote
+package com.example.myapplication.domain.reposetory.profile
 
 import android.net.Uri
-import com.example.myapplication.models.ProfileInfo
 import com.example.myapplication.models.UpdateUserInfo
-import com.example.myapplication.models.UserDataResponse
-import com.example.myapplication.util.api.NetworkApi
-import com.example.myapplication.util.api.User
-import retrofit2.Response
+import com.example.myapplication.domain.models.UserDataResponse
 
 interface RemoteProfileReposetory {
 
@@ -22,4 +18,6 @@ interface RemoteProfileReposetory {
         avatar: Uri?,
         userId: String,
     ): Int
+
+    suspend fun getUri(userId: String,fileName: String):Uri?
 }

@@ -1,4 +1,4 @@
-package com.example.myapplication.profile
+package com.example.myapplication.ui.profile
 
 import android.app.Activity
 import android.content.Intent
@@ -19,22 +19,19 @@ import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
-import com.example.myapplication.MainActivity
+import com.example.myapplication.ui.MainActivity
 import com.example.myapplication.R
-import com.example.myapplication.profile.domain.ProfileViewModelFactory
-import com.example.myapplication.domain.LocalReposetoryHelper
-import com.example.myapplication.profile.domain.ProfileViewModel
-import com.example.myapplication.shared.Constance
+import com.example.myapplication.ui.profile.viewmodel.ProfileViewModel
+import com.example.myapplication.util.Constance
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
+@AndroidEntryPoint
 class LoginOrRegFragment : Fragment() {
 
-    private val dataModel: ProfileViewModel by activityViewModels{
-        ProfileViewModelFactory(LocalReposetoryHelper(requireContext()), requireActivity().application)
-    }
+    private val dataModel: ProfileViewModel by activityViewModels()
     private lateinit var fotoImage: ImageView
 
     private var foto: Uri? = null
@@ -110,7 +107,7 @@ class LoginOrRegFragment : Fragment() {
             val profile = arrayListOf(name, name2, sch, cityyy, ageee, tClass,login,passwordToReg)
 
             if (!areFieldsEmpty()) {
-                lifecycleScope.launch{
+                lifecycleScope.launch(Dispatchers.IO){
                     try {
                         val result = dataModel.addUser(requireContext(), profile, foto)
                         withContext(Dispatchers.Main){

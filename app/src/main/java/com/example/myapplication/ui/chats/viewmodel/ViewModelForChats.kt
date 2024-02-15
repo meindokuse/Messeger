@@ -1,18 +1,15 @@
 package com.example.myapplication.ui.chats.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.myapplication.util.api.DataForCreateChat
 import com.example.myapplication.models.ItemChat
 import com.example.myapplication.models.MessageInChat
 import com.example.myapplication.models.UserForChoose
-import com.example.myapplication.data.remote.RetrofitStorage
-import com.example.myapplication.domain.interactor.ChatCases
-import com.example.myapplication.domain.reposetory.chats.ChatLocalReposetory
 import com.example.myapplication.domain.reposetory.chats.RemoteChatsReposetory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -24,28 +21,23 @@ open class ViewModelForChats @Inject constructor(
     private val remoteChatsReposetory: RemoteChatsReposetory,
 ) : ViewModel() {
 
-    private val _listOfChats: MutableStateFlow<Set<ItemChat>> = MutableStateFlow(emptySet())
-    val listOfChats: StateFlow<Set<ItemChat>> = _listOfChats
+    private val _listOfChats: MutableStateFlow<List<ItemChat>> = MutableStateFlow(emptyList())
+    val listOfChats: StateFlow<List<ItemChat>> = _listOfChats
 
 
-    private val _usersForNewChat: MutableStateFlow<Set<UserForChoose>> =
-        MutableStateFlow(emptySet())
-    val usersForNewChat: StateFlow<Set<UserForChoose>> = _usersForNewChat
+    private val _usersForNewChat: MutableStateFlow<List<UserForChoose>> =
+        MutableStateFlow(emptyList())
+    val usersForNewChat: StateFlow<List<UserForChoose>> = _usersForNewChat
 
 
-//    private suspend fun initChatList() {
-//        Log.d("MyLog", "Обновление модели чатов")
-//        val savedChats = localReposetoryHelper.GetAllChats()
-//        _listOfChats.emit(savedChats)
-//    }
 
 
     suspend fun syncChats(userId: String) {
         val chats = remoteChatsReposetory.getAllChats(userId)
-        if (chats != null) _listOfChats.emit(chats.toSet())
+        if (chats != null) _listOfChats.emit(chats)
     }
 
-    fun addChats(
+    fun createNewChats(
 
         listWhoGetMes: List<UserForChoose>,
         text: String,
@@ -80,23 +72,23 @@ open class ViewModelForChats @Inject constructor(
                 val response = remoteChatsReposetory.createNewChat(dataForCreateChat)
                 if (response != null) NewChatsList.add(itemChat)
             }
-            _listOfChats.emit(_listOfChats.value.toMutableSet().apply { addAll(NewChatsList) })
+            _listOfChats.emit(NewChatsList)
         }
     }
 
+
     suspend fun getUsersForNewChat(userId: String) {
+        Log.d("MyLog","getUsersForNewChat in viewModel $userId")
         val users = remoteChatsReposetory.getUserForCreateChat(userId)
         if (users != null){
-            _usersForNewChat.emit(
-                _usersForNewChat.value.toMutableSet().apply { addAll(users) }
-            )
+            _usersForNewChat.emit(users)
         }
 
     }
 
     fun deleteChat(chats: List<ItemChat>) {
         viewModelScope.launch(Dispatchers.IO) {
-            _listOfChats.emit(_listOfChats.value.toMutableSet().apply { removeAll(chats.toSet()) })
+            _listOfChats.emit(chats)
         }
     }
 

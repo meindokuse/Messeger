@@ -27,7 +27,7 @@ class UniversalAdapter<T>(val itemListener: UsersListener, val key: String) :
         const val USER_KEY = "user"
     }
 
-    val selectionChats = HashSet<Int>()
+    private val selectionChats = HashSet<Int>()
 
     fun isSelected(position: Int): Boolean{
         return selectionChats.contains(position)
@@ -79,6 +79,7 @@ class UniversalAdapter<T>(val itemListener: UsersListener, val key: String) :
         fun bind(userForChoose: UserForChoose,position: Int){
             Glide.with(binding.root.context)
                 .load(userForChoose.foto)
+                .placeholder(R.drawable.loading)
                 .apply(RequestOptions.bitmapTransform(CircleCrop()))
                 .into(binding.avatarView)
 

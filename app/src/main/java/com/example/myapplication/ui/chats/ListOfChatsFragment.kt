@@ -5,6 +5,7 @@ import android.content.Context
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
@@ -35,6 +36,7 @@ import com.example.myapplication.ui.chats.viewmodel.ViewModelForChats
 import com.example.myapplication.ui.chats.editable.AddNewChatFragment
 import com.example.myapplication.databinding.ListOfChatsBinding
 import com.example.myapplication.models.ItemChat
+import com.example.myapplication.ui.MainActivity
 import com.example.myapplication.ui.chats.rcview.RvChats
 import com.example.myapplication.ui.messages.ChatFragment
 import com.google.android.material.snackbar.Snackbar
@@ -55,8 +57,8 @@ class ListOfChatsFragment : Fragment() {
 
     private lateinit var userId: String
 
-    val ChatDataModel: ViewModelForChats by activityViewModels()
-    val globalViewModel: SharedViewModel by activityViewModels()
+    private val chatViewModel: ViewModelForChats by activityViewModels()
+    private val globalViewModel: SharedViewModel by activityViewModels()
 
 
     lateinit var adapter: RvChats
@@ -127,23 +129,135 @@ class ListOfChatsFragment : Fragment() {
             )
         )
 
+        initRecyclerView()
+
+        lifecycleScope.launchWhenStarted {
+            chatViewModel.listOfChats.onEach { listChats ->
+                if (listChats.isNotEmpty()) {
+                    adapter.setChats(listChats.agregate())
+                }
+            }.collect()
+        }
+
+    }
+
+    fun startActionMode(view: View): ActionMode {
+        vibrate(requireContext(), 100)
+        binding.FindNewChatButton.animate()
+            .translationXBy(binding.FindNewChatButton.width.toFloat())
+            .alpha(0.0f)
+            .setDuration(500)
+            .withEndAction {
+                binding.FindNewChatButton.visibility = View.GONE
+            }
+        return if (actionMode == null) {
+            // Передаем в startActionMode текущее окно или вид
+            actionMode = view.startActionMode(object : ActionMode.Callback {
+                override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+                    requireActivity().menuInflater.inflate(R.menu.menu_for_chats, menu)
+                    mode?.title = "Редактирование"
+                    return true
+                }
+
+                override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
+                    return false
+                }
+
+                override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
+                    when (item?.itemId) {
+                        R.id.menu_delete -> {
+                            mode?.title = "Удаление..."
+                            lifecycleScope.launch {
+                                chatViewModel.deleteChat(adapter.outGetSelectedChats())
+                                actionMode?.finish()
+                            }
+                        }
+                    }
+                    return false
+                }
+
+                override fun onDestroyActionMode(mode: ActionMode?) {
+                    adapter.clearSelection()
+                    actionMode = null
+
+                    binding.FindNewChatButton.visibility = View.VISIBLE
+                    binding.FindNewChatButton.alpha = 0.0f
+                    binding.FindNewChatButton.translationX =
+                        binding.FindNewChatButton.width.toFloat() // Помещаем вправо на ширину кнопки
+
+                    binding.FindNewChatButton.animate()
+                        .translationXBy(-binding.FindNewChatButton.width.toFloat()) // Перемещение влево на ширину кнопки
+                        .alpha(1.0f).duration = 500
+
+                }
+            })
+            actionMode!!
+        } else {
+            actionMode!!
+        }
+    }
+
+    private fun vibrate(context: Context, duration: Long) {
+        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val vibrationEffect =
+                VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE)
+            vibrator.vibrate(vibrationEffect)
+        } else {
+            vibrator.vibrate(duration)
+        }
+    }
+
+    private fun syncChats(userId: String) {
+        lifecycleScope.launch(Dispatchers.IO) {
+            val mainActivity = (activity as MainActivity)
+
+            withContext(Dispatchers.Main) {
+                mainActivity.updatingTitle()
+            }
+            try {
+                chatViewModel.syncChats(userId)
+                withContext(Dispatchers.Main) {
+                    mainActivity.stopUpdatingTitle()
+                }
+            } catch (e: Exception) {
+                withContext(Dispatchers.Main) {
+                    Log.e("ChatDataModel", "Ошибка при получении чатов: ${e.message}")
+                    showErrorSnackbar()
+                }
+            }
+        }
+    }
+
+    private fun showErrorSnackbar() {
+        view?.let { view ->
+            Snackbar.make(view, "Произошла ошибка при получении чатов", Snackbar.LENGTH_LONG)
+                .setAction("Повторить") {
+                    syncChats(userId)
+                }
+                .show()
+        }
+    }
+
+    private fun List<ItemChat>.agregate(): List<ItemChat> =
+        sortedByDescending { it.mes_time }
+
+    private fun initRecyclerView() {
+        binding.FindNewChatButton.setColorFilter(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.white
+            )
+        )
+
         val activity = requireActivity() as AppCompatActivity
         activity.supportActionBar?.title = "Чаты"
         activity.supportActionBar?.setDisplayHomeAsUpEnabled(false)
-        handler = Handler()
+        handler = Handler(Looper.myLooper()!!)
 
         adapter = RvChats(requireContext())
         binding.ListChats.layoutManager = LinearLayoutManager(requireContext())
         binding.ListChats.adapter = adapter
-
-
-        lifecycleScope.launchWhenStarted {
-            ChatDataModel.listOfChats.onEach { messageInChats ->
-                if (messageInChats.isNotEmpty()) {
-                    adapter.setChats(messageInChats.agregate())
-                }
-            }.collect()
-        }
 
         binding.ListChats.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
             private var startX = 0f
@@ -226,107 +340,14 @@ class ListOfChatsFragment : Fragment() {
             }
 
             override fun onTouchEvent(rv: RecyclerView, e: MotionEvent) {
-                // Обработка событий касания
+                // Ignore
             }
 
             override fun onRequestDisallowInterceptTouchEvent(disallowIntercept: Boolean) {
-                // Обработка запрета перехвата событий
+                // Ignore
             }
         })
 
     }
-
-    fun startActionMode(view: View): ActionMode {
-        vibrate(requireContext(), 100)
-        binding.FindNewChatButton.animate()
-            .translationXBy(binding.FindNewChatButton.width.toFloat())
-            .alpha(0.0f)
-            .setDuration(500)
-            .withEndAction {
-                binding.FindNewChatButton.visibility = View.GONE
-            }
-        return if (actionMode == null) {
-            // Передаем в startActionMode текущее окно или вид
-            actionMode = view.startActionMode(object : ActionMode.Callback {
-                override fun onCreateActionMode(mode: ActionMode?, menu: Menu?): Boolean {
-                    requireActivity().menuInflater.inflate(R.menu.menu_for_chats, menu)
-                    mode?.title = "Редактирование"
-                    return true
-                }
-
-                override fun onPrepareActionMode(mode: ActionMode?, menu: Menu?): Boolean {
-                    return false
-                }
-
-                override fun onActionItemClicked(mode: ActionMode?, item: MenuItem?): Boolean {
-                    when (item?.itemId) {
-                        R.id.menu_delete -> {
-                            mode?.title = "Удаление..."
-                            lifecycleScope.launch {
-                                ChatDataModel.deleteChat(adapter.outGetSelectedChats())
-                                actionMode?.finish()
-                            }
-                        }
-                    }
-                    return false
-                }
-
-                override fun onDestroyActionMode(mode: ActionMode?) {
-                    adapter.clearSelection()
-                    actionMode = null
-
-                    binding.FindNewChatButton.visibility = View.VISIBLE
-                    binding.FindNewChatButton.alpha = 0.0f
-                    binding.FindNewChatButton.translationX =
-                        binding.FindNewChatButton.width.toFloat() // Помещаем вправо на ширину кнопки
-
-                    binding.FindNewChatButton.animate()
-                        .translationXBy(-binding.FindNewChatButton.width.toFloat()) // Перемещение влево на ширину кнопки
-                        .alpha(1.0f).duration = 500
-
-                }
-            })
-            actionMode!!
-        } else {
-            actionMode!!
-        }
-    }
-
-    private fun vibrate(context: Context, duration: Long) {
-        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val vibrationEffect =
-                VibrationEffect.createOneShot(duration, VibrationEffect.DEFAULT_AMPLITUDE)
-            vibrator.vibrate(vibrationEffect)
-        } else {
-            vibrator.vibrate(duration)
-        }
-    }
-
-    private fun syncChats(userId: String) {
-        lifecycleScope.launch(Dispatchers.IO) {
-            try {
-                ChatDataModel.syncChats(userId)
-            } catch (e: Exception) {
-                withContext(Dispatchers.Main) {
-                    Log.e("ChatDataModel", "Ошибка при получении чатов: ${e.message}")
-                    showErrorSnackbar()
-                }
-            }
-        }
-    }
-
-    private fun showErrorSnackbar() {
-        view?.let { view ->
-            Snackbar.make(view, "Произошла ошибка при получении чатов", Snackbar.LENGTH_LONG)
-                .setAction("Повторить") {
-                    syncChats(userId)
-                }
-                .show()
-        }
-    }
-
-    private fun Set<ItemChat>.agregate(): List<ItemChat> =
-        sortedByDescending { it.mes_time }
 }
 

@@ -12,5 +12,6 @@ object Constance {
     const val NETWORK_ERROR = 2
     const val EXCEPTION_ERROR = 3
     const val FIREBASE_ERROR = 4
+    const val NO_FOUND_USER = 10
 
 }

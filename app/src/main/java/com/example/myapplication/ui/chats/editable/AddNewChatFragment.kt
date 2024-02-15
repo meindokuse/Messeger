@@ -51,11 +51,12 @@ class AddNewChatFragment(private val userId: String) : BottomSheetDialogFragment
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         init()
+
         binding.toSendButton.setOnClickListener {
             lifecycleScope.launch {
                 if (!Empty()) {
                     val text = binding.MessageText.text.toString()
-                    ChatViewModel.addChats(selectedUsers, text, userId)
+                    ChatViewModel.createNewChats(selectedUsers, text, userId)
                     dismiss()
                 }
             }
@@ -96,7 +97,9 @@ class AddNewChatFragment(private val userId: String) : BottomSheetDialogFragment
 
 
         binding.ListUsers.adapter = usersAdapter
-        binding.ListUsers.layoutManager = LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
+        binding.ListUsers.layoutManager =
+            LinearLayoutManager(activity, LinearLayoutManager.HORIZONTAL, false)
+
         getPeoples()
 
         fullList = ArrayList(usersAdapter.getAllItems())
@@ -168,9 +171,8 @@ class AddNewChatFragment(private val userId: String) : BottomSheetDialogFragment
     }
 
 
-    //FOR TEST
-    fun getPeoples() {
-        lifecycleScope.launch(Dispatchers.IO){
+    private fun getPeoples() {
+        lifecycleScope.launch(Dispatchers.IO) {
             ChatViewModel.getUsersForNewChat(userId)
         }
 
@@ -190,5 +192,6 @@ class AddNewChatFragment(private val userId: String) : BottomSheetDialogFragment
             binding.ListUsers.layoutParams = params
         }
     }
+
 }
 

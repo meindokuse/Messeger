@@ -1,5 +1,6 @@
 package com.example.myapplication.data.reposetory.chats
 
+import android.util.Log
 import com.example.myapplication.data.remote.FirebaseStorage
 import com.example.myapplication.data.remote.RetrofitStorage
 import com.example.myapplication.domain.reposetory.chats.RemoteChatsReposetory
@@ -13,7 +14,8 @@ class ChatsReposetoryImpl(
     override suspend fun getAllChats(userId: String): List<ItemChat> {
         val readyChats = ArrayList<ItemChat>()
         RetrofitStorage.getAllChats(userId)?.forEach { chat ->
-            val uri = firebaseStorage.getData(userId,chat.avatar)
+            val anotherUserId = if (userId == chat.user_id_1) chat.user_id_2 else chat.user_id_1
+            val uri = firebaseStorage.getData(anotherUserId, chat.avatar)
             uri?.let {
                 readyChats.add(chat.copy(avatar = uri.toString()))
             }
@@ -22,11 +24,13 @@ class ChatsReposetoryImpl(
     }
 
     override suspend fun createNewChat(dataForCreateChat: DataForCreateChat): ItemChat? {
-        val userId = dataForCreateChat.message.id_sender
+
+        val anotherUserId = dataForCreateChat.chat.user_id_2
+
         val response = RetrofitStorage.createNewChat(dataForCreateChat)
         return if (response.isSuccessful) {
             val chat = dataForCreateChat.chat
-            val uri = firebaseStorage.getData(userId,chat.avatar)
+            val uri = firebaseStorage.getData(anotherUserId, chat.avatar)
             uri?.let {
                 chat.copy(avatar = uri.toString())
             }
@@ -36,7 +40,18 @@ class ChatsReposetoryImpl(
     }
 
     override suspend fun getUserForCreateChat(userId: String): List<UserForChoose>? {
-        return RetrofitStorage.getUsersForCreateNewChat(userId)
+        val readyUsers = ArrayList<UserForChoose>()
+        val users = RetrofitStorage.getUsersForCreateNewChat(userId)
+        Log.d("MyLog", "qweewq $users")
+        users?.forEach { user ->
+            Log.d("MyLog", "getUserForCreateChat ${user.id} ${user.nickname}")
+            val uri = firebaseStorage.getData(user.id, user.foto)
+            uri?.let {
+                readyUsers.add(user.copy(foto = it.toString()))
+            }
+        }
+
+        return readyUsers
     }
 
 }

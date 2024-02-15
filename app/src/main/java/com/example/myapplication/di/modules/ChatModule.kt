@@ -6,6 +6,7 @@ import com.example.myapplication.data.remote.FirebaseStorage
 import com.example.myapplication.data.reposetory.chats.ChatsReposetoryImpl
 import com.example.myapplication.data.reposetory.profile.LocalProfileReposetoryImpl
 import com.example.myapplication.data.reposetory.profile.RemoteUserReposImpl
+import com.example.myapplication.domain.reposetory.chats.RemoteChatsReposetory
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -20,8 +21,7 @@ object ChatModule {
 
     @Provides
     @ActivityRetainedScoped
-    fun provideRemoteChatReposetory(firebaseStorage: FirebaseStorage): ChatsReposetoryImpl {
-        return ChatsReposetoryImpl(firebaseStorage)
+    fun provideRemoteChatsRepository(firebaseStorage: FirebaseStorage): RemoteChatsReposetory {
+        return ChatsReposetoryImpl(firebaseStorage) // Предполагается, что ChatsReposetoryImpl реализует интерфейс RemoteChatsReposetory
     }
-
 }

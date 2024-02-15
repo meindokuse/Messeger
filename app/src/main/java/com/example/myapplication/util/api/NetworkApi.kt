@@ -1,6 +1,8 @@
 package com.example.myapplication.util.api
 
 
+import androidx.annotation.IntRange
+import com.example.myapplication.data.models.LoginBody
 import com.example.myapplication.models.MessageInChat
 import com.example.myapplication.models.ProfileInfo
 import com.example.myapplication.models.UpdateUserInfo
@@ -11,8 +13,7 @@ import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
-
-
+import retrofit2.http.Query
 
 
 interface NetworkApi {
@@ -44,7 +45,9 @@ interface NetworkApi {
 
     @GET("/get_messages/{chat_id}")
     suspend fun getAllMessage(
-        @Path("chat_id") chatId:String
+        @Path("chat_id") chatId:String,
+        @Query("page") @IntRange(from = 1) page:Int = 1,
+        @Query("pageSize") pageSize:Int,
     ):Response<MessageResponse>
 
     @GET("/open_chats/{user_id}")
@@ -52,15 +55,27 @@ interface NetworkApi {
         @Path("user_id") userId:String
     ):Response<ChatResponse>
 
-    @GET("{user_id}/users/")
+    @GET("/user_for_choose/{user_id}")
     suspend fun getUsersForNewChat(
         @Path("user_id") userId: String
     ):Response<UsersForNewChatResponse>
+
+    @GET("/user/login")
+    suspend fun loginUser(
+        @Body loginBody: LoginBody
+    ):Response<LoginResponse>
 
     data class ApiResponse(
         val message:String,
         val status:Int
     )
 
+    data class LoginResponse(
+        val idUser:String,
+        val status:Int
+    )
+
 
 }
+
+

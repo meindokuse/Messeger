@@ -29,10 +29,10 @@
         android:id="@+id/profileFragment"
         android:name="com.example.myapplication.ui.profile.ProfileFragment"
         android:label="fragment_blank"
-        tools:layout="@layout/fragment_blank" />
+        tools:layout="@layout/fragment_profile" />
     <fragment
         android:id="@+id/loginOrRegFragment"
-        android:name="com.example.myapplication.ui.profile.LoginOrRegFragment"
+        android:name="com.example.myapplication.ui.profile.auth.RegFragment"
         android:label="fragment_login_or_reg"
         tools:layout="@layout/fragment_login_or_reg" >
         <action
@@ -40,5 +40,21 @@
             app:popUpTo="@+id/loginOrRegFragment"
             app:popUpToInclusive="true"
             app:destination="@id/profileFragment" />
+        <action
+            android:id="@+id/action_loginOrRegFragment_to_loginFragment"
+            app:enterAnim="@anim/slide_in_right"
+            app:popEnterAnim="@anim/slide_in_left"
+            app:destination="@id/loginFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.myapplication.ui.profile.auth.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" >
+        <action
+            android:id="@+id/action_loginFragment_to_profileFragment"
+            app:destination="@id/profileFragment"
+            app:popUpTo="@id/loginFragment"
+            app:popUpToInclusive="true" />
     </fragment>
 </navigation>

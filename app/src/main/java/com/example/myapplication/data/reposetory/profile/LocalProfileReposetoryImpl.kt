@@ -21,10 +21,7 @@ class LocalProfileReposetoryImpl(
     }
 
     override  fun updateUserInfo(updateUserInfo: UpdateUserInfo, avatar: Uri?) {
-        if (avatar != null) fileManager.updateImageInInternalStorage(
-            avatar,
-            updateUserInfo.fileName
-        )
+        if (avatar != null) fileManager.updateImageInInternalStorage(avatar, updateUserInfo.fileName)
 
         localReposetoryHelper.updateProfile(
             updateUserInfo.newFirstName,

@@ -1,5 +1,7 @@
 package com.example.myapplication.data.remote
 
+import android.util.Log
+import com.example.myapplication.data.models.LoginBody
 import com.example.myapplication.util.api.DataForCreateChat
 import com.example.myapplication.util.api.NetworkApi
 import com.example.myapplication.util.api.RetrofitInstanse
@@ -40,8 +42,10 @@ object RetrofitStorage {
     suspend fun getUsersForCreateNewChat(userId: String): List<UserForChoose>? {
         val response = retrofit.getUsersForNewChat(userId)
         return if (response.isSuccessful){
+            Log.d("MyLog","getUsersForCreateNewChat isSuccessful ${response.body()?.usersForChoose}")
             response.body()?.usersForChoose
         } else{
+            Log.d("MyLog","getUsersForCreateNewChat is null")
             null
         }
     }
@@ -50,12 +54,16 @@ object RetrofitStorage {
         return retrofit.postMessage(message)
     }
     suspend fun getAllMessage(chatId: String):List<MessageInChat>?{
-        val response = retrofit.getAllMessage(chatId)
+        val response = retrofit.getAllMessage(chatId,1,20)
         return if (response.isSuccessful){
             response.body()?.messages
         } else{
             null
         }
+    }
+
+    suspend fun loginUser(loginBody: LoginBody):Response<NetworkApi.LoginResponse>{
+        return retrofit.loginUser(loginBody)
     }
 
 

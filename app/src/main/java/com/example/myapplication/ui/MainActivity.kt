@@ -3,6 +3,9 @@ package com.example.myapplication.ui
 import android.content.Context
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import android.view.View
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI
@@ -23,17 +26,20 @@ class MainActivity : AppCompatActivity() {
         val sharedPreferences =
             this.getSharedPreferences(Constance.KEY_USER_PREFERENCES, Context.MODE_PRIVATE)
 
-        val user_id = sharedPreferences.getString(Constance.KEY_USER_ID, null)
-
+        val userId = sharedPreferences.getString(Constance.KEY_USER_ID, null)
 
         val fragmentHostNavigate =
             supportFragmentManager.findFragmentById(R.id.placeholder) as NavHostFragment
+
         val controller = fragmentHostNavigate.navController
         NavigationUI.setupWithNavController(binding.BNV, controller)
+
         setContentView(binding.root)
 
-        if (user_id != null) {
-            controller.navigate(R.id.action_loginOrRegFragment_to_profileFragment)
+        Log.d("MyLog", "$userId")
+
+        if (userId != null) {
+            controller.navigate(R.id.profileFragment,)
         } else {
             supportActionBar?.hide()
             hideBottomNavigationBar()
@@ -85,6 +91,33 @@ class MainActivity : AppCompatActivity() {
 
     fun showBottomNavigationBar() {
         binding.BNV.visibility = View.VISIBLE
+    }
+
+    private val handler = Handler(Looper.myLooper()!!)
+
+    private val updateTextRunnable = object : Runnable {
+        var dots = 0
+        override fun run() {
+            val actionBar = supportActionBar
+            if (actionBar != null) {
+                val title = when (dots) {
+                    0 -> "Обновление."
+                    1 -> "Обновление.."
+                    else -> "Обновление..."
+                }
+                actionBar.title = title
+            }
+            dots = (dots + 1) % 3
+            handler.postDelayed(this, 500) // Обновлять каждые 500 миллисекунд
+        }
+    }
+
+    fun updatingTitle() {
+        handler.post(updateTextRunnable)
+    }
+
+    fun stopUpdatingTitle() {
+        handler.removeCallbacks(updateTextRunnable)
     }
 
 

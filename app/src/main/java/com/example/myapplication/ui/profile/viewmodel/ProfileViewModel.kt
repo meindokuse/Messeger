@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.myapplication.data.reposetory.profile.LocalProfileReposetoryImpl
 import com.example.myapplication.data.reposetory.profile.RemoteUserReposImpl
 import com.example.myapplication.util.Constance
@@ -14,6 +15,7 @@ import com.example.myapplication.models.ProfileInfo
 import com.example.myapplication.models.UpdateUserInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
 import javax.inject.Inject
@@ -40,10 +42,8 @@ open class ProfileViewModel @Inject constructor(
             val response = remoteProfileReposetory.getUserInfo(userId)
             if (response.data != null) {
                 val user = response.data
-                val fileName = user.avatar
-                val link = remoteProfileReposetory.getUri(userId,fileName)
                 withContext(Dispatchers.Main) {
-                    _userProfile.postValue(user.copy(avatar = link.toString()))
+                    _userProfile.postValue(user!!)
                 }
                 response.code
             } else {
@@ -55,48 +55,71 @@ open class ProfileViewModel @Inject constructor(
         }
     }
 
-    suspend fun addUser(context: Context, info: ArrayList<String>, avatar: Uri?): Int =
-        withContext(Dispatchers.IO) {
-            try {
+    suspend fun addUser(context: Context, info: ArrayList<String>): Int =
+        try {
+            val id = UUID.randomUUID().toString().reversed()
+            val fileName = "avatar_${UUID.randomUUID()}.jpg"
 
-                val id = UUID.randomUUID().toString().reversed()
-                val fileName = "avatar_${UUID.randomUUID()}.jpg"
-
-                val response = remoteProfileReposetory.regNewUser(info, avatar, id, fileName)
-                if (response.data != null) {
+            val response = remoteProfileReposetory.regNewUser(info, id, fileName)
+            if (response.data != null) {
+                withContext(Dispatchers.Main) {
                     val sharedPreferences = context.getSharedPreferences(
                         Constance.KEY_USER_PREFERENCES,
                         Context.MODE_PRIVATE
                     )
                     sharedPreferences.edit().putString(Constance.KEY_USER_ID, id).apply()
-                    localProfileReposetory.addUser(response.data)
-                    response.code
-                } else {
-                    response.code
                 }
-            } catch (e: Exception) {
-                Log.e("MyLog", "Ошибка при добавлении пользователя: ${e.message}")
-                Constance.NETWORK_ERROR
+                localProfileReposetory.addUser(response.data)
+                response.code
+            } else {
+                response.code
             }
+        } catch (e: Exception) {
+            Log.e("MyLog", "Ошибка при добавлении пользователя: ${e.message}")
+            Constance.NETWORK_ERROR
         }
 
-    suspend fun updateProfile(firstName: String, secondName: String, avatar: Uri?): Int =
-        withContext(Dispatchers.IO) {
+
+    suspend fun loginUser(context:Context,email: String, password: String):Int =
+         try {
+             val status = remoteProfileReposetory.loginUser(email,password)
+             if (status?.status == Constance.SUCCESS){
+                 withContext(Dispatchers.Main) {
+                     val sharedPreferences = context.getSharedPreferences(
+                         Constance.KEY_USER_PREFERENCES,
+                         Context.MODE_PRIVATE
+                     )
+                     sharedPreferences.edit().putString(Constance.KEY_USER_ID, status.idUser).apply()
+                 }
+                 status.status
+             } else status!!.status
+        }
+        catch (e: Exception) {
+            Log.d("MyLog", e.message.toString())
+            Constance.NETWORK_ERROR
+        }
+
+
+
+    suspend fun updateProfile(firstName: String, secondName: String, avatar: Uri?) {
+        viewModelScope.launch(Dispatchers.IO) {
             try {
+                Log.d("MyLog", "updateProfile - $avatar")
                 val user = _userProfile.value!!
                 val fileName = user.avatar
                 val updateUserInfo = UpdateUserInfo(firstName, secondName, fileName)
-                val response = remoteProfileReposetory.updateUserInfo(updateUserInfo, avatar, user.user_id)
+                val response =
+                    remoteProfileReposetory.updateUserInfo(updateUserInfo, avatar, user.user_id)
                 if (response == Constance.SUCCESS) {
-                    val newLink = remoteProfileReposetory.getUri(user.user_id,fileName)
                     val newInfo = _userProfile.value!!.copy(
                         firstname = firstName,
                         secondname = secondName,
-                        avatar = newLink.toString()
                     )
                     withContext(Dispatchers.Main) {
                         _userProfile.postValue(newInfo)
                     }
+                    localProfileReposetory.updateUserInfo(updateUserInfo, avatar)
+
                     Constance.SUCCESS
 
                 } else Constance.NETWORK_ERROR
@@ -106,13 +129,24 @@ open class ProfileViewModel @Inject constructor(
                 Constance.NETWORK_ERROR
             }
         }
+    }
+
+    suspend fun getLinkToFile(userId: String, fileName: String): Uri? {
+
+        return try {
+            remoteProfileReposetory.getUri(userId, fileName)
+        }catch (e:Exception){
+            Log.d("MyLog","getLinkToFile error $e")
+            null
+        }
+    }
 
 
     //makes for RcView ( events )
 
     private val _userEvents: MutableLiveData<List<Event>> = MutableLiveData()
-
     val userEvents: LiveData<List<Event>> = _userEvents
+
     val UserEventRightNow: MutableLiveData<Event> = MutableLiveData()
 
 
@@ -151,7 +185,7 @@ open class ProfileViewModel @Inject constructor(
         localProfileReposetory.stopRecordAudio()
     }
 
-    fun deleteFile(fileName:String){
+    fun deleteFile(fileName: String) {
         localProfileReposetory.deleteAudio(fileName)
     }
 

@@ -27,10 +27,12 @@ import com.example.myapplication.ui.profile.editable.FragmentForEditEvents
 import com.example.myapplication.ui.profile.rcview.ItemListener
 import com.example.myapplication.data.reposetory.profile.RemoteUserReposImpl
 import com.example.myapplication.domain.reposetory.profile.LocalProfileReposetory
+import com.example.myapplication.ui.LoadingDialog
 import com.example.myapplication.ui.profile.viewmodel.ProfileViewModel
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -46,12 +48,13 @@ class ProfileFragment : Fragment() {
     private var currentlyPlayingViewHolder: EventsAdapter.AudioPostViewHolder? = null
 
 
-
-
     private lateinit var binding: FragmentProfileBinding
     lateinit var adapter: EventsAdapter
 
-    val user_id = activity?.getSharedPreferences(Constance.KEY_USER_PREFERENCES, Context.MODE_PRIVATE)?.getString(Constance.KEY_USER_ID, null)
+    val user_id by lazy {
+        activity?.getSharedPreferences(Constance.KEY_USER_PREFERENCES, Context.MODE_PRIVATE)
+            ?.getString(Constance.KEY_USER_ID, null)
+    }
 
 
     private val profileViewModel: ProfileViewModel by activityViewModels()
@@ -129,24 +132,32 @@ class ProfileFragment : Fragment() {
         } else
             Toast.makeText(activity, "Постов пока что нету", Toast.LENGTH_SHORT).show()
 
-        Log.d("MyLog", "Load Init")
-        profileViewModel.userProfile.observe(viewLifecycleOwner) {
+        Log.d("MyLog", "Load Init $user_id")
+        profileViewModel.userProfile.observe(viewLifecycleOwner) { userProfile ->
 
-            val internalFoto = File(context?.filesDir, it.avatar)
+            Log.d("MyLog","$userProfile")
 
-            Glide.with(binding.root.context)
-                .load(it.avatar) // Попробовать загрузить из Firebase по ссылке
-                .placeholder(R.drawable.profile_foro)
-                .error(Glide.with(binding.root.context).load(internalFoto)) // Если не удалось загрузить из Firebase, загрузить из локального хранилища
-                .apply(RequestOptions.bitmapTransform(CircleCrop()))
-                .into(binding.profileImage)
+            val internalFoto = File(context?.filesDir, userProfile.avatar)
 
-            binding.firstName.text = it.firstname
-            binding.secondName.text = it.secondname
-            binding.schoolText.text = it.school
-            binding.ageText.text = it.age
-            binding.cityText.text = it.city
-            binding.classText.text = it.targetClass
+            lifecycleScope.launch {
+                val remoteFoto = async {
+                    profileViewModel.getLinkToFile(userProfile.user_id, userProfile.avatar)
+                }.await()
+
+                Glide.with(binding.root.context)
+                    .load(remoteFoto)
+                    .placeholder(R.drawable.loading)
+                    .error(Glide.with(binding.root.context).load(internalFoto.path))
+                    .apply(RequestOptions.bitmapTransform(CircleCrop()))
+                    .into(binding.profileImage)
+            }
+
+            binding.firstName.text = userProfile.firstname
+            binding.secondName.text = userProfile.secondname
+            binding.schoolText.text = userProfile.school
+            binding.ageText.text = userProfile.age
+            binding.cityText.text = userProfile.city
+            binding.classText.text = userProfile.targetClass
         }
 
 
@@ -163,15 +174,23 @@ class ProfileFragment : Fragment() {
 
     private fun syncUserData(idUser: String) {
         lifecycleScope.launch(Dispatchers.IO) {
+            val loadingDialog = LoadingDialog()
+
+            withContext(Dispatchers.Main){
+                loadingDialog.show(childFragmentManager, loadingDialog.tag)
+            }
             val code = profileViewModel.syncUser(idUser)
-            if (code == 0) {
-                withContext(Dispatchers.Main) {
+
+            withContext(Dispatchers.Main){
+                loadingDialog.dismiss()
+                if (code == 0) {
                     showErrorSnackbar(idUser)
                 }
             }
         }
     }
-    private fun showErrorSnackbar(userId:String) {
+
+    private fun showErrorSnackbar(userId: String) {
         view?.let { view ->
             Snackbar.make(view, "Произошла ошибка при получении чатов", Snackbar.LENGTH_LONG)
                 .setAction("Повторить") {

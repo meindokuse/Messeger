@@ -20,7 +20,9 @@ import com.example.myapplication.databinding.FragmentEditForProfileBinding
 import com.example.myapplication.ui.profile.viewmodel.ProfileViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import java.io.File
 
 @AndroidEntryPoint
 class EditFragmentForProfile : BottomSheetDialogFragment() {
@@ -37,7 +39,7 @@ class EditFragmentForProfile : BottomSheetDialogFragment() {
                 val imageUri = data?.data
                 if (imageUri != null) {
 
-                    Glide.with(this)
+                    Glide.with(binding.root.context)
                         .load(imageUri)
                         .apply(RequestOptions.bitmapTransform(CircleCrop()))
                         .into(binding.AvatarChange)
@@ -78,8 +80,6 @@ class EditFragmentForProfile : BottomSheetDialogFragment() {
                 foto = null
             }
         }
-
-
     }
 
     private fun isEmptyData(): Boolean {
@@ -90,13 +90,25 @@ class EditFragmentForProfile : BottomSheetDialogFragment() {
         }
     }
 
-    fun init() {
+    private fun init() {
         DataModel.userProfile.observe(viewLifecycleOwner) {
             if (it != null) {
-                Glide.with(binding.root.context)
-                    .load(it.avatar)
-                    .apply(RequestOptions.bitmapTransform(CircleCrop()))
-                    .into(binding.AvatarChange)
+
+                val internalFoto = File(context?.filesDir, it.avatar)
+
+                lifecycleScope.launch {
+                    val remoteFoto = async {
+                        DataModel.getLinkToFile(it.user_id, it.avatar)
+                    }.await()
+
+                    Glide.with(binding.root.context)
+                        .load(remoteFoto)
+                        .placeholder(R.drawable.loading)
+                        .error(Glide.with(binding.root.context).load(internalFoto.path))
+                        .apply(RequestOptions.bitmapTransform(CircleCrop()))
+                        .into(binding.AvatarChange)
+                }
+
             } else {
                 binding.AvatarChange.setImageResource(R.drawable.profile_foro)
             }

@@ -14,4 +14,7 @@ object Constance {
     const val FIREBASE_ERROR = 4
     const val NO_FOUND_USER = 10
 
+    const val TITLE_CHATS = "Чаты"
+    const val TITLE_PROFILE = "Профиль"
+
 }

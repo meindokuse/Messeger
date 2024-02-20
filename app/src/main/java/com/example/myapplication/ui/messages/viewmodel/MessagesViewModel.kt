@@ -26,40 +26,30 @@ import javax.inject.Inject
 @HiltViewModel
 class MessagesViewModel @Inject constructor(
     private val remoteMessagesReposetory: RemoteMessagesReposetoryImpl
-):ViewModel() {
+) : ViewModel() {
 
     private val _listMessages: MutableStateFlow<List<MessageInChat>> = MutableStateFlow(emptyList())
     val listMessages: StateFlow<List<MessageInChat>> = _listMessages
 
-//    fun sendMessage(message: MessageInChat) {
-//        viewModelScope.launch(Dispatchers.IO) {
-//            val response = remoteMessagesReposetory.createNewMessage(message)
-//            if (response == Constance.SUCCESS) {
-//                _listMessages.emit(message)
-//            }
-//        }
-//    }
 
-
-    fun initMessages(chatId:String):Flow<PagingData<MessageInChat>>{
+    fun initMessages(chatId: String): Flow<PagingData<MessageInChat>> {
         return Pager(
             PagingConfig(pageSize = 20),
-            pagingSourceFactory = { MessagesPageSource(chatId)}
+            pagingSourceFactory = { MessagesPageSource(chatId) }
         ).flow.cachedIn(viewModelScope)
     }
 
-    suspend fun testMes(message: MessageInChat): Int =
-        withContext(Dispatchers.IO){
-            val response = remoteMessagesReposetory.createNewMessage(message)
-            response
+    suspend fun sendNewMessage(idChat: String, message: MessageInChat): Boolean =
+        withContext(Dispatchers.IO) {
+            remoteMessagesReposetory.createNewMessage(idChat, message)
         }
 
-    suspend fun getAllMessages(idChat: String) {
-        val list = remoteMessagesReposetory.getListMessages(idChat)
-        _listMessages.emit(list!!)
-//        list?.forEach { message->
-//            _listMessages.emit(message)
-//        }
+    suspend fun connectWebSocket(idChat: String, messageCallback: (MessageInChat) -> Unit) {
+        remoteMessagesReposetory.connectSocket(idChat, messageCallback)
+    }
+
+    fun disconnect() {
+        remoteMessagesReposetory.disconnectSocket()
     }
 
 }

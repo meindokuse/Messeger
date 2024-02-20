@@ -15,6 +15,7 @@ class ChatsReposetoryImpl(
         val readyChats = ArrayList<ItemChat>()
         RetrofitStorage.getAllChats(userId)?.forEach { chat ->
             val anotherUserId = if (userId == chat.user_id_1) chat.user_id_2 else chat.user_id_1
+            Log.d("MyLog","anotherUserId $anotherUserId")
             val uri = firebaseStorage.getData(anotherUserId, chat.avatar)
             uri?.let {
                 readyChats.add(chat.copy(avatar = uri.toString()))

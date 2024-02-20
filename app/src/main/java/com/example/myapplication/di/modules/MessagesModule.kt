@@ -1,6 +1,7 @@
 package com.example.myapplication.di.modules
 
 import com.example.myapplication.data.remote.FirebaseStorage
+import com.example.myapplication.data.remote.MessagesSocket
 import com.example.myapplication.data.reposetory.chats.ChatsReposetoryImpl
 import com.example.myapplication.data.reposetory.message.RemoteMessagesReposetoryImpl
 import dagger.Module
@@ -17,7 +18,9 @@ object MessagesModule {
 
     @Provides
     @ActivityRetainedScoped
-    fun provideRemoteMessagesReposetory(): RemoteMessagesReposetoryImpl {
-        return RemoteMessagesReposetoryImpl()
+    fun provideRemoteMessagesReposetory(messagesSocket: MessagesSocket): RemoteMessagesReposetoryImpl {
+        return RemoteMessagesReposetoryImpl(messagesSocket)
     }
+
+
 }

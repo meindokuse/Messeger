@@ -218,11 +218,12 @@ class ListOfChatsFragment : Fragment() {
             try {
                 chatViewModel.syncChats(userId)
                 withContext(Dispatchers.Main) {
-                    mainActivity.stopUpdatingTitle()
+                    mainActivity.stopUpdatingTitle("Чаты")
                 }
             } catch (e: Exception) {
                 withContext(Dispatchers.Main) {
                     Log.e("ChatDataModel", "Ошибка при получении чатов: ${e.message}")
+                    mainActivity.stopUpdatingTitle("Чаты")
                     showErrorSnackbar()
                 }
             }

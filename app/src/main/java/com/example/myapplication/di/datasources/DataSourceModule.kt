@@ -4,6 +4,7 @@ import android.content.Context
 import com.example.myapplication.data.local.FileManager
 import com.example.myapplication.data.local.LocalReposetoryHelper
 import com.example.myapplication.data.remote.FirebaseStorage
+import com.example.myapplication.data.remote.MessagesSocket
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -34,5 +35,11 @@ object DataSourceModule {
     @ActivityRetainedScoped
     fun provideFireBaseStorage():FirebaseStorage{
         return FirebaseStorage()
+    }
+
+    @Provides
+    @ActivityRetainedScoped
+    fun provideMessagesSocket():MessagesSocket{
+        return MessagesSocket()
     }
 }

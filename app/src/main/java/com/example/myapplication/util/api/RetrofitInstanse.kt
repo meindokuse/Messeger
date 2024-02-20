@@ -5,6 +5,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.util.concurrent.TimeUnit
 
 object RetrofitInstanse {
     private const val BASE_URL = "http://79.174.81.166:8000"
@@ -13,7 +14,11 @@ object RetrofitInstanse {
         level = HttpLoggingInterceptor.Level.BODY
     }
 
-    private val client = OkHttpClient.Builder().addInterceptor(interceptor).build()
+    private val client = OkHttpClient.Builder()
+        .readTimeout(60, TimeUnit.SECONDS) // Установка тайм-аута на чтение (60 секунд)
+        .writeTimeout(60, TimeUnit.SECONDS)
+        .addInterceptor(interceptor)
+        .build()
 
     private val retrofit: Retrofit by lazy {
         Retrofit.Builder()

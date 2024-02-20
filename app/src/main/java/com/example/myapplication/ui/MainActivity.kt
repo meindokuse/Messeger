@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity() {
 
     private val handler = Handler(Looper.myLooper()!!)
 
-    private val updateTextRunnable = object : Runnable {
+    private val updateTitleRunnable = object : Runnable {
         var dots = 0
         override fun run() {
             val actionBar = supportActionBar
@@ -112,12 +112,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+
+
     fun updatingTitle() {
-        handler.post(updateTextRunnable)
+        handler.post(updateTitleRunnable)
     }
 
-    fun stopUpdatingTitle() {
-        handler.removeCallbacks(updateTextRunnable)
+    fun stopUpdatingTitle(title:String) {
+        handler.removeCallbacks(updateTitleRunnable)
+        val actionBar = supportActionBar
+        actionBar?.title = title
+
     }
 
 

@@ -1,6 +1,7 @@
 package com.example.myapplication.ui
 
 import android.content.Context
+import android.graphics.drawable.ColorDrawable
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
@@ -27,6 +28,7 @@ class MainActivity : AppCompatActivity() {
             this.getSharedPreferences(Constance.KEY_USER_PREFERENCES, Context.MODE_PRIVATE)
 
         val userId = sharedPreferences.getString(Constance.KEY_USER_ID, null)
+        supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.default_color_plus_dark,null)));
 
         val fragmentHostNavigate =
             supportFragmentManager.findFragmentById(R.id.placeholder) as NavHostFragment

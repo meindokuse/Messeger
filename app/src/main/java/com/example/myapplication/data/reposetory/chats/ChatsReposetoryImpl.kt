@@ -11,9 +11,9 @@ import com.example.myapplication.util.api.DataForCreateChat
 class ChatsReposetoryImpl(
     private val firebaseStorage: FirebaseStorage,
 ) : RemoteChatsReposetory {
-    override suspend fun getAllChats(userId: String): List<ItemChat> {
+    override suspend fun getAllChats(userId: String,page:Int,pageSize:Int): List<ItemChat> {
         val readyChats = ArrayList<ItemChat>()
-        RetrofitStorage.getAllChats(userId)?.forEach { chat ->
+        RetrofitStorage.getAllChats(userId,page,pageSize)?.forEach { chat ->
             val anotherUserId = if (userId == chat.user_id_1) chat.user_id_2 else chat.user_id_1
             Log.d("MyLog","anotherUserId $anotherUserId")
             val uri = firebaseStorage.getData(anotherUserId, chat.avatar)

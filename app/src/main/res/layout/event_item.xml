@@ -65,7 +65,7 @@
                     android:layout_marginStart="50dp"
                     android:layout_weight="1"
                     android:clickable="true"
-                    android:src="@drawable/baseline_share_24"
+                    android:src="@drawable/ic_comment_24"
                     app:backgroundTint="@color/white" />
 
             </LinearLayout>

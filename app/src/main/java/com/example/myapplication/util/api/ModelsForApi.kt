@@ -16,6 +16,7 @@ data class MessageResponse(
 )
 
 data class ChatResponse(
+    @SerializedName("ChatResponse")
     val chats:List<ItemChat>
 )
 

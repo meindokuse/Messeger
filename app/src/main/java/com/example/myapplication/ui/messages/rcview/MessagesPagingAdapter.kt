@@ -61,10 +61,10 @@ class MessagesPagingAdapter(
 private object MessageDiffItemCallback : DiffUtil.ItemCallback<MessageInChat>() {
 
     override fun areItemsTheSame(oldItem: MessageInChat, newItem: MessageInChat): Boolean {
-        return oldItem == newItem
+        return oldItem.message_id == newItem.message_id
     }
 
     override fun areContentsTheSame(oldItem: MessageInChat, newItem: MessageInChat): Boolean {
-        return oldItem.message_id == newItem.message_id
+        return oldItem == newItem
     }
 }

@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/gradient_fon">
+    android:background="@color/default_color">
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -17,10 +17,10 @@
             android:layout_alignParentEnd="true"
             android:layout_marginTop="20dp"
             android:clickable="true"
-            android:src="@drawable/baseline_mode_24"
-            app:backgroundTint="@color/grey"
+            android:contentDescription="EditProfile"
             android:focusable="true"
-            android:contentDescription="EditProfile" />
+            android:src="@drawable/baseline_mode_24"
+            app:backgroundTint="@color/default_color" />
 
         <LinearLayout
             android:id="@+id/profileHeader"
@@ -34,7 +34,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_margin="10dp"
-                app:cardBackgroundColor="#353434"
+                app:cardBackgroundColor="@color/default_color_plus_dark"
                 app:cardCornerRadius="5dp">
 
                 <LinearLayout
@@ -93,7 +93,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="10dp"
-                app:cardBackgroundColor="#353434"
+                app:cardBackgroundColor="@color/default_color_plus_dark"
                 app:cardCornerRadius="10dp">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
@@ -120,10 +120,10 @@
                         android:id="@+id/schoolText"
                         android:layout_width="150dp"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/white"
                         android:layout_marginStart="20dp"
                         android:layout_marginBottom="10dp"
                         android:text="Школа"
+                        android:textColor="@color/white"
                         android:textSize="20sp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent" />
@@ -135,10 +135,10 @@
                         android:id="@+id/cityText"
                         android:layout_width="150dp"
                         android:layout_height="wrap_content"
-                        android:textColor="@color/white"
                         android:layout_marginTop="8dp"
                         android:layout_marginEnd="20dp"
                         android:text="Город"
+                        android:textColor="@color/white"
                         android:textSize="20sp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="1.0"
@@ -151,8 +151,8 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="20dp"
                         android:layout_marginBottom="8dp"
-                        android:textColor="@color/white"
                         android:text="Класс"
+                        android:textColor="@color/white"
                         android:textSize="20sp"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -177,7 +177,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:backgroundTint="@color/ultra_grey"
+                android:backgroundTint="@color/default_color_plus_dark"
                 android:text="Опубликовать"
                 app:cornerRadius="5dp"
                 app:icon="@drawable/ic_add_24"

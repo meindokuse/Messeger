@@ -60,6 +60,10 @@ dependencies {
     implementation("io.ktor:ktor-client-core:2.3.8")
     implementation("io.ktor:ktor-client-websockets:2.3.8")
     implementation("io.ktor:ktor-client-okhttp:2.3.8")
+    implementation("io.ktor:ktor-client-logging:2.3.8")
+    implementation("io.ktor:ktor-client-cio:2.3.8")
+
+
 
 
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")

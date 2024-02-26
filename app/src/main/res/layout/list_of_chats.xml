@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/white"
+    android:background="@color/default_color"
     tools:context=".ui.chats.ListOfChatsFragment">
 
     <RelativeLayout
@@ -19,7 +19,10 @@
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/VarOfChats"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="@color/default_color_plus_dark"
+            app:tabIndicatorColor="@color/white"
+            app:tabTextColor="@color/white">
 
             <com.google.android.material.tabs.TabItem
                 android:layout_width="wrap_content"
@@ -53,7 +56,7 @@
             android:layout_marginBottom="16dp"
             android:clickable="true"
             android:src="@drawable/baseline_add_comment_24"
-            app:backgroundTint="@color/black2" />
+            app:backgroundTint="@color/common_google_signin_btn_text_dark_default" />
 
     </RelativeLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

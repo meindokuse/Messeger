@@ -28,9 +28,6 @@ class MessagesViewModel @Inject constructor(
     private val remoteMessagesReposetory: RemoteMessagesReposetoryImpl
 ) : ViewModel() {
 
-    private val _listMessages: MutableStateFlow<List<MessageInChat>> = MutableStateFlow(emptyList())
-    val listMessages: StateFlow<List<MessageInChat>> = _listMessages
-
 
     fun initMessages(chatId: String): Flow<PagingData<MessageInChat>> {
         return Pager(
@@ -44,11 +41,15 @@ class MessagesViewModel @Inject constructor(
             remoteMessagesReposetory.createNewMessage(idChat, message)
         }
 
-    suspend fun connectWebSocket(idChat: String, messageCallback: (MessageInChat) -> Unit) {
-        remoteMessagesReposetory.connectSocket(idChat, messageCallback)
+    suspend fun connectWebSocket(idChat: String) {
+        remoteMessagesReposetory.connectSocket(idChat)
     }
 
-    fun disconnect() {
+    fun observeMessages(): Flow<MessageInChat> {
+        return remoteMessagesReposetory.observeMessages()
+    }
+
+     fun disconnect() {
         remoteMessagesReposetory.disconnectSocket()
     }
 

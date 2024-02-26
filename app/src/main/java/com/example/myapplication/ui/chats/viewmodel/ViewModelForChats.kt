@@ -3,6 +3,12 @@ package com.example.myapplication.ui.chats.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import com.example.myapplication.data.remote.ChatsPagingSource
+import com.example.myapplication.data.remote.MessagesPageSource
 import com.example.myapplication.util.api.DataForCreateChat
 import com.example.myapplication.models.ItemChat
 import com.example.myapplication.models.MessageInChat
@@ -10,6 +16,7 @@ import com.example.myapplication.models.UserForChoose
 import com.example.myapplication.domain.reposetory.chats.RemoteChatsReposetory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -30,11 +37,15 @@ open class ViewModelForChats @Inject constructor(
     val usersForNewChat: StateFlow<List<UserForChoose>> = _usersForNewChat
 
 
-
-
-    suspend fun syncChats(userId: String) {
-        val chats = remoteChatsReposetory.getAllChats(userId)
-        if (chats != null) _listOfChats.emit(chats)
+//    suspend fun syncChats(userId: String) {
+//        val chats = remoteChatsReposetory.getAllChats(userId)
+//        if (chats != null) _listOfChats.emit(chats)
+//    }
+    fun initChats(userId: String): Flow<PagingData<ItemChat>> {
+        return Pager(
+            PagingConfig(pageSize = 5),
+            pagingSourceFactory = { ChatsPagingSource(remoteChatsReposetory, userId) }
+        ).flow.cachedIn(viewModelScope)
     }
 
     fun createNewChats(

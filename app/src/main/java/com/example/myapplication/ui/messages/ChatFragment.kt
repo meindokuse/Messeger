@@ -10,15 +10,17 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.PagingData
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.myapplication.R
 import com.example.myapplication.ui.MainActivity
 import com.example.myapplication.databinding.FragmentChatBinding
 import com.example.myapplication.models.MessageInChat
-import com.example.myapplication.ui.messages.rcview.MessageListAdapter
+import com.example.myapplication.ui.messages.rcview.MessagesLoadingState
 import com.example.myapplication.ui.messages.rcview.MessagesPagingAdapter
 import com.example.myapplication.ui.messages.viewmodel.MessagesViewModel
 import com.example.myapplication.util.Constance
@@ -77,11 +79,14 @@ class ChatFragment : Fragment() {
         actionBar?.setDisplayHomeAsUpEnabled(true)
 
         val layoutManager = LinearLayoutManager(requireContext())
-        layoutManager.reverseLayout = false
-        layoutManager.stackFromEnd = true
+        layoutManager.reverseLayout = true
+        layoutManager.stackFromEnd = false
 
         pagingAdapter = MessagesPagingAdapter(userId)
-        binding.RcViewMesseges.adapter = pagingAdapter
+        binding.RcViewMesseges.adapter = pagingAdapter.withLoadStateHeaderAndFooter(
+            header = MessagesLoadingState(),
+            footer = MessagesLoadingState(),
+        )
         binding.RcViewMesseges.layoutManager = layoutManager
 
         val messages = messageViewModel.initMessages(chatId)
@@ -90,21 +95,13 @@ class ChatFragment : Fragment() {
             messages.collectLatest(pagingAdapter::submitData)
         }
 
-        lifecycleScope.launch {
-            try {
-                messageViewModel.connectWebSocket(chatId) { message ->
-                    val currentData = pagingAdapter.snapshot().items
-                    val newData = currentData.toMutableList().apply {
-                        add(message) // Добавляем новое сообщение в конец списка
-                    }
-                    launch {
-                        pagingAdapter.submitData(PagingData.from(newData))
-                    }
-                }
-            } catch (e: Exception) {
-                Log.d("MyLog", "connect socket $e")
-            }
-        }
+
+        binding.floatingActionButton.setColorFilter(
+            ContextCompat.getColor(
+                requireContext(),
+                R.color.white
+            )
+        )
 
 
         binding.floatingActionButton.setOnClickListener {
@@ -137,6 +134,26 @@ class ChatFragment : Fragment() {
         return super.onOptionsItemSelected(item)
     }
 
+    override fun onStart() {
+        super.onStart()
+        lifecycleScope.launch {
+            try {
+                messageViewModel.connectWebSocket(chatId)
+                messageViewModel.observeMessages().collectLatest { message ->
+                    Log.d("MyLog", "connectWebSocket new message $message")
+
+                    val currentData = pagingAdapter.snapshot().items.toMutableList()
+                    currentData.add(0,message)
+                    launch {
+                        pagingAdapter.submitData(PagingData.from(currentData))
+                    }
+                }
+            } catch (e: Exception) {
+                Log.d("MyLog", "connect socket $e")
+            }
+        }
+    }
+
     companion object {
         const val userIdKey = "id"
         const val chatIdKey = "id_chat"
@@ -144,7 +161,10 @@ class ChatFragment : Fragment() {
 
     override fun onStop() {
         super.onStop()
+
+
         messageViewModel.disconnect()
+
     }
 
     override fun onDestroyView() {

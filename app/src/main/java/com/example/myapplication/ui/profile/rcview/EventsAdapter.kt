@@ -212,7 +212,7 @@ class EventsAdapter(val itemListener: ItemListener):RecyclerView.Adapter<Recycle
     }
 
     fun addEvent(event: Event) {
-        posts.add(0, event)
+        posts.add(event)
         notifyDataSetChanged()
     }
     fun removeItem(position: Int){

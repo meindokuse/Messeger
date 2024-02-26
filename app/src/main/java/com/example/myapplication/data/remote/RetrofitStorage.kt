@@ -31,9 +31,10 @@ object RetrofitStorage {
     suspend fun createNewChat(dataForNewChat: DataForCreateChat): Response<NetworkApi.ApiResponse> {
         return retrofit.postChat(dataForNewChat)
     }
-    suspend fun getAllChats(idUser:String):List<ItemChat>?{
-        val response = retrofit.getAllChats(idUser)
+    suspend fun getAllChats(idUser:String,page:Int,pageSize:Int):List<ItemChat>?{
+        val response = retrofit.getAllChats(idUser,page,pageSize)
         return if (response.isSuccessful){
+            Log.d("MyLog","Retrofit chats ${response.body()?.chats}")
             response.body()?.chats
         } else{
             null

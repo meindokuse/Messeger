@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@android:color/transparent"
     android:backgroundTint="@color/black"
     tools:context=".ui.messages.ChatFragment">
 
@@ -11,7 +12,6 @@
         android:id="@+id/linearLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/black"
         android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -24,14 +24,14 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:background="@drawable/gradient_fon" />
+            android:background="@color/default_color" />
 
         <EditText
             android:id="@+id/editTextTextMultiLine"
             android:layout_width="match_parent"
             android:layout_height="48dp"
             android:layout_gravity="bottom"
-            android:background="@android:color/transparent"
+            android:background="@color/default_color_plus_dark"
             android:drawableTint="#F3E7E7"
             android:ems="10"
             android:gravity="center|start"
@@ -52,12 +52,12 @@
         android:layout_height="44dp"
         android:layout_gravity="bottom|end"
         android:clickable="true"
+        android:focusable="true"
         android:src="@drawable/baseline_east_24"
-        app:backgroundTint="@color/white"
+        app:backgroundTint="@android:color/transparent"
         app:fabCustomSize="44dp"
         app:layout_constraintBottom_toBottomOf="@+id/linearLayout"
         app:layout_constraintEnd_toEndOf="parent"
-        app:maxImageSize="32dp"
-        android:focusable="true" />
+        app:maxImageSize="32dp" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

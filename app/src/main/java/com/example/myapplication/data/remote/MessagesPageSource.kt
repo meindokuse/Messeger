@@ -26,7 +26,9 @@ class MessagesPageSource(
 
         val response = retrofit.getAllMessage(queryId,page,pageSize)
         return if (response.isSuccessful){
-           val messages = checkNotNull(response.body()).messages
+           val messages = checkNotNull(response.body()).messages.sortedByDescending {
+               it.time
+           }
             val nextKey = if (messages.size < pageSize) null else page + 1
             val prevKey = if (page == 1) null else page - 1
             LoadResult.Page(messages,prevKey,nextKey)

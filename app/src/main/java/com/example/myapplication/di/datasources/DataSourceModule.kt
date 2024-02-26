@@ -37,9 +37,5 @@ object DataSourceModule {
         return FirebaseStorage()
     }
 
-    @Provides
-    @ActivityRetainedScoped
-    fun provideMessagesSocket():MessagesSocket{
-        return MessagesSocket()
-    }
+
 }

@@ -52,7 +52,9 @@ interface NetworkApi {
 
     @GET("/open_chats/{user_id}")
     suspend fun getAllChats(
-        @Path("user_id") userId:String
+        @Path("user_id") userId:String,
+        @Query("page") @IntRange(from = 1) page:Int = 1,
+        @Query("pageSize") pageSize:Int,
     ):Response<ChatResponse>
 
     @GET("/user_for_choose/{user_id}")

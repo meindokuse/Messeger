@@ -10,7 +10,7 @@
         android:id="@+id/BNV"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:background="@color/black"
+        android:background="@color/default_color_plus_dark"
         app:itemIconTint="@drawable/custom_selector"
         app:itemTextColor="@color/ultra_grey"
         app:layout_constraintBottom_toBottomOf="parent"

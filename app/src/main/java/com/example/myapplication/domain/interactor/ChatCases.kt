@@ -15,9 +15,9 @@ class ChatCases(
         return remoteChatsReposetory.createNewChat(dataForCreateChat)
     }
 
-    suspend fun getChats(userId: String): List<ItemChat>? {
-        return remoteChatsReposetory.getAllChats(userId)
-    }
+//    suspend fun getChats(userId: String): List<ItemChat>? {
+//        return remoteChatsReposetory.getAllChats(userId)
+//    }
 
     suspend fun getUsersForNewChat(userId: String): List<UserForChoose>? {
         return remoteChatsReposetory.getUserForCreateChat(userId = userId)

@@ -132,6 +132,8 @@ class DescriptionVoiceFragment : Fragment() {
         newButton.animate()
             .translationYBy(-newButton.height.toFloat())
             .alpha(1.0f).duration = 500
+
+
     }
     fun clearAudioPath(){
         if (audioDesc != null ) {

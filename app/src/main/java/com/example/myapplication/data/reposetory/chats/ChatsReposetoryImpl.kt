@@ -40,7 +40,7 @@ class ChatsReposetoryImpl(
         }
     }
 
-    override suspend fun getUserForCreateChat(userId: String): List<UserForChoose>? {
+    override suspend fun getUserForCreateChat(userId: String): List<UserForChoose> {
         val readyUsers = ArrayList<UserForChoose>()
         val users = RetrofitStorage.getUsersForCreateNewChat(userId)
         Log.d("MyLog", "qweewq $users")

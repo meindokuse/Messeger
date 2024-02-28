@@ -12,8 +12,6 @@
         tools:layout="@layout/list_of_chats" >
         <action
             android:id="@+id/action_listOfChatsFragment_to_chat"
-            app:enterAnim="@anim/slide_in_right"
-            app:popEnterAnim="@anim/slide_in_left"
             app:destination="@id/chat" />
     </fragment>
     <fragment

@@ -46,12 +46,12 @@ class FileManager(private val context: Context) {
 
     private val audioRecorder = AudioRecorder(context)
 
-    fun startRecordAudio():String{
-       return audioRecorder.startRecording()
+    fun startRecordAudio(){
+        audioRecorder.startRecording()
     }
 
-    fun stopAudioRecord(){
-        audioRecorder.stopRecording()
+    fun stopAudioRecord():Uri?{
+       return audioRecorder.stopRecording()
     }
 
     fun clearAudioRecorder(){

@@ -28,7 +28,14 @@ class MainActivity : AppCompatActivity() {
             this.getSharedPreferences(Constance.KEY_USER_PREFERENCES, Context.MODE_PRIVATE)
 
         val userId = sharedPreferences.getString(Constance.KEY_USER_ID, null)
-        supportActionBar?.setBackgroundDrawable(ColorDrawable(resources.getColor(R.color.default_color_plus_dark,null)));
+        supportActionBar?.setBackgroundDrawable(
+            ColorDrawable(
+                resources.getColor(
+                    R.color.default_color_plus_dark,
+                    null
+                )
+            )
+        );
 
         val fragmentHostNavigate =
             supportFragmentManager.findFragmentById(R.id.placeholder) as NavHostFragment
@@ -41,12 +48,16 @@ class MainActivity : AppCompatActivity() {
         Log.d("MyLog", "$userId")
 
         if (userId != null) {
-            controller.navigate(R.id.profileFragment,)
+            controller.navigate(R.id.action_loginOrRegFragment_to_profileFragment)
         } else {
             supportActionBar?.hide()
             hideBottomNavigationBar()
         }
         init()
+
+        binding.BNV.setOnNavigationItemReselectedListener {
+            //ignore for create only single fragments
+        }
 
         binding.BNV.setOnNavigationItemSelectedListener {
             when (it.itemId) {
@@ -115,12 +126,11 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-
     fun updatingTitle() {
         handler.post(updateTitleRunnable)
     }
 
-    fun stopUpdatingTitle(title:String) {
+    fun stopUpdatingTitle(title: String) {
         handler.removeCallbacks(updateTitleRunnable)
         val actionBar = supportActionBar
         actionBar?.title = title

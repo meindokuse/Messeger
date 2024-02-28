@@ -42,8 +42,8 @@ class LocalProfileReposetoryImpl(
         if (event.type == 2) fileManager.deleteFileFromInternalStorage(event.desc)
     }
 
-    override fun startRecordAudio():String{
-        return fileManager.startRecordAudio()
+    override fun startRecordAudio(): String {
+        return fileManager.startRecordAudio().toString()
     }
 
     override fun stopRecordAudio(){

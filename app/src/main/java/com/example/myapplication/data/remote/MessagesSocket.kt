@@ -47,6 +47,7 @@ class MessagesSocket(
         val messageJson = Gson().toJson(message)
         return try {
             socket?.send(messageJson)
+            Log.d("MyLog","new message send socket")
             true // Успешно отправлено
         } catch (e: Exception) {
             Log.d("MyLog", "sendMessage in source $e")

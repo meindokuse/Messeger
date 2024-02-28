@@ -18,8 +18,8 @@ object MessagesModule {
 
     @Provides
     @ActivityRetainedScoped
-    fun provideRemoteMessagesReposetory(messagesSocket: MessagesSocket): RemoteMessagesReposetoryImpl {
-        return RemoteMessagesReposetoryImpl(messagesSocket)
+    fun provideRemoteMessagesReposetory(firebaseStorage: FirebaseStorage,messagesSocket: MessagesSocket): RemoteMessagesReposetoryImpl {
+        return RemoteMessagesReposetoryImpl(firebaseStorage,messagesSocket)
     }
 
 

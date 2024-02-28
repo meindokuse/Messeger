@@ -177,7 +177,6 @@ class EventsAdapter(val itemListener: ItemListener):RecyclerView.Adapter<Recycle
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
        return when (viewType){
-
            VIEW_TYPE_TEXT_POST -> {
                val itemView = LayoutInflater.from(parent.context).inflate(R.layout.event_item, parent, false)
                TextPostViewHolder(itemView)

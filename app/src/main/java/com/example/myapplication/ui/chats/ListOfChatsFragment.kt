@@ -27,6 +27,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.navOptions
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.util.Constance
@@ -119,13 +120,11 @@ class ListOfChatsFragment : Fragment() {
     }
 
 
-
-    fun init() {
+    private fun init() {
 
         initRecyclerView()
 
     }
-
 
 
     private fun vibrate(context: Context, duration: Long) {
@@ -139,41 +138,19 @@ class ListOfChatsFragment : Fragment() {
         }
     }
 
-//    private fun syncChats(userId: String) {
-//        lifecycleScope.launch(Dispatchers.IO) {
-//            val mainActivity = (activity as MainActivity)
-//
-//            withContext(Dispatchers.Main) {
-//                mainActivity.updatingTitle()
-//            }
-//            try {
-//                chatViewModel.syncChats(userId)
-//                withContext(Dispatchers.Main) {
-//                    mainActivity.stopUpdatingTitle("Чаты")
-//                }
-//            } catch (e: Exception) {
-//                withContext(Dispatchers.Main) {
-//                    Log.e("ChatDataModel", "Ошибка при получении чатов: ${e.message}")
-//                    mainActivity.stopUpdatingTitle("Чаты")
-//                    showErrorSnackbar()
-//                }
-//            }
-//        }
-//    }
 
-//    private fun showErrorSnackbar() {
-//        view?.let { view ->
-//            Snackbar.make(view, "Произошла ошибка при получении чатов", Snackbar.LENGTH_LONG)
-//                .setTextColor(ContextCompat.getColor(requireContext(),R.color.black))
-//                .setActionTextColor(ContextCompat.getColor(requireContext(),R.color.wow_color))
-//                .setBackgroundTint(ContextCompat.getColor(requireContext(),R.color.white))
-//                .setAction("Повторить") {
-//                    syncChats(userId)
-//                }
-//                .show()
-//        }
-//    }
+    private fun showErrorSnackbar() {
+        view?.let { view ->
+            Snackbar.make(view, "Произошла ошибка при получении чатов", Snackbar.LENGTH_LONG)
+                .setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
+                .setActionTextColor(ContextCompat.getColor(requireContext(), R.color.wow_color))
+                .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.white))
+                .setAction("Повторить") {
 
+                }
+                .show()
+        }
+    }
 
 
     private fun initRecyclerView() {
@@ -261,8 +238,16 @@ class ListOfChatsFragment : Fragment() {
                                     R.id.action_listOfChatsFragment_to_chat,
                                     bundleOf(
                                         ChatFragment.userIdKey to userId,
-                                        ChatFragment.chatIdKey to chat.chat_id
-                                    )
+                                        ChatFragment.chatIdKey to chat.chat_id,
+                                    ),
+                                    navOptions {
+                                        this.anim {
+                                            enter = androidx.navigation.ui.R.anim.nav_default_enter_anim
+                                            popEnter = androidx.navigation.ui.R.anim.nav_default_pop_enter_anim
+                                            exit = androidx.navigation.ui.R.anim.nav_default_exit_anim
+                                            popExit = androidx.navigation.ui.R.anim.nav_default_pop_exit_anim
+                                        }
+                                    }
                                 )
                                 activity.supportActionBar?.title = name
 
@@ -284,6 +269,7 @@ class ListOfChatsFragment : Fragment() {
         })
 
     }
+
     fun startActionMode(view: View): ActionMode {
         vibrate(requireContext(), 100)
         binding.FindNewChatButton.animate()

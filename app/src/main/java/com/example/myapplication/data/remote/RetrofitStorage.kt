@@ -54,8 +54,8 @@ object RetrofitStorage {
     suspend fun createNewMessage(message: MessageInChat):Response<NetworkApi.ApiResponse>{
         return retrofit.postMessage(message)
     }
-    suspend fun getAllMessage(chatId: String):List<MessageInChat>?{
-        val response = retrofit.getAllMessage(chatId,1,20)
+    suspend fun getAllMessage(chatId: String,page:Int,pageSize: Int):List<MessageInChat>?{
+        val response = retrofit.getAllMessage(chatId,page,pageSize)
         return if (response.isSuccessful){
             response.body()?.messages
         } else{

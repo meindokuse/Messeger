@@ -1,16 +1,18 @@
 package com.example.myapplication.data.remote
 
+import android.util.Log
 import androidx.paging.PagingSource
 import androidx.paging.PagingState
+import com.example.myapplication.data.reposetory.message.RemoteMessagesReposetoryImpl
 import com.example.myapplication.models.MessageInChat
 import com.example.myapplication.util.api.MessageResponse
 import com.example.myapplication.util.api.RetrofitInstanse
 import retrofit2.HttpException
 
 class MessagesPageSource(
+    private val reposetoryMessages:RemoteMessagesReposetoryImpl,
     private val queryId:String
 ):PagingSource<Int,MessageInChat>() {
-    private val retrofit = RetrofitInstanse.api
 
     override fun getRefreshKey(state: PagingState<Int, MessageInChat>): Int? {
         val position = state.anchorPosition ?: return null
@@ -24,9 +26,11 @@ class MessagesPageSource(
         val page = params.key ?: 1
         val pageSize = 20
 
-        val response = retrofit.getAllMessage(queryId,page,pageSize)
-        return if (response.isSuccessful){
-           val messages = checkNotNull(response.body()).messages.sortedByDescending {
+        val response = reposetoryMessages.getListMessages(queryId,page,pageSize)
+        val valide = response?.get(0)?.type == 1
+        Log.d("MyLog","messages in page source $valide ")
+        return if (response != null){
+           val messages = response.sortedByDescending {
                it.time
            }
             val nextKey = if (messages.size < pageSize) null else page + 1

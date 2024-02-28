@@ -37,10 +37,6 @@ open class ViewModelForChats @Inject constructor(
     val usersForNewChat: StateFlow<List<UserForChoose>> = _usersForNewChat
 
 
-//    suspend fun syncChats(userId: String) {
-//        val chats = remoteChatsReposetory.getAllChats(userId)
-//        if (chats != null) _listOfChats.emit(chats)
-//    }
     fun initChats(userId: String): Flow<PagingData<ItemChat>> {
         return Pager(
             PagingConfig(pageSize = 5),
@@ -68,7 +64,8 @@ open class ViewModelForChats @Inject constructor(
                     userCreater,
                     chatId,
                     text,
-                    currentTime
+                    currentTime,
+                    1
                 )
                 val itemChat = ItemChat(
                     chatId,

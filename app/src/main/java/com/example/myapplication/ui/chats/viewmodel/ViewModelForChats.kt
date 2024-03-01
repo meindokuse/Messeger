@@ -16,10 +16,12 @@ import com.example.myapplication.models.UserForChoose
 import com.example.myapplication.domain.reposetory.chats.RemoteChatsReposetory
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.UUID
 import javax.inject.Inject
 
@@ -28,13 +30,13 @@ open class ViewModelForChats @Inject constructor(
     private val remoteChatsReposetory: RemoteChatsReposetory,
 ) : ViewModel() {
 
-    private val _listOfChats: MutableStateFlow<List<ItemChat>> = MutableStateFlow(emptyList())
-    val listOfChats: StateFlow<List<ItemChat>> = _listOfChats
-
-
     private val _usersForNewChat: MutableStateFlow<List<UserForChoose>> =
         MutableStateFlow(emptyList())
     val usersForNewChat: StateFlow<List<UserForChoose>> = _usersForNewChat
+
+    private val _newChats:MutableStateFlow<List<ItemChat>> =
+        MutableStateFlow(emptyList())
+    val newChats: StateFlow<List<ItemChat>> = _newChats
 
 
     fun initChats(userId: String): Flow<PagingData<ItemChat>> {
@@ -50,7 +52,7 @@ open class ViewModelForChats @Inject constructor(
         text: String,
         userCreater: String
     ) {
-        val NewChatsList = ArrayList<ItemChat>()
+        val newChatsList = ArrayList<ItemChat>()
 
         viewModelScope.launch(Dispatchers.IO) {
             for (user in listWhoGetMes) {
@@ -78,9 +80,9 @@ open class ViewModelForChats @Inject constructor(
                 )
                 val dataForCreateChat = DataForCreateChat(itemChat, messageInChat)
                 val response = remoteChatsReposetory.createNewChat(dataForCreateChat)
-                if (response != null) NewChatsList.add(itemChat)
+                if (response != null) newChatsList.add(response)
             }
-            _listOfChats.emit(NewChatsList)
+           _newChats.emit(newChatsList)
         }
     }
 
@@ -91,13 +93,12 @@ open class ViewModelForChats @Inject constructor(
         if (users != null){
             _usersForNewChat.emit(users)
         }
-
     }
 
-    fun deleteChat(chats: List<ItemChat>) {
-        viewModelScope.launch(Dispatchers.IO) {
-            _listOfChats.emit(chats)
+    suspend fun deleteChat(chatsForDelete: List<String>):Boolean =
+        withContext(Dispatchers.IO) {
+            remoteChatsReposetory.deleteChats(chatsForDelete)
         }
-    }
+
 
 }

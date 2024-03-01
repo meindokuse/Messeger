@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
+import androidx.paging.PagingData
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
@@ -52,6 +53,14 @@ class ChatsPagingAdapter(
         selectionChats.clear()
         notifyDataSetChanged()
     }
+    suspend fun deleteSelectionChats() {
+        val items = snapshot().toMutableList()
+        selectionChats.sortedDescending().forEach { position ->
+            items.removeAt(position)
+        }
+        submitData(PagingData.from(items.filterNotNull()))
+        selectionChats.clear()
+    }
 
 
     inner class ChatHolder(item: View) : RecyclerView.ViewHolder(item) {
@@ -73,14 +82,7 @@ class ChatsPagingAdapter(
             val formattedDate = sdf.format(Date(chat!!.mes_time))
             binding.DataTimeText.text = formattedDate
 
-            val backgroundColor = if (isSelected(position)) {
-                ContextCompat.getColor(binding.root.context, R.color.grey_white)
-
-            } else {
-                ContextCompat.getColor(binding.root.context, android.R.color.transparent)
-
-            }
-            binding.root.setBackgroundColor(backgroundColor)
+            binding.chatBox.visibility = if (isSelected(position)) View.VISIBLE else View.GONE
         }
     }
 

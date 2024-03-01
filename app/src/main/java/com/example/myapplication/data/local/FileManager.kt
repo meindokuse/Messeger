@@ -1,7 +1,6 @@
 package com.example.myapplication.data.local
 
 import android.content.Context
-import android.graphics.Bitmap
 import android.net.Uri
 import android.util.Log
 import com.example.myapplication.util.AudioRecorder
@@ -46,16 +45,16 @@ class FileManager(private val context: Context) {
 
     private val audioRecorder = AudioRecorder(context)
 
-    fun startRecordAudio(){
-        audioRecorder.startRecording()
+    fun startRecordAudio():File?{
+        return audioRecorder.startRecording()
     }
 
-    fun stopAudioRecord():Uri?{
+    fun stopAudioRecord():Boolean{
        return audioRecorder.stopRecording()
     }
 
     fun clearAudioRecorder(){
-        audioRecorder.clearRecording()
+        audioRecorder.clearRecordingFull()
     }
 
 }

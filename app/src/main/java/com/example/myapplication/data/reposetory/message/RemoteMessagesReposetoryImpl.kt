@@ -8,9 +8,12 @@ import com.example.myapplication.data.remote.MessagesSocket
 import com.example.myapplication.data.remote.RetrofitStorage
 import com.example.myapplication.domain.reposetory.message.RemoteMessagesReposetory
 import com.example.myapplication.models.MessageInChat
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.withContext
 
 
 class RemoteMessagesReposetoryImpl(
@@ -24,10 +27,10 @@ class RemoteMessagesReposetoryImpl(
     ): List<MessageInChat>? {
         return RetrofitStorage.getAllMessage(chatId, page, pageSize)?.map { message ->
             if (message.type == 2) {
-                Log.d("MyLog","data audio")
+                Log.d("MyLog", "data audio")
                 try {
                     val data = firebaseStorage.getData(chatId, message.content) ?: "no_data"
-                    Log.d("MyLog", "data audio $data")
+                    Log.d("MyLog", "data audio $data , ${message.content}")
                     message.copy(content = data.toString())
                 } catch (e: Exception) {
                     message
@@ -46,9 +49,8 @@ class RemoteMessagesReposetoryImpl(
         tempFile: Uri
     ): Boolean {
         return try {
-            Log.d("MyLog", "reading audio for $tempFile")
 
-             firebaseStorage.loadData(idChat, tempFile, message.content)
+            firebaseStorage.loadData(idChat, tempFile, message.content)
             val serverResult = messagesSocket.sendMessage(idChat, message)
 
             serverResult
@@ -63,10 +65,11 @@ class RemoteMessagesReposetoryImpl(
         messagesSocket.connect(idChat)
     }
 
-    fun observeMessages(chatId: String): Flow<MessageInChat> {
-        return messagesSocket.observeMessages().map { message->
-            if (message.type == 2){
-               val data = firebaseStorage.getData(chatId,message.content)
+    fun observeMessages(chatId: String,userId:String): Flow<MessageInChat> {
+        return messagesSocket.observeMessages().map { message ->
+            if (message.type == 2 && message.id_sender != userId ) {
+                Log.d("MyLog", "Mapping mes ${message.content}")
+                val data = firebaseStorage.getData(chatId, message.content)
                 message.copy(content = data.toString())
             } else message
         }

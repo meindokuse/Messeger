@@ -73,7 +73,6 @@ class ProfileFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
 
-
         adapter = EventsAdapter(object : ItemListener {
             override fun onClickDelete(position: Int) {
                 val event = adapter.getAllItems()[position]
@@ -104,8 +103,6 @@ class ProfileFragment : Fragment() {
         binding.postsRecyclerView.isNestedScrollingEnabled = false
 
         init()
-
-
     }
 
     private fun stopCurrentlyPlaying() {
@@ -127,15 +124,10 @@ class ProfileFragment : Fragment() {
 
         binding.EditProfile.setColorFilter(ContextCompat.getColor(requireContext(), R.color.white))
 
-        if (profileViewModel.userEvents.value != null) {
-            adapter.addListEvent(profileViewModel.userEvents.value!!)
-        } else
-            Toast.makeText(activity, "Постов пока что нету", Toast.LENGTH_SHORT).show()
+        if (profileViewModel.userEvents.value != null) adapter.addListEvent(profileViewModel.userEvents.value!!)
 
-        Log.d("MyLog", "Load Init $user_id")
+
         profileViewModel.userProfile.observe(viewLifecycleOwner) { userProfile ->
-
-            Log.d("MyLog","$userProfile")
 
             val internalFoto = File(context?.filesDir, userProfile.avatar)
 
@@ -146,8 +138,7 @@ class ProfileFragment : Fragment() {
 
                 Glide.with(binding.root.context)
                     .load(remoteFoto)
-                    .placeholder(R.drawable.loading)
-                    .error(Glide.with(binding.root.context).load(internalFoto.path))
+                    .error(internalFoto)
                     .apply(RequestOptions.bitmapTransform(CircleCrop()))
                     .into(binding.profileImage)
             }
@@ -160,14 +151,11 @@ class ProfileFragment : Fragment() {
             binding.classText.text = userProfile.targetClass
         }
 
-
-
         user_id?.let {
             syncUserData(it)
         }
 
         profileViewModel.UserEventRightNow.observe(viewLifecycleOwner) {
-            Log.d("MyLog", "UserEventRightNow")
             if (it != null && EditEventTime) adapter.addEvent(it)
         }
     }

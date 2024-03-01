@@ -32,14 +32,13 @@ class AddNewChatFragment(private val userId: String) : BottomSheetDialogFragment
 
     private lateinit var usersAdapter: UniversalAdapter<UserForChoose>
 
-    lateinit var fullList: List<UserForChoose>
+    private lateinit var fullList: List<UserForChoose>
 
     private val selectedUsers = mutableListOf<UserForChoose>()
 
-
     private lateinit var binding: FragmentAddNewChatBinding
 
-    val ChatViewModel: ViewModelForChats by activityViewModels()
+    private val ChatViewModel: ViewModelForChats by activityViewModels()
     private val globalViewModel: SharedViewModel by activityViewModels()
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -51,14 +50,11 @@ class AddNewChatFragment(private val userId: String) : BottomSheetDialogFragment
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         init()
-
         binding.toSendButton.setOnClickListener {
-            lifecycleScope.launch {
-                if (!Empty()) {
-                    val text = binding.MessageText.text.toString()
-                    ChatViewModel.createNewChats(selectedUsers, text, userId)
-                    dismiss()
-                }
+            if (!Empty()) {
+                val text = binding.MessageText.text.toString()
+                ChatViewModel.createNewChats(selectedUsers, text, userId)
+                dismiss()
             }
         }
 
@@ -77,7 +73,6 @@ class AddNewChatFragment(private val userId: String) : BottomSheetDialogFragment
     }
 
     fun init() {
-
 
         binding.MessageText.isEnabled = false
 
@@ -170,14 +165,12 @@ class AddNewChatFragment(private val userId: String) : BottomSheetDialogFragment
 
     }
 
-
     private fun getPeoples() {
         lifecycleScope.launch(Dispatchers.IO) {
             ChatViewModel.getUsersForNewChat(userId)
         }
 
     }
-
 
     private fun setupKeyboardListener(isKeyboardVisible: Boolean) {
         if (isKeyboardVisible) {

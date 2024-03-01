@@ -45,6 +45,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.util.Locale
 import java.util.UUID
 import kotlin.coroutines.coroutineContext
@@ -54,7 +55,7 @@ class ChatFragment : Fragment() {
     private lateinit var userId: String
     private lateinit var chatId: String
 
-    private var audioMessage: Boolean = false
+    private var audioMessage: File? = null
 
     private val messageViewModel: MessagesViewModel by activityViewModels()
 
@@ -65,8 +66,7 @@ class ChatFragment : Fragment() {
 
     private var timerJob: Job? = null
 
-    var time = 0
-
+    private var time = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -149,6 +149,7 @@ class ChatFragment : Fragment() {
                     pagingAdapter.submitData(PagingData.from(currentData))
                     val position = pagingAdapter.snapshot().indexOf(message)
                     pagingAdapter.toggleWaitingMessage(position)
+                    binding.RcViewMesseges.smoothScrollToPosition(0)
                 }
                 messageViewModel.sendNewTextMessage(chatId, message)
                 binding.editTextTextMultiLine.text.clear()
@@ -171,34 +172,38 @@ class ChatFragment : Fragment() {
                 )
             } else {
                 try {
-                    if (!audioMessage) {
+                    if (audioMessage == null) {
                         startRecordingTimer()
-                        vibrate(requireContext(), 50)
+                        vibrate(requireContext(), 100)
                         changeButtonToRecordMoment()
-                        messageViewModel.startRecordVoice(requireContext())
-                        audioMessage = true
+                        audioMessage = messageViewModel.startRecordVoice(requireContext())
+
                     } else {
                         stopRecordingTimer()
+                        messageViewModel.stopRecording()
+
                         val mesId = UUID.randomUUID().toString()
                         val currentTime = System.currentTimeMillis()
-                        val fileName = "audio_mes_${UUID.randomUUID()}.3gp"
-                        val message = MessageInChat(mesId, userId, chatId, fileName, currentTime, 2)
+                        val message = MessageInChat(mesId, userId, chatId, audioMessage!!.toUri().toString(), currentTime, 2)
 
-                        val currentData = pagingAdapter.snapshot().items.toMutableList()
-                        currentData.add(0, message)
                         lifecycleScope.launch {
+                            val currentData = pagingAdapter.snapshot().items.toMutableList()
+                            currentData.add(0, message)
                             pagingAdapter.submitData(PagingData.from(currentData))
+
                             val position = pagingAdapter.snapshot().indexOf(message)
                             pagingAdapter.toggleWaitingMessage(position)
+
+                            binding.RcViewMesseges.smoothScrollToPosition(0)
                         }
 
-                        messageViewModel.sendNewVoiceMessage(chatId, message)
+                        messageViewModel.sendNewVoiceMessage(chatId, message,audioMessage?.toUri())
                         changeButtonToNoRecordMoment()
-                        audioMessage = false
+                        audioMessage = null
                     }
                 } catch (e: Exception) {
                     Log.d("MyLog", "ошибка записи ${e.message}")
-                    audioMessage = false
+                    audioMessage = null
                     Toast.makeText(requireContext(), "Ошибка записи!", Toast.LENGTH_SHORT).show()
                 }
 
@@ -207,7 +212,7 @@ class ChatFragment : Fragment() {
         }
 
         binding.cancelVoiceButton.setOnClickListener {
-            audioMessage = false
+            audioMessage = null
             changeButtonToNoRecordMoment()
             messageViewModel.cancelRecordVoice()
         }
@@ -251,13 +256,21 @@ class ChatFragment : Fragment() {
             footer = MessagesLoadingState(),
         )
         binding.RcViewMesseges.layoutManager = layoutManager
+
+        lifecycleScope.launch {
+            pagingAdapter.onPagesUpdatedFlow.collectLatest {
+                binding.progressLoading.visibility = View.GONE
+            }
+        }
     }
 
     private fun initData() {
         val messages = messageViewModel.initMessages(chatId)
 
         lifecycleScope.launch {
-            messages.collectLatest(pagingAdapter::submitData)
+            messages.collectLatest { pagingData ->
+                pagingAdapter.submitData(pagingData)
+            }
         }
     }
 
@@ -314,7 +327,7 @@ class ChatFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 messageViewModel.connectWebSocket(chatId)
-                messageViewModel.observeMessages(chatId).collectLatest { message ->
+                messageViewModel.observeMessages(chatId,userId).collectLatest { message ->
                     Log.d("MyLog", "connectWebSocket new message $message")
                     val currentData = pagingAdapter.snapshot().items.toMutableList()
                     if (message.id_sender != userId) {
@@ -323,6 +336,7 @@ class ChatFragment : Fragment() {
                             pagingAdapter.submitData(PagingData.from(currentData))
                         }
                     } else {
+                        Log.d("MyLog","toggleWaitingMessage new message ")
                         val position = pagingAdapter.snapshot().indexOf(message)
                         pagingAdapter.toggleWaitingMessage(position)
                     }
@@ -347,8 +361,8 @@ class ChatFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
-
         (activity as MainActivity).showBottomNavigationBar()
+        messageViewModel.clearVoiceCache()
     }
 
     private fun showErrorSnackbar(messageInChat: MessageInChat) {

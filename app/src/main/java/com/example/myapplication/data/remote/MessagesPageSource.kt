@@ -27,8 +27,7 @@ class MessagesPageSource(
         val pageSize = 20
 
         val response = reposetoryMessages.getListMessages(queryId,page,pageSize)
-        val valide = response?.get(0)?.type == 1
-        Log.d("MyLog","messages in page source $valide ")
+
         return if (response != null){
            val messages = response.sortedByDescending {
                it.time

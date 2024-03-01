@@ -63,6 +63,7 @@ class RemoteUserReposImpl(
         return if (avatar != null) {
             Log.d("MyLog", "non null avatar $avatar")
             val success = firebaseStorage.loadData(userId, avatar, updateUserInfo.fileName)
+            Log.d("MyLog","$success")
             val response = RetrofitStorage.updateUser(userId, updateUserInfo)
 
             if (success && response.isSuccessful) {

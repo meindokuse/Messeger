@@ -83,7 +83,6 @@ class MessagesPagingAdapter(
 
     private fun isWaiting(position: Int): Boolean {
         return waitingMessages.contains(position)
-
     }
 
     inner class AudioMessageHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -102,13 +101,17 @@ class MessagesPagingAdapter(
 
         @SuppressLint("SetTextI18n")
         fun bind(audioMessage: MessageInChat?,position: Int) {
+            Log.d("MyLog","bind $position voice $audioMessage")
 
             binding.statusVoiceMes.visibility = if (isWaiting(position)) View.VISIBLE else View.GONE
 
             val layoutParams = binding.cardMes.layoutParams as ConstraintLayout.LayoutParams
+            val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
+            val formattedDate = sdf.format(Date(audioMessage!!.time))
 
+           binding.dataSend.text = formattedDate
 
-            if (audioMessage?.id_sender == userId) {
+            if (audioMessage.id_sender == userId) {
 
                 layoutParams.endToEnd = ConstraintLayout.LayoutParams.PARENT_ID
                 layoutParams.startToStart = ConstraintLayout.LayoutParams.UNSET
@@ -118,7 +121,6 @@ class MessagesPagingAdapter(
                         R.color.white
                     )
                 )
-                Log.d("MyLog", "Это я")
 
             } else {
                 // Сообщение не пользователя, отображать слева
@@ -130,10 +132,7 @@ class MessagesPagingAdapter(
                         R.color.lite_blue
                     )
                 )
-                Log.d("MyLog", "Это не я")
-
             }
-
 
             binding.playVoiceButton.setOnClickListener {
                 if (mediaPlayer.isPlaying) {
@@ -171,13 +170,11 @@ class MessagesPagingAdapter(
                 }
             })
             mediaPlayer.setOnInfoListener { mediaplay, what, _ ->
-                Log.d("MyLog", "setOnInfoListener")
 
                 true
             }
 
             mediaPlayer.setOnSeekCompleteListener {
-                Log.d("MyLog", "setOnSeekCompleteListener")
 
                 updateHandler.post {
                     updateSeekListener(mediaPlayer.currentPosition)
@@ -187,7 +184,7 @@ class MessagesPagingAdapter(
             mediaPlayer.reset()
             try {
                 mediaPlayer.apply {
-                    setDataSource(audioMessage?.content)
+                    setDataSource(audioMessage.content)
                     prepareAsync()
                 }
 
@@ -240,11 +237,12 @@ class MessagesPagingAdapter(
         val binding = MessageBodyBinding.bind(item)
 
         fun bind(messageInChat: MessageInChat?,position: Int) {
+            Log.d("MyLog","bind text")
+
             binding.textMessage.text = messageInChat?.content
             val sdf = SimpleDateFormat("HH:mm", Locale.getDefault())
             val formattedDate = sdf.format(Date(messageInChat!!.time))
             binding.dataSend.text = formattedDate
-            Log.d("MyLog", "bind message ${messageInChat.content}")
             val layoutParams = binding.cardMes.layoutParams as ConstraintLayout.LayoutParams
 
             if (messageInChat.id_sender == userId) {
@@ -257,7 +255,6 @@ class MessagesPagingAdapter(
                         R.color.white
                     )
                 )
-                Log.d("MyLog", "Это я")
 
             } else {
                 // Сообщение не пользователя, отображать слева
@@ -269,9 +266,9 @@ class MessagesPagingAdapter(
                         R.color.lite_blue
                     )
                 )
-                Log.d("MyLog", "Это не я")
 
             }
+
             binding.status.visibility = if (isWaiting(position)) View.VISIBLE else View.GONE
         }
     }

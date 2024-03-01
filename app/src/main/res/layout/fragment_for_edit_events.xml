@@ -39,6 +39,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="10dp"
             app:counterEnabled="true"
+            app:counterTextColor="@color/white"
             app:counterMaxLength="50">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -55,7 +56,7 @@
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#151520"
+            android:background="#232335"
             app:tabIndicatorColor="@color/white"
             app:tabTextColor="@color/white"
             android:layout_margin="10dp">

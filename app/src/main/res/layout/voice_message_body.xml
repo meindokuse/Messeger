@@ -49,6 +49,7 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
+                android:progressTint="@color/black"
                 android:layout_weight="1"
                 android:thumbTint="#000000"
                 android:translationX="5dp"

@@ -1,6 +1,5 @@
 package com.example.myapplication.ui.chats
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Build
 import android.os.Bundle
@@ -24,10 +23,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navOptions
+import androidx.paging.PagingData
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.util.Constance
@@ -36,17 +38,12 @@ import com.example.myapplication.util.SharedViewModel
 import com.example.myapplication.ui.chats.viewmodel.ViewModelForChats
 import com.example.myapplication.ui.chats.editable.AddNewChatFragment
 import com.example.myapplication.databinding.ListOfChatsBinding
-import com.example.myapplication.ui.MainActivity
 import com.example.myapplication.ui.chats.rcview.ChatsPagingAdapter
 import com.example.myapplication.ui.messages.ChatFragment
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.lang.Math.abs
 
 @AndroidEntryPoint
@@ -139,19 +136,21 @@ class ListOfChatsFragment : Fragment() {
     }
 
 
-    private fun showErrorSnackbar() {
+    private fun showErrorSnackbar(
+        text:String,
+        action:() -> Unit
+    ) {
         view?.let { view ->
-            Snackbar.make(view, "Произошла ошибка при получении чатов", Snackbar.LENGTH_LONG)
+            Snackbar.make(view, "Произошла ошибка при $text", Snackbar.LENGTH_LONG)
                 .setTextColor(ContextCompat.getColor(requireContext(), R.color.black))
                 .setActionTextColor(ContextCompat.getColor(requireContext(), R.color.wow_color))
                 .setBackgroundTint(ContextCompat.getColor(requireContext(), R.color.white))
                 .setAction("Повторить") {
-
+                    action()
                 }
                 .show()
         }
     }
-
 
     private fun initRecyclerView() {
 
@@ -169,6 +168,22 @@ class ListOfChatsFragment : Fragment() {
 
         lifecycleScope.launch {
             chats.collectLatest(adapter::submitData)
+        }
+
+        lifecycleScope.launch {
+            adapter.onPagesUpdatedFlow.collectLatest {
+                binding.loadingProgress.visibility = View.GONE
+            }
+        }
+
+        lifecycleScope.launch{
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                chatViewModel.newChats.collect{newChats->
+                    if (newChats.isNotEmpty()){
+                        adapter.submitData(PagingData.from(newChats))
+                    }
+                }
+            }
         }
 
         binding.ListChats.addOnItemTouchListener(object : RecyclerView.OnItemTouchListener {
@@ -297,7 +312,37 @@ class ListOfChatsFragment : Fragment() {
                         R.id.menu_delete -> {
                             mode?.title = "Удаление..."
                             lifecycleScope.launch {
-                                chatViewModel.deleteChat(adapter.outGetSelectedChats())
+                                val listChats = adapter.outGetSelectedChats().map {
+                                    it.chat_id
+                                }
+                                try {
+                                    val result = chatViewModel.deleteChat(listChats)
+                                    if (result) {
+                                        Log.d("MyLog","удаление чатов")
+                                        adapter.deleteSelectionChats()
+                                    }
+                                    else{
+                                        showErrorSnackbar(
+                                            "удалении чатов"
+                                        ) {
+                                            launch {
+                                                chatViewModel.deleteChat(listChats)
+                                            }
+                                        }
+                                        adapter.clearSelection()
+                                    }
+
+                                } catch (e:Exception){
+                                    Log.d("MyLog","Exception delete chats - $e ")
+                                    showErrorSnackbar(
+                                        "удалении чатов"
+                                    ) {
+                                        launch {
+                                            chatViewModel.deleteChat(listChats)
+                                        }
+                                    }
+                                }
+
                                 actionMode?.finish()
                             }
                         }

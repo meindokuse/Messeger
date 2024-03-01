@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">Friend Net</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="text_for_edit_events">Поделитесь новостями!</string>
@@ -11,6 +11,7 @@
         <item>Домашнее задание или уроки</item>
     </string-array>
     <string name="title_activity_registration_or_login">RegistrationOrLoginActivity</string>
+
     <!-- Strings used for fragments for navigation -->
     <string name="first_fragment_label">First Fragment</string>
     <string name="second_fragment_label">Second Fragment</string>

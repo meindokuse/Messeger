@@ -2,7 +2,6 @@ package com.example.myapplication.ui.messages.viewmodel
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -17,7 +16,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 import javax.inject.Inject
 
@@ -26,37 +24,40 @@ class MessagesViewModel @Inject constructor(
     private val remoteMessagesReposetory: RemoteMessagesReposetoryImpl
 ) : ViewModel() {
 
-    private var audioRecorder:AudioRecorder? = null
+    private var audioRecorder: AudioRecorder? = null
 
     fun initMessages(chatId: String): Flow<PagingData<MessageInChat>> {
         return Pager(
             PagingConfig(pageSize = 20),
-            pagingSourceFactory = { MessagesPageSource(remoteMessagesReposetory,chatId) }
+            pagingSourceFactory = { MessagesPageSource(remoteMessagesReposetory, chatId) }
         ).flow.cachedIn(viewModelScope)
     }
 
-     fun sendNewTextMessage(idChat: String, message: MessageInChat){
-         viewModelScope.launch(Dispatchers.IO){
-             remoteMessagesReposetory.createNewMessage(idChat, message)
-         }
-     }
-
-    fun sendNewVoiceMessage(idChat: String, message: MessageInChat){
-        val tempFile = audioRecorder?.stopRecording()
-        viewModelScope.launch(Dispatchers.IO){
-            val res = remoteMessagesReposetory.createNewVoiceMessage(idChat, message, tempFile!!)
-            Log.d("MyLog","sendNewVoiceMessage $res")
-            audioRecorder?.clearRecording()
+    fun sendNewTextMessage(idChat: String, message: MessageInChat) {
+        viewModelScope.launch(Dispatchers.IO) {
+            remoteMessagesReposetory.createNewMessage(idChat, message)
         }
     }
 
-    fun startRecordVoice(context: Context) {
-        audioRecorder = AudioRecorder(context)
-        audioRecorder?.startRecording()
+    fun sendNewVoiceMessage(idChat: String, message: MessageInChat, fileUri: Uri?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            val res = remoteMessagesReposetory.createNewVoiceMessage(idChat, message, fileUri!!)
+            audioRecorder?.clearMediaRecorder()
+        }
+
     }
 
-    fun cancelRecordVoice(){
-        audioRecorder?.clearRecording()
+    fun stopRecording(){
+        audioRecorder?.stopRecording()
+    }
+
+    fun startRecordVoice(context: Context): File? {
+        audioRecorder = AudioRecorder(context)
+        return audioRecorder?.startRecording()
+    }
+
+    fun cancelRecordVoice() {
+        audioRecorder?.clearRecordingFull()
         audioRecorder = null
     }
 
@@ -65,12 +66,16 @@ class MessagesViewModel @Inject constructor(
         remoteMessagesReposetory.connectSocket(idChat)
     }
 
-    fun observeMessages(chatId: String): Flow<MessageInChat> {
-        return remoteMessagesReposetory.observeMessages(chatId)
+    fun observeMessages(chatId: String,userId:String): Flow<MessageInChat> {
+        return remoteMessagesReposetory.observeMessages(chatId,userId)
     }
 
-     fun disconnect() {
+    fun disconnect() {
         remoteMessagesReposetory.disconnectSocket()
+    }
+
+    fun clearVoiceCache() {
+        audioRecorder?.clearCache()
     }
 
 }

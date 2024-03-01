@@ -15,7 +15,7 @@ class ChatsReposetoryImpl(
         val readyChats = ArrayList<ItemChat>()
         RetrofitStorage.getAllChats(userId,page,pageSize)?.forEach { chat ->
             val anotherUserId = if (userId == chat.user_id_1) chat.user_id_2 else chat.user_id_1
-            Log.d("MyLog","anotherUserId $anotherUserId")
+            Log.d("MyLog","anotherUserId $anotherUserId avatar ${chat.avatar}")
             val uri = firebaseStorage.getData(anotherUserId, chat.avatar)
             uri?.let {
                 readyChats.add(chat.copy(avatar = uri.toString()))
@@ -25,16 +25,10 @@ class ChatsReposetoryImpl(
     }
 
     override suspend fun createNewChat(dataForCreateChat: DataForCreateChat): ItemChat? {
-
-        val anotherUserId = dataForCreateChat.chat.user_id_2
-
         val response = RetrofitStorage.createNewChat(dataForCreateChat)
         return if (response.isSuccessful) {
             val chat = dataForCreateChat.chat
-            val uri = firebaseStorage.getData(anotherUserId, chat.avatar)
-            uri?.let {
-                chat.copy(avatar = uri.toString())
-            }
+            chat
         } else {
             null
         }
@@ -43,7 +37,7 @@ class ChatsReposetoryImpl(
     override suspend fun getUserForCreateChat(userId: String): List<UserForChoose> {
         val readyUsers = ArrayList<UserForChoose>()
         val users = RetrofitStorage.getUsersForCreateNewChat(userId)
-        Log.d("MyLog", "qweewq $users")
+        Log.d("MyLog", "запрос на чаты $users")
         users?.forEach { user ->
             Log.d("MyLog", "getUserForCreateChat ${user.id} ${user.nickname}")
             val uri = firebaseStorage.getData(user.id, user.foto)
@@ -53,6 +47,10 @@ class ChatsReposetoryImpl(
         }
 
         return readyUsers
+    }
+
+    override suspend fun deleteChats(chatsId:List<String>): Boolean {
+        return RetrofitStorage.deleteChat(chatsId)
     }
 
 }

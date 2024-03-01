@@ -110,6 +110,7 @@ open class ProfileViewModel @Inject constructor(
                 val updateUserInfo = UpdateUserInfo(firstName, secondName, fileName)
                 val response =
                     remoteProfileReposetory.updateUserInfo(updateUserInfo, avatar, user.user_id)
+                Log.d("MyLog","$response")
                 if (response == Constance.SUCCESS) {
                     val newInfo = _userProfile.value!!.copy(
                         firstname = firstName,
@@ -118,6 +119,7 @@ open class ProfileViewModel @Inject constructor(
                     withContext(Dispatchers.Main) {
                         _userProfile.postValue(newInfo)
                     }
+                    Log.d("MyLog","успещная обновва")
                     localProfileReposetory.updateUserInfo(updateUserInfo, avatar)
 
                     Constance.SUCCESS

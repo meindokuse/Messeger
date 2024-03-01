@@ -1,6 +1,7 @@
 package com.example.myapplication.data.remote
 
 import android.util.Log
+import com.example.myapplication.data.models.ListForDeleteChat
 import com.example.myapplication.data.models.LoginBody
 import com.example.myapplication.util.api.DataForCreateChat
 import com.example.myapplication.util.api.NetworkApi
@@ -65,6 +66,11 @@ object RetrofitStorage {
 
     suspend fun loginUser(loginBody: LoginBody):Response<NetworkApi.LoginResponse>{
         return retrofit.loginUser(loginBody)
+    }
+
+    suspend fun deleteChat(chatsId: List<String>):Boolean{
+        val listForDeleteChat = ListForDeleteChat(chatsId)
+        return retrofit.deleteChat(listForDeleteChat).isSuccessful
     }
 
 

@@ -2,14 +2,20 @@ package com.example.myapplication.ui.profile.editable
 
 import android.app.Activity
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -23,6 +29,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.io.File
+import kotlin.math.cos
 
 @AndroidEntryPoint
 class EditFragmentForProfile : BottomSheetDialogFragment() {
@@ -60,11 +67,33 @@ class EditFragmentForProfile : BottomSheetDialogFragment() {
         return binding.root
     }
 
+    companion object{
+        const val REQUEST_CODE_STORAGE_PERMISSION = 123
+    }
+
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         init()
         dialog?.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
         binding.AvatarChange.setOnClickListener {
+//            Log.d("MyLog","click to change foto")
+//            if (ContextCompat.checkSelfPermission(
+//                    requireContext(),
+//                    android.Manifest.permission.READ_MEDIA_IMAGES
+//                ) != PackageManager.PERMISSION_GRANTED
+//            ) {
+//                ActivityCompat.requestPermissions(
+//                    requireActivity(),
+//                    arrayOf(android.Manifest.permission.READ_MEDIA_IMAGES),
+//                    REQUEST_CODE_STORAGE_PERMISSION
+//                )
+//                Log.d("MyLog","requestPermissions")
+//            } else {
+//                Log.d("MyLog","READ_MEDIA_IMAGES")
+//                openImagePicker()
+//            }
             openImagePicker()
+
         }
 
         binding.DoneButton.setOnClickListener {
@@ -96,18 +125,12 @@ class EditFragmentForProfile : BottomSheetDialogFragment() {
 
                 val internalFoto = File(context?.filesDir, it.avatar)
 
-                lifecycleScope.launch {
-                    val remoteFoto = async {
-                        DataModel.getLinkToFile(it.user_id, it.avatar)
-                    }.await()
+                Glide.with(binding.root.context)
+                    .load(internalFoto)
+                    .error(R.drawable.profile_foro)
+                    .apply(RequestOptions.bitmapTransform(CircleCrop()))
+                    .into(binding.AvatarChange)
 
-                    Glide.with(binding.root.context)
-                        .load(remoteFoto)
-                        .placeholder(R.drawable.loading)
-                        .error(Glide.with(binding.root.context).load(internalFoto.path))
-                        .apply(RequestOptions.bitmapTransform(CircleCrop()))
-                        .into(binding.AvatarChange)
-                }
 
             } else {
                 binding.AvatarChange.setImageResource(R.drawable.profile_foro)

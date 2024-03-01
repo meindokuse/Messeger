@@ -2,6 +2,7 @@ package com.example.myapplication.util.api
 
 
 import androidx.annotation.IntRange
+import com.example.myapplication.data.models.ListForDeleteChat
 import com.example.myapplication.data.models.LoginBody
 import com.example.myapplication.models.MessageInChat
 import com.example.myapplication.models.ProfileInfo
@@ -9,6 +10,7 @@ import com.example.myapplication.models.UpdateUserInfo
 import com.example.myapplication.models.UserForChoose
 import retrofit2.Response
 import retrofit2.http.Body
+import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.POST
 import retrofit2.http.PUT
@@ -66,6 +68,11 @@ interface NetworkApi {
     suspend fun loginUser(
         @Body loginBody: LoginBody
     ):Response<LoginResponse>
+
+    @POST("/chat_delete")
+    suspend fun deleteChat(
+        @Body chatsId:ListForDeleteChat
+    ):Response<ApiResponse>
 
     data class ApiResponse(
         val message:String,

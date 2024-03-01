@@ -11,4 +11,6 @@ interface RemoteChatsReposetory {
 
     suspend fun getUserForCreateChat(userId: String):List<UserForChoose>?
 
+    suspend fun deleteChats(chatsId:List<String>):Boolean
+
 }

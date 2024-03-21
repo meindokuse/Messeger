@@ -34,7 +34,7 @@ open class ViewModelForChats @Inject constructor(
         MutableStateFlow(emptyList())
     val usersForNewChat: StateFlow<List<UserForChoose>> = _usersForNewChat
 
-    private val _newChats:MutableStateFlow<List<ItemChat>> =
+    private val _newChats: MutableStateFlow<List<ItemChat>> =
         MutableStateFlow(emptyList())
     val newChats: StateFlow<List<ItemChat>> = _newChats
 
@@ -82,20 +82,32 @@ open class ViewModelForChats @Inject constructor(
                 val response = remoteChatsReposetory.createNewChat(dataForCreateChat)
                 if (response != null) newChatsList.add(response)
             }
-           _newChats.emit(newChatsList)
+            _newChats.emit(newChatsList)
         }
+    }
+
+    suspend fun clearNewChats(){
+        _newChats.emit(_newChats.value.toMutableList().apply {
+            clear()
+        })
     }
 
 
     suspend fun getUsersForNewChat(userId: String) {
-        Log.d("MyLog","getUsersForNewChat in viewModel $userId")
-        val users = remoteChatsReposetory.getUserForCreateChat(userId)
-        if (users != null){
-            _usersForNewChat.emit(users)
+        try {
+            Log.d("MyLog", "getUsersForNewChat in viewModel $userId")
+            val users = remoteChatsReposetory.getUserForCreateChat(userId)
+            if (users != null) {
+                _usersForNewChat.emit(users)
+            }
+
+        } catch (e: Exception) {
+            Log.d("MyLog", "ошибка при получении пользователей ${e.message}")
         }
+
     }
 
-    suspend fun deleteChat(chatsForDelete: List<String>):Boolean =
+    suspend fun deleteChat(chatsForDelete: List<String>): Boolean =
         withContext(Dispatchers.IO) {
             remoteChatsReposetory.deleteChats(chatsForDelete)
         }

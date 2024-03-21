@@ -64,7 +64,7 @@ interface NetworkApi {
         @Path("user_id") userId: String
     ):Response<UsersForNewChatResponse>
 
-    @GET("/user/login")
+    @POST("/user/login")
     suspend fun loginUser(
         @Body loginBody: LoginBody
     ):Response<LoginResponse>
@@ -78,12 +78,10 @@ interface NetworkApi {
         val message:String,
         val status:Int
     )
-
     data class LoginResponse(
         val idUser:String,
         val status:Int
     )
-
 
 }
 

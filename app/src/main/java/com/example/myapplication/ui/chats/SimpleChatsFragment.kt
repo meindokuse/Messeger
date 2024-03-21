@@ -47,7 +47,7 @@ import kotlinx.coroutines.launch
 import java.lang.Math.abs
 
 @AndroidEntryPoint
-class ListOfChatsFragment : Fragment() {
+class SimpleChatsFragment : Fragment() {
     private lateinit var binding: ListOfChatsBinding
     private lateinit var handler: Handler
     private var actionMode: ActionMode? = null
@@ -123,7 +123,6 @@ class ListOfChatsFragment : Fragment() {
 
     }
 
-
     private fun vibrate(context: Context, duration: Long) {
         val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -181,6 +180,7 @@ class ListOfChatsFragment : Fragment() {
                 chatViewModel.newChats.collect{newChats->
                     if (newChats.isNotEmpty()){
                         adapter.submitData(PagingData.from(newChats))
+                        chatViewModel.clearNewChats()
                     }
                 }
             }

@@ -8,7 +8,9 @@ import android.os.Handler
 import android.os.Looper
 import android.util.Log
 import android.view.View
+import androidx.core.os.bundleOf
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.navOptions
 import androidx.navigation.ui.NavigationUI
 import com.example.myapplication.R
 import com.example.myapplication.databinding.ActivityMainBinding
@@ -62,11 +64,26 @@ class MainActivity : AppCompatActivity() {
         binding.BNV.setOnNavigationItemSelectedListener {
             when (it.itemId) {
                 R.id.profile -> {
-                    controller.navigate(R.id.profileFragment)
+                    controller.navigate(R.id.profileFragment,
+                        bundleOf(),
+                        navOptions {
+                        launchSingleTop = true
+                        popUpTo(R.id.navigator) {
+                            inclusive = true
+                        }
+                        })
                 }
 
                 R.id.chats -> {
-                    controller.navigate(R.id.listOfChatsFragment)
+                    controller.navigate(R.id.listOfChatsFragment,
+                        bundleOf(),
+                        navOptions {
+                            launchSingleTop = true
+                            popUpTo(R.id.navigator){
+                                inclusive = true
+                            }
+                        }
+                    )
                 }
             }
             true

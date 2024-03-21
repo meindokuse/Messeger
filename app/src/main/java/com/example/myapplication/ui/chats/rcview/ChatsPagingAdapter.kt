@@ -73,7 +73,8 @@ class ChatsPagingAdapter(
 
             Glide.with(binding.root.context)
                 .load(chat?.avatar)
-                .placeholder(R.drawable.loading)
+                .placeholder(R.drawable.profile_foro)
+                .error(R.drawable.profile_foro)
                 .apply(RequestOptions.bitmapTransform(CircleCrop()))
                 .override(300, 300)
                 .into(binding.FotoWhoWrite)
@@ -100,7 +101,7 @@ class ChatsPagingAdapter(
 private object ChatsDiffItemCallback : DiffUtil.ItemCallback<ItemChat>() {
 
     override fun areItemsTheSame(oldItem: ItemChat, newItem: ItemChat): Boolean {
-        return oldItem.mes_time == newItem.mes_time && oldItem.mes_text == newItem.mes_text
+        return oldItem.chat_id == newItem.chat_id
     }
 
     override fun areContentsTheSame(oldItem: ItemChat, newItem: ItemChat): Boolean {

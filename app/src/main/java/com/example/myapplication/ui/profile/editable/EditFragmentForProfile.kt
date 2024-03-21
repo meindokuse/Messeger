@@ -1,8 +1,8 @@
 package com.example.myapplication.ui.profile.editable
 
 import android.app.Activity
+import android.content.Context
 import android.content.Intent
-import android.content.pm.PackageManager
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.net.Uri
@@ -12,10 +12,9 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
-import androidx.core.app.ActivityCompat
-import androidx.core.content.ContextCompat
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
 import com.bumptech.glide.Glide
@@ -23,13 +22,16 @@ import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentEditForProfileBinding
+import com.example.myapplication.ui.LoadingDialog
 import com.example.myapplication.ui.profile.viewmodel.ProfileViewModel
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import com.theartofdev.edmodo.cropper.CropImage
+import com.theartofdev.edmodo.cropper.CropImageView
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.async
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.io.File
-import kotlin.math.cos
+
 
 @AndroidEntryPoint
 class EditFragmentForProfile : BottomSheetDialogFragment() {
@@ -38,21 +40,31 @@ class EditFragmentForProfile : BottomSheetDialogFragment() {
 
     val DataModel: ProfileViewModel by activityViewModels()
 
+
+    private val cropActivityResultContract = object : ActivityResultContract<Any?, Uri?>() {
+        override fun createIntent(context: Context, input: Any?): Intent {
+            return CropImage.activity()
+                .setAspectRatio(4,4)
+                .setCropShape(CropImageView.CropShape.OVAL)
+                .getIntent(requireContext())
+        }
+
+        override fun parseResult(resultCode: Int, intent: Intent?): Uri? {
+            return CropImage.getActivityResult(intent)?.uri
+        }
+    }
+
     private val changeAvatar =
-        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
+        registerForActivityResult(cropActivityResultContract) { uri ->
 
-            if (result.resultCode == Activity.RESULT_OK) {
-                val data: Intent? = result.data
-                val imageUri = data?.data
-                if (imageUri != null) {
+            uri?.let { imageUri ->
+                Glide.with(binding.root.context)
+                    .load(imageUri)
+                    .apply(RequestOptions.bitmapTransform(CircleCrop()))
+                    .into(binding.AvatarChange)
 
-                    Glide.with(binding.root.context)
-                        .load(imageUri)
-                        .apply(RequestOptions.bitmapTransform(CircleCrop()))
-                        .into(binding.AvatarChange)
+                foto = imageUri
 
-                    foto = imageUri
-                }
             }
         }
 
@@ -67,7 +79,7 @@ class EditFragmentForProfile : BottomSheetDialogFragment() {
         return binding.root
     }
 
-    companion object{
+    companion object {
         const val REQUEST_CODE_STORAGE_PERMISSION = 123
     }
 
@@ -99,14 +111,20 @@ class EditFragmentForProfile : BottomSheetDialogFragment() {
         binding.DoneButton.setOnClickListener {
 
             if (!isEmptyData()) {
+
                 val name = binding.NameEdit.text.toString()
                 val familia = binding.SecondNameEdit.text.toString()
+                val loadingDialog = LoadingDialog()
 
-                lifecycleScope.launch {
+                lifecycleScope.launch(Dispatchers.Main) {
+                    loadingDialog.show(childFragmentManager, LoadingDialog().tag)
+                    Log.d("MyLog", "запуск обновы $foto")
                     DataModel.updateProfile(name, familia, foto)
+                    loadingDialog.dismiss()
+                    dismiss()
+                    foto = null
                 }
-                dismiss()
-                foto = null
+
             }
         }
     }
@@ -145,8 +163,6 @@ class EditFragmentForProfile : BottomSheetDialogFragment() {
     }
 
     private fun openImagePicker() {
-        val pickImageIntent = Intent(Intent.ACTION_GET_CONTENT)
-        pickImageIntent.type = "image/*"
-        changeAvatar.launch(pickImageIntent)
+        changeAvatar.launch(null)
     }
 }

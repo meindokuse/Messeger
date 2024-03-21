@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/default_color"
-    tools:context=".ui.chats.ListOfChatsFragment">
+    tools:context=".ui.chats.SimpleChatsFragment">
 
     <RelativeLayout
         android:id="@+id/relativeLayout"
@@ -15,7 +15,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:context=".ui.chats.ListOfChatsFragment">
+        tools:context=".ui.chats.SimpleChatsFragment">
 
         <com.google.android.material.tabs.TabLayout
             android:id="@+id/VarOfChats"

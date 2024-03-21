@@ -16,6 +16,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.myapplication.R
 import com.example.myapplication.databinding.FragmentLoginBinding
+import com.example.myapplication.ui.LoadingDialog
 import com.example.myapplication.ui.MainActivity
 import com.example.myapplication.ui.profile.viewmodel.ProfileViewModel
 import com.example.myapplication.util.Constance
@@ -44,7 +45,7 @@ class LoginFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.emailText.addTextChangedListener(object :TextWatcher{
+        binding.emailText.addTextChangedListener(object : TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
                 //ignore
             }
@@ -61,30 +62,37 @@ class LoginFragment : Fragment() {
 
 
         binding.loginButton.setOnClickListener {
-            if (!isEmpty() && isValide()){
+            if (!isEmpty()) {
+                val loadingDialog = LoadingDialog()
+
                 val email = binding.emailText.text.toString()
                 val password = binding.passwordText.text.toString()
-                lifecycleScope.launch(Dispatchers.IO){
+                lifecycleScope.launch() {
                     try {
-                        val response = profileViewModel.loginUser(requireContext(),email,password)
-                        withContext(Dispatchers.Main) {
-                            when (response) {
-                                Constance.SUCCESS -> {
-                                    (activity as MainActivity).showBottomNavigationBar()
-                                    (activity as MainActivity).supportActionBar?.show()
-                                    findNavController().navigate(R.id.action_loginFragment_to_profileFragment)
-                                }
-                                Constance.NO_FOUND_USER -> {
-                                    binding.noFoundUserText.visibility = View.VISIBLE
-                                }
-                                else-> Toast.makeText(requireContext(),"Ошибка при входе ",Toast.LENGTH_SHORT).show()
 
+                        loadingDialog.show(childFragmentManager,loadingDialog.tag)
+                        val response = profileViewModel.loginUser(requireContext(), email, password)
+                        loadingDialog.dismiss()
+
+                        when (response) {
+                            Constance.SUCCESS -> {
+                                (activity as MainActivity).showBottomNavigationBar()
+                                (activity as MainActivity).supportActionBar?.show()
+                                findNavController().navigate(R.id.action_loginFragment_to_profileFragment)
                             }
+                            Constance.NO_FOUND_USER -> {
+                                binding.noFoundUserText.visibility = View.VISIBLE
+                            }
+                            else -> Toast.makeText(
+                                requireContext(),
+                                "Ошибка сервера",
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
-
-                    } catch (e:Exception){
-                        Log.d("MyLog","Ошибка при входе $e")
-                        Toast.makeText(requireContext(),"Ошибка при входе ",Toast.LENGTH_SHORT).show()
+                    } catch (e: Exception) {
+                        Log.d("MyLog", "Ошибка при входе $e")
+                        Toast.makeText(requireContext(), "Ошибка при входе ", Toast.LENGTH_SHORT)
+                            .show()
                     }
                 }
 
@@ -96,20 +104,17 @@ class LoginFragment : Fragment() {
     }
 
 
-
-
     private fun isEmpty(): Boolean = with(binding) {
         if (loginButton.text.isNullOrEmpty()) loginButton.error = "Поле пустое"
         if (passwordText.text.isNullOrEmpty()) passwordText.error = "Поле пустое"
         return loginButton.text.isNullOrEmpty() || passwordText.text.isNullOrEmpty()
     }
 
-    private fun isValide(): Boolean = with(binding){
+    private fun isValide(): Boolean = with(binding) {
         if (!loginButton.text.contains("@")) loginButton.error = "Некорректый ввод"
         if (loginButton.text.length < 8) loginButton.error = "Не менее 8 символов"
         return loginButton.text.contains("@") && loginButton.text.length > 8
     }
-
 
 
 }

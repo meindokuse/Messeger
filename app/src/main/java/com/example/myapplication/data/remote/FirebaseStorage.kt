@@ -12,21 +12,6 @@ class FirebaseStorage() {
     private val storageRef = FirebaseStorage.getInstance().reference
     private val userImageRef = storageRef.child("users/files")
 
-//    fun loadData(
-//        userId: String,
-//        filePath: Uri,
-//        filename: String
-//    ): Boolean {
-//        return try {
-//            val fileRef = userImageRef.child(userId).child(filename)
-//            val task = fileRef.putFile(filePath)
-//            task.isSuccessful
-//        } catch (e: Exception) {
-//            Log.d("MyLog", "loadData firebase $e")
-//            false
-//        }
-//
-//    }
 
     suspend fun loadData(
         userId: String,
@@ -36,6 +21,7 @@ class FirebaseStorage() {
         try {
             val fileRef = userImageRef.child(userId).child(filename)
             val uploadTask = fileRef.putFile(filePath)
+            Log.d("MyLog","загрузка файла начата")
 
             uploadTask.addOnSuccessListener { _ ->
                 Log.d("MyLog", "Загрузка файла успешно завершена")
@@ -43,6 +29,9 @@ class FirebaseStorage() {
             }.addOnFailureListener { exception ->
                 Log.e("MyLog", "Ошибка загрузки файла: ${exception.message}")
                 continuation.resume(false) // Возобновить продолжение с результатом неудачной загрузки
+            }.addOnProgressListener {taskSnapshot->
+                val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount)
+                Log.d("MyLog","loadProgress $progress")
             }
         } catch (e: Exception) {
             Log.e("MyLog", "Ошибка при попытке загрузки файла: ${e.message}")
@@ -51,8 +40,14 @@ class FirebaseStorage() {
     }
 
     suspend fun getData(userId: String, fileName: String): Uri? {
-        val fileRef = userImageRef.child(userId).child(fileName)
-        return fileRef.downloadUrl.await()
+       return try {
+            val fileRef = userImageRef.child(userId).child(fileName)
+             fileRef.downloadUrl.await()
+        } catch (e:Exception) {
+           Log.e("MyLog", "Ошибка при попытке файла : ${e.message}")
+           null
+        }
+
 
     }
 }

@@ -164,12 +164,12 @@ class ProfileFragment : Fragment() {
         lifecycleScope.launch(Dispatchers.IO) {
             val loadingDialog = LoadingDialog()
 
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 loadingDialog.show(childFragmentManager, loadingDialog.tag)
             }
             val code = profileViewModel.syncUser(idUser)
 
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 loadingDialog.dismiss()
                 if (code == 0) {
                     showErrorSnackbar(idUser)

@@ -63,9 +63,6 @@ dependencies {
     implementation("io.ktor:ktor-client-logging:2.3.8")
     implementation("io.ktor:ktor-client-cio:2.3.8")
 
-
-
-
     implementation("androidx.navigation:navigation-fragment-ktx:2.7.7")
     implementation("androidx.navigation:navigation-ui-ktx:2.7.7")
 
@@ -75,20 +72,36 @@ dependencies {
     implementation("com.google.firebase:firebase-storage:20.3.0")
     annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("androidx.core:core-ktx:1.12.0")
 
     implementation("io.reactivex.rxjava3:rxjava:3.1.8")
     implementation("io.reactivex.rxjava3:rxandroid:3.0.2")
 
+    //HILT
     implementation("com.google.dagger:hilt-android:2.50")
     kapt("com.google.dagger:hilt-android-compiler:2.50")
 
+    //PAGING
     implementation("androidx.paging:paging-runtime-ktx:3.2.1")
+
+    api("com.theartofdev.edmodo:android-image-cropper:2.8.+")
+    implementation("androidx.activity:activity-ktx:1.8.2")
+
+    //ROOM
+    val room_version = "2.6.1"
+    implementation("androidx.room:room-runtime:$room_version")
+    implementation("androidx.room:room-paging:$room_version")
+    kapt("androidx.room:room-compiler:$room_version")
+
+
+
+
+
 
 
     implementation("androidx.fragment:fragment-ktx:1.6.2")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.11.0")

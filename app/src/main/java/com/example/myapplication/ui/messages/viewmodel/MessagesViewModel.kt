@@ -41,10 +41,9 @@ class MessagesViewModel @Inject constructor(
 
     fun sendNewVoiceMessage(idChat: String, message: MessageInChat, fileUri: Uri?) {
         viewModelScope.launch(Dispatchers.IO) {
-            val res = remoteMessagesReposetory.createNewVoiceMessage(idChat, message, fileUri!!)
+            remoteMessagesReposetory.createNewVoiceMessage(idChat, message, fileUri!!)
             audioRecorder?.clearMediaRecorder()
         }
-
     }
 
     fun stopRecording(){

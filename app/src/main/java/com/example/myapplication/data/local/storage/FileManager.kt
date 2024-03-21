@@ -1,4 +1,4 @@
-package com.example.myapplication.data.local
+package com.example.myapplication.data.local.storage
 
 import android.content.Context
 import android.net.Uri

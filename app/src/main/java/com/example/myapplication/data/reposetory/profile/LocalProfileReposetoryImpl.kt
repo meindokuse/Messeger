@@ -1,7 +1,7 @@
 package com.example.myapplication.data.reposetory.profile
 
 import android.net.Uri
-import com.example.myapplication.data.local.FileManager
+import com.example.myapplication.data.local.storage.FileManager
 import com.example.myapplication.data.local.LocalReposetoryHelper
 import com.example.myapplication.domain.reposetory.profile.LocalProfileReposetory
 import com.example.myapplication.models.Event

@@ -79,7 +79,8 @@ class UniversalAdapter<T>(val itemListener: UsersListener, val key: String) :
         fun bind(userForChoose: UserForChoose,position: Int){
             Glide.with(binding.root.context)
                 .load(userForChoose.foto)
-                .placeholder(R.drawable.loading)
+                .placeholder(R.drawable.profile_foro)
+                .error(R.drawable.profile_foro)
                 .apply(RequestOptions.bitmapTransform(CircleCrop()))
                 .into(binding.avatarView)
 

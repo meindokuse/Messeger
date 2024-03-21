@@ -80,37 +80,38 @@ open class ProfileViewModel @Inject constructor(
         }
 
 
-    suspend fun loginUser(context:Context,email: String, password: String):Int =
-         try {
-             val status = remoteProfileReposetory.loginUser(email,password)
-             if (status?.status == Constance.SUCCESS){
-                 withContext(Dispatchers.Main) {
-                     val sharedPreferences = context.getSharedPreferences(
-                         Constance.KEY_USER_PREFERENCES,
-                         Context.MODE_PRIVATE
-                     )
-                     sharedPreferences.edit().putString(Constance.KEY_USER_ID, status.idUser).apply()
-                 }
-                 status.status
-             } else status!!.status
-        }
-        catch (e: Exception) {
-            Log.d("MyLog", e.message.toString())
-            Constance.NETWORK_ERROR
-        }
-
-
-
-    suspend fun updateProfile(firstName: String, secondName: String, avatar: Uri?) {
-        viewModelScope.launch(Dispatchers.IO) {
+    suspend fun loginUser(context: Context, email: String, password: String): Int =
+        withContext(Dispatchers.IO){
             try {
+                val status = remoteProfileReposetory.loginUser(email, password)
+                if (status?.status == Constance.SUCCESS) {
+                    withContext(Dispatchers.Main) {
+                        val sharedPreferences = context.getSharedPreferences(
+                            Constance.KEY_USER_PREFERENCES,
+                            Context.MODE_PRIVATE
+                        )
+                        sharedPreferences.edit().putString(Constance.KEY_USER_ID, status.idUser).apply()
+                    }
+                    status.status
+                } else status!!.status
+            } catch (e: Exception) {
+                Log.d("MyLog", e.message.toString())
+                Constance.NETWORK_ERROR
+            }
+        }
+
+
+
+    suspend fun updateProfile(firstName: String, secondName: String, avatar: Uri?): Int =
+        withContext(Dispatchers.IO) {
+             try {
                 Log.d("MyLog", "updateProfile - $avatar")
                 val user = _userProfile.value!!
                 val fileName = user.avatar
                 val updateUserInfo = UpdateUserInfo(firstName, secondName, fileName)
                 val response =
                     remoteProfileReposetory.updateUserInfo(updateUserInfo, avatar, user.user_id)
-                Log.d("MyLog","$response")
+                Log.d("MyLog", "$response")
                 if (response == Constance.SUCCESS) {
                     val newInfo = _userProfile.value!!.copy(
                         firstname = firstName,
@@ -119,7 +120,7 @@ open class ProfileViewModel @Inject constructor(
                     withContext(Dispatchers.Main) {
                         _userProfile.postValue(newInfo)
                     }
-                    Log.d("MyLog","успещная обновва")
+                    Log.d("MyLog", "успещная обновва")
                     localProfileReposetory.updateUserInfo(updateUserInfo, avatar)
 
                     Constance.SUCCESS
@@ -131,14 +132,14 @@ open class ProfileViewModel @Inject constructor(
                 Constance.NETWORK_ERROR
             }
         }
-    }
+
 
     suspend fun getLinkToFile(userId: String, fileName: String): Uri? {
 
         return try {
             remoteProfileReposetory.getUri(userId, fileName)
-        }catch (e:Exception){
-            Log.d("MyLog","getLinkToFile error $e")
+        } catch (e: Exception) {
+            Log.d("MyLog", "getLinkToFile error $e")
             null
         }
     }

@@ -35,17 +35,23 @@ class ChatsReposetoryImpl(
     }
 
     override suspend fun getUserForCreateChat(userId: String): List<UserForChoose> {
-        val readyUsers = ArrayList<UserForChoose>()
-        val users = RetrofitStorage.getUsersForCreateNewChat(userId)
+        val readyUsers = mutableListOf<UserForChoose>()
+        val users = RetrofitStorage.getUsersForCreateNewChat(userId) ?: return emptyList()
         Log.d("MyLog", "запрос на чаты $users")
-        users?.forEach { user ->
+
+        users.forEach { user ->
             Log.d("MyLog", "getUserForCreateChat ${user.id} ${user.nickname}")
             val uri = firebaseStorage.getData(user.id, user.foto)
+            Log.d("MyLog","$uri")
+
             uri?.let {
                 readyUsers.add(user.copy(foto = it.toString()))
+            } ?: run {
+                // Обработка ситуации, когда uri равно null
+                readyUsers.add(user)
             }
         }
-
+        Log.d("MyLog","ready users - $readyUsers")
         return readyUsers
     }
 

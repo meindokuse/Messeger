@@ -167,7 +167,11 @@ class AddNewChatFragment(private val userId: String) : BottomSheetDialogFragment
 
     private fun getPeoples() {
         lifecycleScope.launch(Dispatchers.IO) {
-            ChatViewModel.getUsersForNewChat(userId)
+            try {
+                ChatViewModel.getUsersForNewChat(userId)
+            }catch (e:Exception){
+                Log.d("MyLog","Ошибка при получении юзеров")
+            }
         }
 
     }

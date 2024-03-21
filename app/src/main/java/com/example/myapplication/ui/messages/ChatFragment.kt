@@ -1,6 +1,7 @@
 package com.example.myapplication.ui.messages
 
 import android.Manifest
+import android.animation.AnimatorListenerAdapter
 import android.content.Context
 import android.content.pm.PackageManager
 import android.media.MediaPlayer
@@ -28,6 +29,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import androidx.paging.PagingData
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.myapplication.R
 import com.example.myapplication.ui.MainActivity
 import com.example.myapplication.databinding.FragmentChatBinding
@@ -37,6 +39,7 @@ import com.example.myapplication.ui.messages.rcview.MessagesPagingAdapter
 import com.example.myapplication.ui.messages.viewmodel.MessagesViewModel
 import com.example.myapplication.ui.profile.editable.DescriptionVoiceFragment
 import com.example.myapplication.ui.profile.rcview.ItemListener
+import com.example.myapplication.util.Timer
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -90,7 +93,6 @@ class ChatFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         init()
-
     }
 
 
@@ -124,18 +126,27 @@ class ChatFragment : Fragment() {
     }
 
     private fun initButtons() {
-        binding.sendTextMessageButton.setColorFilter(
-            ContextCompat.getColor(
-                requireContext(),
-                R.color.white
+
+        binding.apply {
+            scrollDownButton.setColorFilter(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.white
+                )
             )
-        )
-        binding.sendVoiceMessageButton.setColorFilter(
-            ContextCompat.getColor(
-                requireContext(),
-                R.color.white
+            sendTextMessageButton.setColorFilter(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.white
+                )
             )
-        )
+            sendVoiceMessageButton.setColorFilter(
+                ContextCompat.getColor(
+                    requireContext(),
+                    R.color.white
+                )
+            )
+        }
 
         binding.sendTextMessageButton.setOnClickListener {
             val mesId = UUID.randomUUID().toString()
@@ -184,7 +195,14 @@ class ChatFragment : Fragment() {
 
                         val mesId = UUID.randomUUID().toString()
                         val currentTime = System.currentTimeMillis()
-                        val message = MessageInChat(mesId, userId, chatId, audioMessage!!.toUri().toString(), currentTime, 2)
+                        val message = MessageInChat(
+                            mesId,
+                            userId,
+                            chatId,
+                            audioMessage!!.toUri().toString(),
+                            currentTime,
+                            2
+                        )
 
                         lifecycleScope.launch {
                             val currentData = pagingAdapter.snapshot().items.toMutableList()
@@ -197,7 +215,7 @@ class ChatFragment : Fragment() {
                             binding.RcViewMesseges.smoothScrollToPosition(0)
                         }
 
-                        messageViewModel.sendNewVoiceMessage(chatId, message,audioMessage?.toUri())
+                        messageViewModel.sendNewVoiceMessage(chatId, message, audioMessage?.toUri())
                         changeButtonToNoRecordMoment()
                         audioMessage = null
                     }
@@ -215,6 +233,10 @@ class ChatFragment : Fragment() {
             audioMessage = null
             changeButtonToNoRecordMoment()
             messageViewModel.cancelRecordVoice()
+        }
+
+        binding.scrollDownButton.setOnClickListener {
+            binding.RcViewMesseges.smoothScrollToPosition(0)
         }
     }
 
@@ -238,8 +260,7 @@ class ChatFragment : Fragment() {
 
             override fun onClickStartListen(position: Int, mediaPlayer: MediaPlayer) {
                 stopCurrentlyPlaying()
-                val viewHolder =
-                    binding.RcViewMesseges.findViewHolderForAdapterPosition(position) as? MessagesPagingAdapter.AudioMessageHolder
+                val viewHolder = binding.RcViewMesseges.findViewHolderForAdapterPosition(position) as? MessagesPagingAdapter.AudioMessageHolder
                 viewHolder?.updatePlayButtonImage(true)
                 currentlyPlayingViewHolder = viewHolder
             }
@@ -251,6 +272,7 @@ class ChatFragment : Fragment() {
 
         }, userId)
 
+
         binding.RcViewMesseges.adapter = pagingAdapter.withLoadStateHeaderAndFooter(
             header = MessagesLoadingState(),
             footer = MessagesLoadingState(),
@@ -261,6 +283,67 @@ class ChatFragment : Fragment() {
             pagingAdapter.onPagesUpdatedFlow.collectLatest {
                 binding.progressLoading.visibility = View.GONE
             }
+        }
+
+        binding.RcViewMesseges.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+
+            var scrollState = 0
+            var isAnimating = false
+
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+
+                scrollState += dy
+                val button = binding.scrollDownButton
+                val threshold = 200 // Устанавливаем порог прокрутки
+
+                when {
+                    scrollState < -threshold && !isAnimating -> {
+                        animateButton(button, View.GONE)
+                    }
+
+                    scrollState > threshold && !isAnimating -> {
+                        animateButton(button, View.VISIBLE)
+                    }
+
+                    layoutManager.findFirstVisibleItemPosition() == 0 -> {
+                        animateButton(button, View.GONE)
+                    }
+                }
+            }
+
+            private fun animateButton(button: View, visibility: Int) {
+                isAnimating = true
+                val animDuration = 200L
+                val translationY = if (visibility == View.VISIBLE) 0f else button.height.toFloat()
+
+
+                button.animate()
+                    .withStartAction {
+                        if (visibility == View.VISIBLE) {
+                            button.visibility = visibility
+                            button.translationY = button.height.toFloat()
+                        }
+                    }
+                    .translationY(translationY)
+                    .alpha(if (visibility == View.VISIBLE) 1f else 0f)
+                    .setDuration(animDuration)
+                    .withEndAction {
+                        button.visibility = visibility
+                        isAnimating = false
+                        scrollState = 0
+                    }
+
+
+            }
+        })
+
+    }
+
+    fun stopCurrentlyPlaying() {
+        currentlyPlayingViewHolder?.let {
+            it.updatePlayButtonImage(false)
+            it.mediaPlayer.pause()
         }
     }
 
@@ -327,7 +410,7 @@ class ChatFragment : Fragment() {
         lifecycleScope.launch {
             try {
                 messageViewModel.connectWebSocket(chatId)
-                messageViewModel.observeMessages(chatId,userId).collectLatest { message ->
+                messageViewModel.observeMessages(chatId, userId).collectLatest { message ->
                     Log.d("MyLog", "connectWebSocket new message $message")
                     val currentData = pagingAdapter.snapshot().items.toMutableList()
                     if (message.id_sender != userId) {
@@ -336,7 +419,7 @@ class ChatFragment : Fragment() {
                             pagingAdapter.submitData(PagingData.from(currentData))
                         }
                     } else {
-                        Log.d("MyLog","toggleWaitingMessage new message ")
+                        Log.d("MyLog", "toggleWaitingMessage new message ")
                         val position = pagingAdapter.snapshot().indexOf(message)
                         pagingAdapter.toggleWaitingMessage(position)
                     }
@@ -377,12 +460,6 @@ class ChatFragment : Fragment() {
         }
     }
 
-    private fun stopCurrentlyPlaying() {
-        currentlyPlayingViewHolder?.let {
-            it.updatePlayButtonImage(false)
-            it.mediaPlayer.pause()
-        }
-    }
 
     private fun vibrate(context: Context, duration: Long) {
         val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
@@ -396,31 +473,16 @@ class ChatFragment : Fragment() {
     }
 
     private fun startRecordingTimer() {
+        val timer = Timer()
         if (timerJob != null) timerJob?.cancel()
         timerJob = lifecycleScope.launch {
-            updateRecordingTime()
+            timer.updateRecordingTime(binding.recordTimeText)
         }
     }
 
     private fun stopRecordingTimer() {
         if (timerJob != null) timerJob?.cancel()
         time = 0
-    }
-
-    private suspend fun updateRecordingTime() {
-        while (coroutineContext[Job]?.isActive == true) {
-            withContext(Dispatchers.Main) {
-                binding.recordTimeText.text = formatDuration(time)
-            }
-            delay(1000)
-            time += 1
-        }
-    }
-
-    private fun formatDuration(seconds: Int): String {
-        val minutes = seconds / 60
-        val remainingSeconds = seconds % 60
-        return String.format(Locale.getDefault(), "%d:%02d", minutes, remainingSeconds)
     }
 
 }

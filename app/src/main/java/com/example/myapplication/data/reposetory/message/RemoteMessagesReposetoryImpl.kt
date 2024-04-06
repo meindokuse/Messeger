@@ -3,11 +3,12 @@ package com.example.myapplication.data.reposetory.message
 
 import android.net.Uri
 import android.util.Log
+import com.example.myapplication.data.models.remote.MessageDto
 import com.example.myapplication.data.remote.FirebaseStorage
 import com.example.myapplication.data.remote.MessagesSocket
-import com.example.myapplication.data.remote.RetrofitStorage
 import com.example.myapplication.domain.reposetory.message.RemoteMessagesReposetory
 import com.example.myapplication.models.MessageInChat
+import com.example.myapplication.util.api.NetworkApi
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 
@@ -17,6 +18,7 @@ import kotlinx.coroutines.withContext
 
 
 class RemoteMessagesReposetoryImpl(
+    private val userApi: NetworkApi,
     private val firebaseStorage: FirebaseStorage,
     private val messagesSocket: MessagesSocket
 ) : RemoteMessagesReposetory {
@@ -24,8 +26,8 @@ class RemoteMessagesReposetoryImpl(
         chatId: String,
         page: Int,
         pageSize: Int
-    ): List<MessageInChat>? {
-        return RetrofitStorage.getAllMessage(chatId, page, pageSize)?.map { message ->
+    ): List<MessageDto> {
+        return userApi.getAllMessage(chatId, page, pageSize).body()?.messages?.map { message ->
             if (message.type == 2) {
                 Log.d("MyLog", "data audio")
                 try {
@@ -36,7 +38,7 @@ class RemoteMessagesReposetoryImpl(
                     message
                 }
             } else message
-        }
+        } ?: emptyList()
     }
 
     override suspend fun createNewMessage(idChat: String, message: MessageInChat): Boolean {

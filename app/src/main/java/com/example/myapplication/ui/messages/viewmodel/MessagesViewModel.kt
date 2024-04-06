@@ -4,33 +4,45 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.example.myapplication.data.remote.MessagesPageSource
+import androidx.paging.map
+import com.example.myapplication.data.local.db.DataBase
+import com.example.myapplication.data.reposetory.message.MessagesMediator
 import com.example.myapplication.data.reposetory.message.RemoteMessagesReposetoryImpl
 import com.example.myapplication.models.MessageInChat
+import com.example.myapplication.domain.mapers.toMessageInChat
 import com.example.myapplication.util.AudioRecorder
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
 class MessagesViewModel @Inject constructor(
-    private val remoteMessagesReposetory: RemoteMessagesReposetoryImpl
+    private val remoteMessagesReposetory: RemoteMessagesReposetoryImpl,
+    private val dataBase: DataBase
 ) : ViewModel() {
 
     private var audioRecorder: AudioRecorder? = null
 
-    fun initMessages(chatId: String): Flow<PagingData<MessageInChat>> {
+    @OptIn(ExperimentalPagingApi::class)
+    fun initMessages(chatId: String):Flow<PagingData<MessageInChat>> {
         return Pager(
             PagingConfig(pageSize = 20),
-            pagingSourceFactory = { MessagesPageSource(remoteMessagesReposetory, chatId) }
-        ).flow.cachedIn(viewModelScope)
+            pagingSourceFactory = { dataBase.messageDao.getLastMessages() },
+            remoteMediator = MessagesMediator(
+                dataBase,
+                remoteMessagesReposetory,
+                chatId
+            )
+        ).flow.map { it -> it.map { it.toMessageInChat() } }.cachedIn(viewModelScope)
     }
 
     fun sendNewTextMessage(idChat: String, message: MessageInChat) {

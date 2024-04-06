@@ -25,13 +25,13 @@ import java.util.UUID
 @AndroidEntryPoint
 class FragmentForEditEvents : BottomSheetDialogFragment() {
 
-    val descriptionVoiceFragment = DescriptionVoiceFragment()
-    val descriptionTextFragment = DescriptionTextFragment()
+    private val descriptionVoiceFragment = DescriptionVoiceFragment()
+    private val descriptionTextFragment = DescriptionTextFragment()
 
     var TextOrVoice = 1
 
 
-    val DataModel: ProfileViewModel by activityViewModels()
+    private val DataModel: ProfileViewModel by activityViewModels()
     private lateinit var binding: FragmentForEditEventsBinding
     private var isCompleteAudio = false
 
@@ -89,6 +89,7 @@ class FragmentForEditEvents : BottomSheetDialogFragment() {
                     val uniqueKey = UUID.randomUUID().toString()
                     val currentTime = System.currentTimeMillis()
                     val event = Event(uniqueKey, title, desc,currentTime,TextOrVoice)
+
                     DataModel.addEventToReposetory(event)
                     dismiss()
                 }

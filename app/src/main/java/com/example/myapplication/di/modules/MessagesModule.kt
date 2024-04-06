@@ -4,6 +4,7 @@ import com.example.myapplication.data.remote.FirebaseStorage
 import com.example.myapplication.data.remote.MessagesSocket
 import com.example.myapplication.data.reposetory.chats.ChatsReposetoryImpl
 import com.example.myapplication.data.reposetory.message.RemoteMessagesReposetoryImpl
+import com.example.myapplication.util.api.NetworkApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -18,8 +19,8 @@ object MessagesModule {
 
     @Provides
     @ActivityRetainedScoped
-    fun provideRemoteMessagesReposetory(firebaseStorage: FirebaseStorage,messagesSocket: MessagesSocket): RemoteMessagesReposetoryImpl {
-        return RemoteMessagesReposetoryImpl(firebaseStorage,messagesSocket)
+    fun provideRemoteMessagesReposetory(userApi: NetworkApi,firebaseStorage: FirebaseStorage,messagesSocket: MessagesSocket): RemoteMessagesReposetoryImpl {
+        return RemoteMessagesReposetoryImpl(userApi,firebaseStorage,messagesSocket)
     }
 
 

@@ -14,7 +14,7 @@ interface ChatDao {
     suspend fun upsertAll(chats: List<ChatEntity>)
 
     @Query("SELECT * FROM chatentity")
-    suspend fun getLastChats(): PagingSource<Int, ChatEntity>
+    fun getLastChats(): PagingSource<Int, ChatEntity>
 
     @Query("DELETE FROM chatentity")
     suspend fun clearAll()

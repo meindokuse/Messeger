@@ -1,6 +1,5 @@
 package com.example.myapplication.ui.profile.editable
 
-import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
@@ -13,7 +12,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContract
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.lifecycleScope
@@ -21,6 +19,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.CircleCrop
 import com.bumptech.glide.request.RequestOptions
 import com.example.myapplication.R
+import com.example.myapplication.data.models.local.ProfileEntity
 import com.example.myapplication.databinding.FragmentEditForProfileBinding
 import com.example.myapplication.ui.LoadingDialog
 import com.example.myapplication.ui.profile.viewmodel.ProfileViewModel
@@ -38,7 +37,7 @@ class EditFragmentForProfile : BottomSheetDialogFragment() {
     private var foto: Uri? = null
     lateinit var binding: FragmentEditForProfileBinding
 
-    val DataModel: ProfileViewModel by activityViewModels()
+    private val profileViewModel: ProfileViewModel by activityViewModels()
 
 
     private val cropActivityResultContract = object : ActivityResultContract<Any?, Uri?>() {
@@ -114,12 +113,24 @@ class EditFragmentForProfile : BottomSheetDialogFragment() {
 
                 val name = binding.NameEdit.text.toString()
                 val familia = binding.SecondNameEdit.text.toString()
+                val nowInfo = profileViewModel.userProfile.value!!
                 val loadingDialog = LoadingDialog()
 
                 lifecycleScope.launch(Dispatchers.Main) {
                     loadingDialog.show(childFragmentManager, LoadingDialog().tag)
                     Log.d("MyLog", "запуск обновы $foto")
-                    DataModel.updateProfile(name, familia, foto)
+
+                    nowInfo.apply {
+                        profileViewModel.updateProfile(
+                           profileEntity =  ProfileEntity(
+                                userId = user_id,
+                                firstname = firstname,
+                                secondname = secondname,
+                                school, city, age, targetClass, avatar, email, password
+                            ) ,
+                           avatar =  foto)
+                    }
+
                     loadingDialog.dismiss()
                     dismiss()
                     foto = null
@@ -138,7 +149,7 @@ class EditFragmentForProfile : BottomSheetDialogFragment() {
     }
 
     private fun init() {
-        DataModel.userProfile.observe(viewLifecycleOwner) {
+        profileViewModel.userProfile.observe(viewLifecycleOwner) {
             if (it != null) {
 
                 val internalFoto = File(context?.filesDir, it.avatar)
@@ -154,10 +165,10 @@ class EditFragmentForProfile : BottomSheetDialogFragment() {
                 binding.AvatarChange.setImageResource(R.drawable.profile_foro)
             }
         }
-        DataModel.userProfile.observe(viewLifecycleOwner) {
+        profileViewModel.userProfile.observe(viewLifecycleOwner) {
             binding.NameEdit.setText(it.firstname)
         }
-        DataModel.userProfile.observe(viewLifecycleOwner) {
+        profileViewModel.userProfile.observe(viewLifecycleOwner) {
             binding.SecondNameEdit.setText(it.secondname)
         }
     }

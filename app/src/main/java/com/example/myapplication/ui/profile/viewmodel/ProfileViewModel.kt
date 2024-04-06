@@ -7,19 +7,20 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.myapplication.data.models.local.ProfileEntity
 import com.example.myapplication.data.reposetory.profile.LocalProfileReposetoryImpl
 import com.example.myapplication.data.reposetory.profile.RemoteUserReposImpl
-import com.example.myapplication.util.Constance
 import com.example.myapplication.models.Event
 import com.example.myapplication.models.ProfileInfo
 import com.example.myapplication.models.UpdateUserInfo
+import com.example.myapplication.domain.mapers.toProfileInfo
+import com.example.myapplication.util.Constance
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
 import javax.inject.Inject
-import kotlin.Exception
 
 @HiltViewModel
 open class ProfileViewModel @Inject constructor(
@@ -32,8 +33,13 @@ open class ProfileViewModel @Inject constructor(
     val userProfile: LiveData<ProfileInfo> get() = _userProfile
 
     private fun initUserInfoLocal() {
-        val profileInfo = localProfileReposetory.getUserInfoLocal()
-        _userProfile.postValue(profileInfo)
+        viewModelScope.launch(Dispatchers.IO) {
+            val profileInfo = localProfileReposetory.getUserInfoLocal()
+            withContext(Dispatchers.Main) {
+                _userProfile.postValue(profileInfo)
+
+            }
+        }
     }
 
 
@@ -43,7 +49,7 @@ open class ProfileViewModel @Inject constructor(
             if (response.data != null) {
                 val user = response.data
                 withContext(Dispatchers.Main) {
-                    _userProfile.postValue(user!!)
+                    _userProfile.postValue(user.toProfileInfo())
                 }
                 response.code
             } else {
@@ -81,7 +87,7 @@ open class ProfileViewModel @Inject constructor(
 
 
     suspend fun loginUser(context: Context, email: String, password: String): Int =
-        withContext(Dispatchers.IO){
+        withContext(Dispatchers.IO) {
             try {
                 val status = remoteProfileReposetory.loginUser(email, password)
                 if (status?.status == Constance.SUCCESS) {
@@ -90,7 +96,8 @@ open class ProfileViewModel @Inject constructor(
                             Constance.KEY_USER_PREFERENCES,
                             Context.MODE_PRIVATE
                         )
-                        sharedPreferences.edit().putString(Constance.KEY_USER_ID, status.idUser).apply()
+                        sharedPreferences.edit().putString(Constance.KEY_USER_ID, status.idUser)
+                            .apply()
                     }
                     status.status
                 } else status!!.status
@@ -101,21 +108,20 @@ open class ProfileViewModel @Inject constructor(
         }
 
 
-
-    suspend fun updateProfile(firstName: String, secondName: String, avatar: Uri?): Int =
+    suspend fun updateProfile(profileEntity: ProfileEntity, avatar: Uri?): Int =
         withContext(Dispatchers.IO) {
-             try {
+            try {
                 Log.d("MyLog", "updateProfile - $avatar")
                 val user = _userProfile.value!!
                 val fileName = user.avatar
-                val updateUserInfo = UpdateUserInfo(firstName, secondName, fileName)
+                val updateUserInfo = UpdateUserInfo(profileEntity, fileName)
                 val response =
                     remoteProfileReposetory.updateUserInfo(updateUserInfo, avatar, user.user_id)
                 Log.d("MyLog", "$response")
                 if (response == Constance.SUCCESS) {
                     val newInfo = _userProfile.value!!.copy(
-                        firstname = firstName,
-                        secondname = secondName,
+                        firstname = profileEntity.firstname,
+                        secondname = profileEntity.secondname,
                     )
                     withContext(Dispatchers.Main) {
                         _userProfile.postValue(newInfo)
@@ -154,9 +160,14 @@ open class ProfileViewModel @Inject constructor(
 
 
     fun addEventToReposetory(event: Event) {
-        localProfileReposetory.addEvent(event)
-        updateUserEventsList()
-        UserEventRightNow.value = event
+        viewModelScope.launch {
+            localProfileReposetory.addEvent(event)
+            updateUserEventsList()
+            withContext(Dispatchers.Main) {
+                UserEventRightNow.postValue(event)
+            }
+        }
+
     }
 
     private fun updateUserEventsList() {

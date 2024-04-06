@@ -3,23 +3,28 @@ package com.example.myapplication.ui.chats.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.ExperimentalPagingApi
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
-import com.example.myapplication.data.remote.ChatsPagingSource
-import com.example.myapplication.data.remote.MessagesPageSource
+import androidx.paging.map
+import com.example.myapplication.data.local.db.DataBase
+import com.example.myapplication.data.maper.toChatEntity
+import com.example.myapplication.data.models.remote.ChatDto
+import com.example.myapplication.data.models.remote.MessageDto
+import com.example.myapplication.data.reposetory.chats.ChatRemoteMediator
 import com.example.myapplication.util.api.DataForCreateChat
 import com.example.myapplication.models.ItemChat
-import com.example.myapplication.models.MessageInChat
 import com.example.myapplication.models.UserForChoose
-import com.example.myapplication.domain.reposetory.chats.RemoteChatsReposetory
+import com.example.myapplication.domain.reposetory.chats.ChatRepository
+import com.example.myapplication.domain.mapers.toItemChat
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
@@ -27,7 +32,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 open class ViewModelForChats @Inject constructor(
-    private val remoteChatsReposetory: RemoteChatsReposetory,
+    private val chatRepository: ChatRepository,
+    private val dataBase: DataBase
 ) : ViewModel() {
 
     private val _usersForNewChat: MutableStateFlow<List<UserForChoose>> =
@@ -39,11 +45,17 @@ open class ViewModelForChats @Inject constructor(
     val newChats: StateFlow<List<ItemChat>> = _newChats
 
 
+    @OptIn(ExperimentalPagingApi::class)
     fun initChats(userId: String): Flow<PagingData<ItemChat>> {
         return Pager(
-            PagingConfig(pageSize = 5),
-            pagingSourceFactory = { ChatsPagingSource(remoteChatsReposetory, userId) }
-        ).flow.cachedIn(viewModelScope)
+            config = PagingConfig(pageSize = 5),
+            pagingSourceFactory = { dataBase.chatDao.getLastChats() },
+            remoteMediator = ChatRemoteMediator(
+                dataBase,
+                chatRepository,
+                userId
+            )
+        ).flow.map { it -> it.map { it.toItemChat() } }.cachedIn(viewModelScope)
     }
 
     fun createNewChats(
@@ -61,7 +73,7 @@ open class ViewModelForChats @Inject constructor(
                 val messageId = UUID.randomUUID().toString()
                 val currentTime = System.currentTimeMillis()
 
-                val messageInChat = MessageInChat(
+                val messageInChat = MessageDto(
                     messageId,
                     userCreater,
                     chatId,
@@ -69,7 +81,7 @@ open class ViewModelForChats @Inject constructor(
                     currentTime,
                     1
                 )
-                val itemChat = ItemChat(
+                val itemChat = ChatDto(
                     chatId,
                     userCreater,
                     user.id,
@@ -79,7 +91,7 @@ open class ViewModelForChats @Inject constructor(
                     currentTime
                 )
                 val dataForCreateChat = DataForCreateChat(itemChat, messageInChat)
-                val response = remoteChatsReposetory.createNewChat(dataForCreateChat)
+                val response = chatRepository.createNewChat(dataForCreateChat)?.toChatEntity()?.toItemChat()
                 if (response != null) newChatsList.add(response)
             }
             _newChats.emit(newChatsList)
@@ -96,7 +108,7 @@ open class ViewModelForChats @Inject constructor(
     suspend fun getUsersForNewChat(userId: String) {
         try {
             Log.d("MyLog", "getUsersForNewChat in viewModel $userId")
-            val users = remoteChatsReposetory.getUserForCreateChat(userId)
+            val users = chatRepository.getUserForCreateChat(userId)
             if (users != null) {
                 _usersForNewChat.emit(users)
             }
@@ -109,7 +121,7 @@ open class ViewModelForChats @Inject constructor(
 
     suspend fun deleteChat(chatsForDelete: List<String>): Boolean =
         withContext(Dispatchers.IO) {
-            remoteChatsReposetory.deleteChats(chatsForDelete)
+            chatRepository.deleteChats(chatsForDelete)
         }
 
 

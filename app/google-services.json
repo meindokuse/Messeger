@@ -7,6 +7,25 @@
   "client": [
     {
       "client_info": {
+        "mobilesdk_app_id": "1:464916183189:android:3cf17d7c8ad6c3e1c5c39c",
+        "android_client_info": {
+          "package_name": "com.example.friendnet"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAXkRUSj8db5r_KMaIiVoUOwQKDw1SJPtA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
         "mobilesdk_app_id": "1:464916183189:android:113422f263b9d727c5c39c",
         "android_client_info": {
           "package_name": "com.example.myapplication"

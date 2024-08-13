@@ -20,15 +20,28 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <TextView
-        android:id="@+id/nickname"
+        android:id="@+id/firstNameRemoteUser"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:maxLength="12"
-        android:text="Матвей Муравьев"
+        android:text="Матвей "
+        android:textColor="@color/white"
         android:textSize="16sp"
         app:layout_constraintEnd_toEndOf="@+id/avatarView"
         app:layout_constraintStart_toStartOf="@+id/avatarView"
         app:layout_constraintTop_toBottomOf="@+id/avatarView" />
+
+    <TextView
+        android:id="@+id/secondNameRemoteUser"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:maxLength="12"
+        android:text="Муравьев"
+        android:textColor="@color/white"
+        app:layout_constraintEnd_toEndOf="@+id/firstNameRemoteUser"
+        app:layout_constraintStart_toStartOf="@+id/firstNameRemoteUser"
+        app:layout_constraintTop_toBottomOf="@+id/firstNameRemoteUser" />
 
     <CheckBox
         android:id="@+id/checkBox"

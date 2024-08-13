@@ -1,0 +1,56 @@
+package com.example.friendnet.data.maper
+
+import com.example.friendnet.data.models.local.ChatEntity
+import com.example.friendnet.data.models.local.MessageEntity
+import com.example.friendnet.data.models.local.ProfileEntity
+import com.example.friendnet.data.models.local.UserForChooseEntity
+import com.example.friendnet.data.models.remote.ChatDto
+import com.example.friendnet.data.models.remote.MessageDto
+import com.example.friendnet.data.models.remote.ProfileDto
+import com.example.friendnet.data.models.remote.UserForChooseDto
+import com.example.friendnet.models.UserForChoose
+
+
+fun ProfileDto.toProfileEntity(): ProfileEntity =
+    ProfileEntity(
+        userId = user_id,
+        firstname = firstname,
+        secondname = secondname,
+        school = school,
+        city = city,
+        age = age,
+        targetClass = targetClass,
+        avatar = avatar,
+        email = email,
+        password = password
+    )
+
+fun ChatDto.toChatEntity(): ChatEntity =
+    ChatEntity(
+        chatId = chat_id,
+        userId1 = user_id_1,
+        userId2 = user_id_2,
+        avatar = avatar,
+        nickname = nickname,
+        mesText = mes_text,
+        mesTime = mes_time
+    )
+
+fun MessageDto.toMessageEntity(): MessageEntity =
+    MessageEntity(
+        messageId = message_id,
+        idSender = id_sender,
+        idChat = id_chat,
+        content = content,
+        time = time,
+        type = type,
+        duration = duration
+    )
+
+fun UserForChooseDto.toUserForChooseUI(): UserForChoose =
+    UserForChoose(
+        id = id,
+        foto = foto,
+        firstName = firstname,
+        secondName = secondname
+    )

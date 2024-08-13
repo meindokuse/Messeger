@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/listOfChatsFragment"
-        android:name="com.example.myapplication.ui.chats.SimpleChatsFragment"
+        android:name="com.example.friendnet.ui.chats.SimpleChatsFragment"
         android:label="list_of_chats"
         tools:layout="@layout/list_of_chats" >
         <action
@@ -16,7 +16,7 @@
     </fragment>
     <fragment
         android:id="@+id/chat"
-        android:name="com.example.myapplication.ui.messages.ChatFragment"
+        android:name="com.example.friendnet.ui.messages.ChatFragment"
         android:label="fragment_chat"
         tools:layout="@layout/fragment_chat" >
         <action
@@ -25,12 +25,12 @@
     </fragment>
     <fragment
         android:id="@+id/profileFragment"
-        android:name="com.example.myapplication.ui.profile.ProfileFragment"
+        android:name="com.example.friendnet.ui.profile.ProfileFragment"
         android:label="fragment_blank"
         tools:layout="@layout/fragment_profile" />
     <fragment
         android:id="@+id/loginOrRegFragment"
-        android:name="com.example.myapplication.ui.profile.auth.RegFragment"
+        android:name="com.example.friendnet.ui.profile.auth.RegFragment"
         android:label="fragment_login_or_reg"
         tools:layout="@layout/fragment_login_or_reg" >
         <action
@@ -41,12 +41,14 @@
         <action
             android:id="@+id/action_loginOrRegFragment_to_loginFragment"
             app:enterAnim="@anim/slide_in_right"
+            app:exitAnim="@anim/slide_out_left"
             app:popEnterAnim="@anim/slide_in_left"
+            app:popExitAnim="@anim/slide_out_right"
             app:destination="@id/loginFragment" />
     </fragment>
     <fragment
         android:id="@+id/loginFragment"
-        android:name="com.example.myapplication.ui.profile.auth.LoginFragment"
+        android:name="com.example.friendnet.ui.profile.auth.LoginFragment"
         android:label="fragment_login"
         tools:layout="@layout/fragment_login" >
         <action

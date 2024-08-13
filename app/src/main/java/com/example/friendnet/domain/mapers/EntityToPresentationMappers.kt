@@ -1,0 +1,42 @@
+package com.example.friendnet.domain.mapers
+
+import com.example.friendnet.data.models.local.ChatEntity
+import com.example.friendnet.data.models.local.MessageEntity
+import com.example.friendnet.data.models.local.ProfileEntity
+import com.example.friendnet.models.ItemChat
+import com.example.friendnet.models.MessageInChat
+import com.example.friendnet.models.ProfileInfo
+
+
+fun ChatEntity.toItemChat(): ItemChat =
+    ItemChat(
+        chat_id = chatId,
+        user_id_1 = userId1,
+        user_id_2 = userId2,
+        avatar = avatar,
+        nickname = nickname,
+        mes_text = mesText,
+        mes_time = mesTime
+    )
+
+fun ProfileEntity.toProfileInfo():ProfileInfo =
+    ProfileInfo(
+        user_id = userId,
+        firstname = firstname,
+        secondname = secondname,
+        school = school,
+        city = city,
+        age = age,
+        targetClass, avatar, email, password
+    )
+
+fun MessageEntity.toMessageInChat(): MessageInChat =
+    MessageInChat(
+        message_id = messageId,
+        id_sender = idSender,
+        id_chat = idChat,
+        content, time, type, duration
+    )
+
+
+

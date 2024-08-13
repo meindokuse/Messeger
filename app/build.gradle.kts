@@ -11,11 +11,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.myapplication"
+    namespace = "com.example.friendnet"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.example.myapplication"
+        applicationId = "com.example.friendnet"
         minSdk = 24
         targetSdk = 33
         versionCode = 1
@@ -70,6 +70,7 @@ dependencies {
     implementation("androidx.annotation:annotation:1.7.1")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:2.7.0")
     implementation("com.google.firebase:firebase-storage:20.3.0")
+    implementation("androidx.test.ext:junit-ktx:1.1.5")
     annotationProcessor("com.github.bumptech.glide:compiler:4.12.0")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
